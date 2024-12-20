@@ -104,34 +104,6 @@ export default function PurchaseAssistance() {
               </div>
             </div>
 
-            {/* Sekcja zakupu zdalnego */}
-            <div className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16">
-              <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-[#C62400]">Zakup w pełni zdalny!</h2>
-                  <p className="text-lg leading-relaxed text-gray-700">
-                    Świadczymy również usługę zakupu w pełni zdalnego!
-                  </p>
-                  <p className="text-lg leading-relaxed text-gray-700">
-                    Jeśli nie masz czasu aby wybrać się wspólnie z nami na miejsce oględzin i chcesz zaufać naszemu profesjonalizmowi oferujemy zakup zdalny motocykla! Jedziemy, weryfikujemy, kupujemy i dostarczamy Twój motocykl pod dom bez Twojej obecności!
-                  </p>
-                  <Link
-                    href="/uslugi/pomoc-w-zakupie/cennik"
-                    className="inline-block bg-[#C62400] hover:bg-[#A01D00] text-white px-8 py-3 rounded-lg transition-colors"
-                  >
-                    Sprawdź cennik
-                  </Link>
-                </div>
-                <div className="relative h-[400px] rounded-lg overflow-hidden shadow-lg">
-                  <Image
-                    src="/images/usluga_sprawdzanie_3.jpg"
-                    alt="Zakup zdalny motocykla"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            </div>
 
             {/* Co zawiera usługa */}
             <div className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16">
@@ -193,6 +165,28 @@ export default function PurchaseAssistance() {
                 <p className="text-gray-700 mt-4">
                   Wszystkie wyżej wymienione informacje znajdują się na pierwszej stronie dowodu rejestracyjnego, te dane pozwolą nam na sprawdzenie historii pojazdu i weryfikacje historii kolizyjnej.
                 </p>
+              </div>
+            </div>
+            {/* Sekcja zakupu zdalnego */}
+            <div className="text-center">
+            <div className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16 ">
+              <div className="grid gap-12 items-center">
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-[#C62400]">Zakup w pełni zdalny!</h2>
+                  <p className="text-lg leading-relaxed text-gray-700">
+                    Świadczymy również usługę zakupu w pełni zdalnego!
+                  </p>
+                  <p className="text-lg leading-relaxed text-gray-700">
+                    Jeśli nie masz czasu aby wybrać się wspólnie z nami na miejsce oględzin i chcesz zaufać naszemu profesjonalizmowi oferujemy zakup zdalny motocykla! Jedziemy, weryfikujemy, kupujemy i dostarczamy Twój motocykl pod dom bez Twojej obecności!
+                  </p>
+                    <Link
+                      href="/uslugi/pomoc-w-zakupie/cennik"
+                      className="inline-block bg-[#C62400] hover:bg-[#A01D00] text-white px-8 py-3 rounded-lg transition-colors"
+                    >
+                      Sprawdź cennik
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
