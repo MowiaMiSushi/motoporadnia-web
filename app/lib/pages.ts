@@ -113,15 +113,29 @@ export async function initializePages(): Promise<void> {
 
 export async function getPages(): Promise<Page[]> {
   const { db } = await connectToDatabase();
-  return db.collection('pages').find().toArray();
+  const pages = await db.collection('pages').find().toArray();
+  return pages.map(page => ({
+    _id: page._id.toString(),
+    pageId: page.pageId,
+    title: page.title,
+    content: page.content,
+    lastModified: page.lastModified
+  }));
 }
 
 export async function getPage(pageId: string): Promise<Page | null> {
   console.log(`Pobieranie strony: ${pageId}`);
   const { db } = await connectToDatabase();
   const page = await db.collection('pages').findOne({ pageId });
-  console.log('Znaleziona strona:', page);
-  return page;
+  if (!page) return null;
+  
+  return {
+    _id: page._id.toString(),
+    pageId: page.pageId,
+    title: page.title,
+    content: page.content,
+    lastModified: page.lastModified
+  };
 }
 
 export async function updatePage(pageId: string, data: Partial<Page>): Promise<boolean> {
