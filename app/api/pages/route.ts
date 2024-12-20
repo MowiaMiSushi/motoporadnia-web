@@ -38,4 +38,4 @@ export async function POST(request: Request) {
     console.error('Błąd podczas aktualizacji strony:', error);
     return NextResponse.json({ error: 'Błąd serwera' }, { status: 500 });
   }
-} 
+}
