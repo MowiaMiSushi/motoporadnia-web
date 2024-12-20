@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPageContent, updatePageContent } from '../../lib/page-content';
+import { getPage, updatePage } from '../../lib/pages';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const page = await getPageContent(pageId);
+    const page = await getPage(pageId);
     return NextResponse.json(page);
   } catch (error) {
     console.error('Błąd podczas pobierania strony:', error);
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Brak wymaganych danych' }, { status: 400 });
     }
 
-    const success = await updatePageContent(pageId, { pageId, title, content });
+    const success = await updatePage(pageId, { pageId, title, content });
 
     if (success) {
       return NextResponse.json({ message: 'Strona została zaktualizowana' });
