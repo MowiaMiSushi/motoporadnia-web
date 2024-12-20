@@ -1,0 +1,69 @@
+{
+  "navigation": {
+    "home": "Strona główna",
+    "about": "O nas",
+    "services": {
+      "title": "Usługi",
+      "service": "Serwis",
+      "commission": "Komis",
+      "training": "Szkolenia",
+      "transport": "Transport",
+      "purchaseHelp": "Pomoc w zakupie"
+    },
+    "contact": "Kontakt",
+    "login": "Logowanie"
+  },
+  "home": {
+    "hero": {
+      "title": "Motoporadnia",
+      "subtitle": "Profesjonalny serwis motocyklowy",
+      "description": "Świadczymy kompleksowe usługi serwisowe dla Twojego motocykla"
+    },
+    "services": {
+      "title": "Nasze usługi",
+      "service": {
+        "title": "Serwis",
+        "description": "Profesjonalna obsługa serwisowa motocykli"
+      },
+      "commission": {
+        "title": "Komis",
+        "description": "Sprzedaż i skup motocykli"
+      },
+      "training": {
+        "title": "Szkolenia",
+        "description": "Szkolenia z zakresu obsługi motocykli"
+      },
+      "transport": {
+        "title": "Transport",
+        "description": "Transport motocykli"
+      },
+      "purchaseHelp": {
+        "title": "Pomoc w zakupie",
+        "description": "Profesjonalne doradztwo przy zakupie motocykla"
+      }
+    },
+    "whyUs": {
+      "title": "Dlaczego my?",
+      "experience": "Doświadczenie",
+      "quality": "Jakość",
+      "price": "Konkurencyjne ceny",
+      "approach": "Indywidualne podejście"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Logowanie",
+      "username": "Nazwa użytkownika",
+      "password": "Hasło",
+      "submit": "Zaloguj się",
+      "error": "Błąd logowania"
+    }
+  },
+  "common": {
+    "readMore": "Czytaj więcej",
+    "contact": "Skontaktuj się",
+    "loading": "Ładowanie...",
+    "error": "Wystąpił błąd",
+    "success": "Operacja zakończona sukcesem"
+  }
+} 

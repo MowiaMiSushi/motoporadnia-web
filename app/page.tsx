@@ -1,0 +1,186 @@
+'use client';
+
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faWrench, faTruck, faHandshake, faGraduationCap, faMotorcycle, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { useState, useEffect } from 'react';
+
+const heroImages = [
+  '/images/hero-bg_1.jpg',
+  '/images/hero-bg_2.jpg',
+  '/images/hero-bg_3.png',
+  // Tutaj możesz dodać więcej zdjęć
+];
+
+export default function Home() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 10000); // 10 sekund
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="animate-fadeIn">
+      {/* Hero section */}
+      <section className="relative h-[80vh] flex items-center justify-center bg-black -z-10">
+        <div className="absolute inset-0 bg-black/50 z-0" />
+        {heroImages.map((image, index) => (
+          <div
+            key={image}
+            className="absolute inset-0 bg-cover bg-center -z-10 transition-opacity duration-1000"
+            style={{ 
+              backgroundImage: `url('${image}')`,
+              opacity: currentImageIndex === index ? 1 : 0
+            }}
+          />
+        ))}
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 bg-black/30 backdrop-blur-sm py-8 rounded-lg max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+            Motoporadnia
+          </h1>
+          <p className="text-xl sm:text-2xl text-white/90 mb-8">
+          Fachowa pomoc przy zakupie, transporcie i serwisie motocykli jest to firma, stworzona przez ludzi, którzy nie wyobrażają sobie otaczającego ich świata bez jednośladów.
+          </p>
+          <Link 
+              href="/o-nas" 
+              className="inline-flex items-center text-white font-semibold hover:text-[#C62400] transition-colors duration-200"
+            >
+              Dowiedz się więcej o nas
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+        </div>
+      </section>
+
+      {/* Sekcja usług */}
+      <section className="py-16 sm:py-24 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] text-black shadow-2xl border-t border-white/10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+            Nasze usługi
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+
+            {/* Pomoc w zakupie */}
+            <div className="bg-[#F3F3F3] rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-[#C62400] mb-6">
+                <FontAwesomeIcon icon={faHandshake} className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-4">Pomoc w zakupie Motocykla</h3>
+              <p className="text-gray-600 mb-6">
+                Pomagamy w wyborze i zakupie motocykla. Sprawdzamy stan techniczny i dokumentację. Doradzamy w wyborze motocykla sprawdzając wszystkie dostępne oferty.
+              </p>
+              <Link href="/uslugi/pomoc-w-zakupie" className="text-[#C62400] font-semibold hover:text-[#A51D00] transition-colors duration-200">
+                Zobacz szczegóły →
+              </Link>
+            </div>
+
+            {/* Serwis */}
+            <div className="bg-[#F3F3F3] rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-[#C62400] mb-6">
+                <FontAwesomeIcon icon={faWrench} className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-4">Serwis motocykli</h3>
+              <p className="text-gray-600 mb-6">
+                Profesjonalny serwis motocyklowy. Wykonujemy przeglądy, naprawy i modyfikacje.
+              </p>
+              <Link href="/uslugi/serwis" className="text-[#C62400] font-semibold hover:text-[#A51D00] transition-colors duration-200">
+                Dowiedz się więcej →
+              </Link>
+            </div>
+
+            {/* Transport */}
+            <div className="bg-[#F3F3F3] rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-[#C62400] mb-6">
+                <FontAwesomeIcon icon={faTruck} className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-4">Transport motocykli</h3>
+              <p className="text-gray-600 mb-6">
+                Bezpieczny transport motocykli na terenie Poznania i okolic.
+              </p>
+              <Link href="/uslugi/transport" className="text-[#C62400] font-semibold hover:text-[#A51D00] transition-colors duration-200">
+                Sprawdź ofertę →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sekcja dodatkowa */}
+      <section className="py-16 sm:py-24 bg-[#ffffff]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">
+            Dodatkowo oferujemy
+          </h2>
+          <div className="grid sm:grid-cols-2 gap-8">
+             {/* Komis */}
+             <div className="bg-gray-100 rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-[#C62400] mb-6">
+                <FontAwesomeIcon icon={faMotorcycle} className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-4">Komis motocyklowy</h3>
+              <p className="text-gray-600 mb-6">
+                W naszym komisie znajdziesz szeroki wybór sprawdzonych jednośladów.
+                Pomagamy w wyborze i załatwiamy wszystkie formalności.
+              </p>
+              <Link href="/komis" className="text-[#C62400] font-semibold hover:text-[#A51D00] transition-colors duration-200">
+                Zobacz ofertę →
+              </Link>
+            </div>
+
+            {/* Szkolenia */}
+            <div className="bg-gray-100 rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="text-[#C62400] mb-6">
+                <FontAwesomeIcon icon={faGraduationCap} className="h-10 w-10" />
+              </div>
+              <h3 className="text-2xl font-semibold mb-4">Szkolenia motocyklowe</h3>
+              <p className="text-gray-600 mb-6">
+                Oferujemy profesjonalne szkolenia motocyklowe dla początkujących i zaawansowanych.
+                Nasi instruktorzy pomogą Ci rozwinąć umiejętności i pewność siebie na motocyklu.
+              </p>
+              <Link href="/szkolenia" className="text-[#C62400] font-semibold hover:text-[#A51D00] transition-colors duration-200">
+                Dowiedz się więcej →
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* CTA Section */}
+      <section className="py-16 sm:py-24 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] text-black shadow-2xl border-t border-white/10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+            Potrzebujesz pomocy z motocyklem?
+          </h2>
+          <p className="text-xl mb-8 text-black/90">
+            Skontaktuj się z nami i dowiedz się więcej o naszych usługach
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="tel:789059578"
+              className="btn-primary bg-[#C62400] hover:bg-[#A01D00] text-white px-8 py-3 rounded-lg transition-colors shadow-lg hover:shadow-xl"
+            >
+              <FontAwesomeIcon icon={faPhone} className="mr-2" />
+              Zadzwoń teraz
+            </a>
+            <a
+              href="/kontakt"
+              className="btn-secondary bg-white/10 hover:bg-white/20 text-black px-8 py-3 rounded-lg transition-colors hover:shadow-lg hover:bg-grey-100"
+            >
+              <FontAwesomeIcon icon={faEnvelope} className="mr-2" />
+              Napisz do nas
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+} 

@@ -1,0 +1,69 @@
+{
+  "navigation": {
+    "home": "Home",
+    "about": "About",
+    "services": {
+      "title": "Services",
+      "service": "Service",
+      "commission": "Commission",
+      "training": "Training",
+      "transport": "Transport",
+      "purchaseHelp": "Purchase Help"
+    },
+    "contact": "Contact",
+    "login": "Login"
+  },
+  "home": {
+    "hero": {
+      "title": "Motoporadnia",
+      "subtitle": "Professional Motorcycle Service",
+      "description": "We provide comprehensive service for your motorcycle"
+    },
+    "services": {
+      "title": "Our Services",
+      "service": {
+        "title": "Service",
+        "description": "Professional motorcycle service"
+      },
+      "commission": {
+        "title": "Commission",
+        "description": "Motorcycle sales and purchase"
+      },
+      "training": {
+        "title": "Training",
+        "description": "Motorcycle maintenance training"
+      },
+      "transport": {
+        "title": "Transport",
+        "description": "Motorcycle transport"
+      },
+      "purchaseHelp": {
+        "title": "Purchase Help",
+        "description": "Professional advice on motorcycle purchase"
+      }
+    },
+    "whyUs": {
+      "title": "Why Us?",
+      "experience": "Experience",
+      "quality": "Quality",
+      "price": "Competitive prices",
+      "approach": "Individual approach"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign in",
+      "error": "Login error"
+    }
+  },
+  "common": {
+    "readMore": "Read more",
+    "contact": "Contact us",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Operation completed successfully"
+  }
+} 
