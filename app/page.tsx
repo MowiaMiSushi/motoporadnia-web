@@ -155,21 +155,21 @@ export default function Home() {
       </section>
 
       {/* Panel reklamowy z filmem */}
-<section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]">
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-    <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">Zobacz nas w akcji</h2>
-    <div className="bg-[#F3F3F3] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 max-w-6xl mx-auto h-[600px] overflow-hidden">
-      <iframe
-        src="https://www.youtube.com/embed/6KlCvhyna94"
-        title="MotoPoradnia - Film promocyjny"
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-        className="w-full h-full"
-      ></iframe>
-    </div>
-  </div>
-</section>
+      <section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">Zobacz nas w akcji</h2>
+          <div className="bg-[#F3F3F3] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 max-w-6xl mx-auto h-[600px] overflow-hidden">
+            <iframe
+              src="https://www.youtube.com/embed/6KlCvhyna94"
+              title="MotoPoradnia - Film promocyjny"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            ></iframe>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-16 sm:py-24 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] text-black shadow-2xl border-t border-white/10" aria-labelledby="cta-heading">
