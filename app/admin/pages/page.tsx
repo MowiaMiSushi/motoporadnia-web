@@ -12,31 +12,98 @@ interface Page {
 const initialPages: Page[] = [
   {
     id: '1',
-    title: 'O nas',
-    content: 'Treść strony O nas',
-    slug: 'o-nas',
+    title: 'Strona główna',
+    content: 'Treść strony głównej',
+    slug: '/',
   },
   {
     id: '2',
-    title: 'Usługi',
-    content: 'Treść strony Usługi',
-    slug: 'uslugi',
+    title: 'O nas',
+    content: 'Treść strony O nas',
+    slug: '/o-nas',
+  },
+  {
+    id: '3',
+    title: 'Kontakt',
+    content: 'Treść strony kontaktowej',
+    slug: '/kontakt',
+  },
+  {
+    id: '4',
+    title: 'Serwis',
+    content: 'Treść strony serwisowej',
+    slug: '/uslugi/serwis',
+  },
+  {
+    id: '5',
+    title: 'Cennik serwisu',
+    content: 'Treść cennika serwisu',
+    slug: '/uslugi/serwis/cennik',
+  },
+  {
+    id: '6',
+    title: 'Transport',
+    content: 'Treść strony transportowej',
+    slug: '/uslugi/transport',
+  },
+  {
+    id: '7',
+    title: 'Cennik transportu',
+    content: 'Treść cennika transportu',
+    slug: '/uslugi/transport/cennik',
+  },
+  {
+    id: '8',
+    title: 'Pomoc w zakupie',
+    content: 'Treść strony pomocy w zakupie',
+    slug: '/uslugi/pomoc-w-zakupie',
+  },
+  {
+    id: '9',
+    title: 'Cennik pomocy w zakupie',
+    content: 'Treść cennika pomocy w zakupie',
+    slug: '/uslugi/pomoc-w-zakupie/cennik',
+  },
+  {
+    id: '10',
+    title: 'Komis',
+    content: 'Treść strony komisu',
+    slug: '/uslugi/komis',
+  },
+  {
+    id: '11',
+    title: 'Szkolenia',
+    content: 'Treść strony szkoleń',
+    slug: '/uslugi/szkolenia',
   },
 ];
 
 export default function PagesAdmin() {
   const [pages, setPages] = useState<Page[]>(initialPages);
   const [selectedPage, setSelectedPage] = useState<Page | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = (page: Page) => {
     setSelectedPage(page);
+    setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedPage) return;
 
-    setPages(pages.map((p) => (p.id === selectedPage.id ? selectedPage : p)));
+    try {
+      // Tutaj będzie logika zapisywania do bazy danych
+      setPages(pages.map((p) => (p.id === selectedPage.id ? selectedPage : p)));
+      setSelectedPage(null);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Błąd podczas zapisywania:', error);
+    }
+  };
+
+  const handleCancel = () => {
     setSelectedPage(null);
+    setIsEditing(false);
   };
 
   return (
@@ -101,7 +168,7 @@ export default function PagesAdmin() {
               </div>
               <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => setSelectedPage(null)}
+                  onClick={handleCancel}
                   className="px-4 py-2 text-sm text-gray-700 border rounded hover:bg-gray-50"
                 >
                   Anuluj

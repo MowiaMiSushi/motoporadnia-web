@@ -16,12 +16,12 @@ interface Settings {
 }
 
 const initialSettings: Settings = {
-  siteTitle: 'MotoPoradnia',
-  siteDescription: 'Twój zaufany warsztat motocyklowy',
-  contactEmail: 'kontakt@motoporadnia.pl',
-  phoneNumber: '+48 123 456 789',
+  siteTitle: 'MotoPoradnia - Warsztat Motocyklowy',
+  siteDescription: 'Profesjonalny serwis motocyklowy, transport, szkolenia i pomoc w zakupie motocykli',
+  contactEmail: 'biuro@motoporadnia.pl',
+  phoneNumber: '+48 500 000 000',
   address: 'ul. Przykładowa 123, 00-000 Warszawa',
-  openingHours: 'Pon-Pt: 9:00-17:00',
+  openingHours: 'Poniedziałek - Piątek: 8:00 - 18:00, Sobota: 9:00 - 14:00',
   socialMedia: {
     facebook: 'https://facebook.com/motoporadnia',
     instagram: 'https://instagram.com/motoporadnia',
@@ -34,9 +34,17 @@ export default function SettingsAdmin() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Tutaj będzie logika zapisywania do bazy danych
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // Symulacja zapisu
-    setIsSaving(false);
+    try {
+      // Tutaj będzie logika zapisywania do bazy danych
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Symulacja zapisu
+      // Po udanym zapisie
+      alert('Ustawienia zostały zapisane');
+    } catch (error) {
+      console.error('Błąd podczas zapisywania:', error);
+      alert('Wystąpił błąd podczas zapisywania ustawień');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

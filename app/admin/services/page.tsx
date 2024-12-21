@@ -11,6 +11,7 @@ interface Service {
 }
 
 const initialServices: Service[] = [
+  // Serwis
   {
     id: '1',
     name: 'Przegląd techniczny',
@@ -20,44 +21,139 @@ const initialServices: Service[] = [
   },
   {
     id: '2',
+    name: 'Wymiana oleju',
+    description: 'Wymiana oleju silnikowego wraz z filtrem',
+    price: 'od 150 zł',
+    category: 'Serwis',
+  },
+  {
+    id: '3',
+    name: 'Diagnostyka komputerowa',
+    description: 'Pełna diagnostyka komputerowa motocykla',
+    price: 'od 100 zł',
+    category: 'Serwis',
+  },
+
+  // Szkolenia
+  {
+    id: '4',
     name: 'Szkolenie podstawowe',
     description: 'Podstawowe szkolenie z jazdy motocyklem',
     price: 'od 500 zł',
     category: 'Szkolenia',
+  },
+  {
+    id: '5',
+    name: 'Szkolenie zaawansowane',
+    description: 'Zaawansowane techniki jazdy motocyklem',
+    price: 'od 800 zł',
+    category: 'Szkolenia',
+  },
+
+  // Transport
+  {
+    id: '6',
+    name: 'Transport motocykla',
+    description: 'Transport motocykla na terenie miasta',
+    price: 'od 150 zł',
+    category: 'Transport',
+  },
+  {
+    id: '7',
+    name: 'Transport międzymiastowy',
+    description: 'Transport motocykla między miastami',
+    price: 'od 2 zł/km',
+    category: 'Transport',
+  },
+
+  // Pomoc w zakupie
+  {
+    id: '8',
+    name: 'Oględziny motocykla',
+    description: 'Profesjonalne oględziny motocykla przed zakupem',
+    price: 'od 200 zł',
+    category: 'Pomoc w zakupie',
+  },
+  {
+    id: '9',
+    name: 'Wycena motocykla',
+    description: 'Profesjonalna wycena wartości motocykla',
+    price: 'od 100 zł',
+    category: 'Pomoc w zakupie',
+  },
+
+  // Komis
+  {
+    id: '10',
+    name: 'Wystawienie motocykla',
+    description: 'Wystawienie motocykla w komisie',
+    price: 'prowizja 5%',
+    category: 'Komis',
+  },
+  {
+    id: '11',
+    name: 'Przygotowanie do sprzedaży',
+    description: 'Przygotowanie motocykla do sprzedaży (czyszczenie, drobne naprawy)',
+    price: 'od 300 zł',
+    category: 'Komis',
   },
 ];
 
 export default function ServicesAdmin() {
   const [services, setServices] = useState<Service[]>(initialServices);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = (service: Service) => {
     setSelectedService(service);
+    setIsEditing(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!selectedService) return;
 
-    setServices(services.map((s) => (s.id === selectedService.id ? selectedService : s)));
-    setSelectedService(null);
+    try {
+      // Tutaj będzie logika zapisywania do bazy danych
+      if (selectedService.id) {
+        setServices(services.map((s) => (s.id === selectedService.id ? selectedService : s)));
+      } else {
+        setServices([...services, { ...selectedService, id: Date.now().toString() }]);
+      }
+      setSelectedService(null);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Błąd podczas zapisywania:', error);
+    }
   };
 
   const handleAdd = () => {
     const newService: Service = {
-      id: Date.now().toString(),
+      id: '',
       name: '',
       description: '',
       price: '',
       category: 'Serwis',
     };
     setSelectedService(newService);
+    setIsEditing(true);
   };
 
-  const handleDelete = (id: string) => {
-    setServices(services.filter((s) => s.id !== id));
-    if (selectedService?.id === id) {
-      setSelectedService(null);
+  const handleDelete = async (id: string) => {
+    try {
+      // Tutaj będzie logika usuwania z bazy danych
+      setServices(services.filter((s) => s.id !== id));
+      if (selectedService?.id === id) {
+        setSelectedService(null);
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Błąd podczas usuwania:', error);
     }
+  };
+
+  const handleCancel = () => {
+    setSelectedService(null);
+    setIsEditing(false);
   };
 
   return (
@@ -171,12 +267,13 @@ export default function ServicesAdmin() {
                   <option value="Serwis">Serwis</option>
                   <option value="Szkolenia">Szkolenia</option>
                   <option value="Transport">Transport</option>
+                  <option value="Pomoc w zakupie">Pomoc w zakupie</option>
                   <option value="Komis">Komis</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => setSelectedService(null)}
+                  onClick={handleCancel}
                   className="px-4 py-2 text-sm text-gray-700 border rounded hover:bg-gray-50"
                 >
                   Anuluj
