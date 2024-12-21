@@ -127,14 +127,16 @@ export default function AboutUs() {
                   Początek działalności miał miejsce już w najmłodszych latach założyciela. Adrian, zaraz po stawianiu pierwszych kroków wsiadł na elektrycznie napędzanego Repsola aby pokonywać pierwsze metry na dwóch (wtedy jeszcze czterech) kółkach.
                 </p>
               </div>
-              <div className="bg-gray-200 rounded-lg h-80 overflow-hidden">
-                <Image
-                  src="/images/o-nas_3.jpg"
-                  alt="Siedziba Motoporadni"
-                  width={800}
-                  height={600}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+              <div className="rounded-lg overflow-hidden">
+                <div className="relative aspect-[4/3] w-full">
+                  <Image
+                    src="/images/o-nas_3.jpg"
+                    alt="Siedziba Motoporadni"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>
@@ -158,14 +160,16 @@ export default function AboutUs() {
                 Kolejne lata doświadczenie jak należycie obsługiwać motocykl zachowując najwyższą jakość bezpieczeństwa, serwisu i estetyki nabieraliśmy na torach wyścigowych jako mechanicy znanych zawodników oraz sami biorąc czynny udział na linii startu.
                 </p>
               </div>
-              <div className="bg-gray-200 rounded-lg h-80 overflow-hidden">
-                <Image
-                  src="/images/o-nas_2.jpg"
-                  alt="Siedziba Motoporadni"
-                  width={800}
-                  height={600}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+              <div className="rounded-lg overflow-hidden">
+                <div className="relative aspect-[4/3] w-full">
+                  <Image
+                    src="/images/o-nas_2.jpg"
+                    alt="Siedziba Motoporadni"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>
@@ -189,14 +193,16 @@ export default function AboutUs() {
                 Zapraszamy do zapoznania się z zakresem naszych usług, który z czasem na pewno będzie się powiększał!
                 </p>
               </div>
-              <div className="bg-gray-200 rounded-lg h-80 overflow-hidden">
-                <Image
-                  src="/images/o-nas_1.jpg"
-                  alt="Siedziba Motoporadni"
-                  width={800}
-                  height={600}
-                  className="w-full h-full object-cover rounded-lg"
-                />
+              <div className="rounded-lg overflow-hidden">
+                <div className="relative aspect-[4/3] w-full">
+                  <Image
+                    src="/images/o-nas_1.jpg"
+                    alt="Siedziba Motoporadni"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
               </div>
             </div>
           </motion.div>

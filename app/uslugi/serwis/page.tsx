@@ -202,10 +202,10 @@ export default function Serwis() {
                 <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8">
                     <div className="bg-black/30 backdrop-blur-sm py-8 px-6 sm:px-25 rounded-lg max-w-4xl mx-auto">
                         <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-                            Serwis Motocykli
+                            Serwis Motocykli 
                         </h1>
                         <p className="text-xl sm:text-2xl text-white/90 mb-8">
-                            Profesjonalna obsługa i naprawa Twojego jednośladu
+                            Profesjonalna obsługa i naprawa Twojego motocykla.
                         </p>
                         <Link 
                             href="/uslugi/serwis/cennik"
@@ -233,7 +233,7 @@ export default function Serwis() {
             <section className="py-16 bg-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-center mb-12">Marki jakie obsługujemy</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
                         {brands.map((brand) => (
                             <div 
                                 key={brand.name}

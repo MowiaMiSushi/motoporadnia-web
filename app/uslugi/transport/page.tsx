@@ -100,8 +100,8 @@ export default function Transport() {
                         <div className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16">
                             <div className="grid md:grid-cols-2 gap-12 items-center">
                                 <div className="space-y-6">
-                                <h2 className="text-2xl font-bold text-[#C62400]">Najlepsze zabezpieczenie motocykla</h2>
-                                <p className="text-lg leading-relaxed text-gray-700">
+                                    <h2 className="text-2xl font-bold text-[#C62400]">Najlepsze zabezpieczenie motocykla</h2>
+                                    <p className="text-lg leading-relaxed text-gray-700">
                                         Każdy motocykl zabezpieczamy profesjonalnymi pasami transportowymi w 2 lub 4 punktach, w zależności od typu i gabarytów jednośladu.
                                         Oferujemy możliwość przewozu do 2 motocykli jednocześnie, co pozwala zoptymalizować koszty transportu.
                                     </p>
@@ -118,8 +118,9 @@ export default function Transport() {
                         </div>
 
                         {/* Obszar działania */}
+
                         <div className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16">
-                            <div className="grid md:grid-cols-2 gap-12 items-center">
+                            <div className="grid gap-12 items-center">
                                 <div className="space-y-6">
                                     <h2 className="text-2xl font-bold text-[#C62400]">Obszar działania</h2>
                                     <p className="text-lg leading-relaxed text-gray-700">
@@ -143,22 +144,14 @@ export default function Transport() {
                                         Ceny ustalamy indywidualnie w zależności od odległości, ilości motocykli i specyfiki transportu. Zapewniamy konkurencyjne stawki i pełne ubezpieczenie podczas transportu.
                                     </p>
                                 </div>
-                                <div className="relative h-[400px] rounded-lg overflow-hidden shadow-lg">
-                                    <Image
-                                        src="/images/transport_2.jpg"
-                                        alt="Obszar działania"
-                                        fill
-                                        className="object-cover"
-                                    />
-                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
+            </section >
 
             {/* CTA Section */}
-            <section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]">
+            < section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]" >
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="max-w-3xl mx-auto text-center">
                         <h2 className="text-3xl font-bold mb-6">Potrzebujesz transportu motocykla?</h2>
@@ -183,7 +176,7 @@ export default function Transport() {
                         </div>
                     </div>
                 </div>
-            </section>
-        </div>
+            </section >
+        </div >
     );
 } 

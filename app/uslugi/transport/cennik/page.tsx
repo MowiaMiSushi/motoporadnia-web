@@ -1,10 +1,32 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTruck, faRoute, faMapMarkedAlt, faHandshake, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
 
+// Dodaj te same zdjęcia co w transport/page.tsx
+const heroImages = [
+  '/images/transport_1.jpg',
+  '/images/transport_2.jpg',
+  '/images/transport_3.jpg',
+  '/images/transport_4.jpg',
+  '/images/transport_5.jpg',
+];
+
 export default function TransportPricingPage() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const pricingCategories = [
     {
       title: 'Transport lokalny',
@@ -41,13 +63,33 @@ export default function TransportPricingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero section */}
-      <section className="relative bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+      <section className="relative h-[60vh] flex items-center justify-center bg-black" aria-label="Baner główny">
+        <div className="absolute inset-0 bg-black/50 z-0" />
+        {heroImages.map((image, index) => (
+          <div
+            key={image}
+            className="absolute inset-0 transition-opacity duration-1000 hero-image"
+            style={{
+              backgroundImage: `url('${image}')`,
+              opacity: currentImageIndex === index ? 1 : 0,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat'
+            }}
+            role="img"
+            aria-label="Zdjęcie transportu motocykla w tle"
+          />
+        ))}
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40 z-[1]" 
+          aria-hidden="true"
+        />
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 py-8 rounded-lg max-w-4xl mx-auto">
+          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-lg">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
               Cennik transportu motocykli
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
               Oferujemy profesjonalny transport motocykli w konkurencyjnych cenach. 
               Wszystkie ceny są orientacyjne i mogą się różnić w zależności od specyfiki zlecenia.
             </p>

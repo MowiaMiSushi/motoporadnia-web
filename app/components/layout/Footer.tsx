@@ -105,9 +105,9 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="mt-16 pt-8 border-t border-white/10 text-center text-sm">
-          © 2024 <Link href="/" className="hover:text-[#C62400] transition-colors">Motoporadnia</Link>. Wszelkie prawa zastrzeżone.
+          © 2024 <Link href="/" className="hover:text-[#C62400] transition-colors border-b border-white/10">Motoporadnia</Link>. Wszelkie prawa zastrzeżone.
         </div>
-        <div className="text-center text-sm">Strona tworzona przez <Link href="https://www.linkedin.com/in/aleksander-wac%C5%82awik/" className="hover:text-[#C62400] transition-colors">Aleksander Wacławik</Link></div>
+        <div className="text-center text-sm ">Strona tworzona przez <Link href="https://www.linkedin.com/in/aleksander-wac%C5%82awik/" className="hover:text-[#C62400] border-b border-white/10">Aleksander Wacławik</Link></div>
       </div>
     </footer>
   );

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 const heroImages = [
   '/images/usluga_sprawdzanie_1.jpg',
   '/images/usluga_sprawdzanie_2.jpg',
+  '/images/serwis_2.jpg',
 ];
 
 export default function PurchaseAssistance() {
@@ -41,7 +42,7 @@ export default function PurchaseAssistance() {
         ))}
         <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 bg-black/30 backdrop-blur-sm py-8 rounded-lg max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-            Pomoc w zakupie motocykla Poznań
+            Pomoc w zakupie motocykla.
           </h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto">
             Profesjonalne wsparcie i doradztwo przy zakupie motocykla.

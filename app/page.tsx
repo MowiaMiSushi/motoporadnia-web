@@ -28,37 +28,46 @@ export default function Home() {
   return (
     <main className="animate-fadeIn">
       {/* Hero section */}
-      <section className="relative h-[80vh] flex items-center justify-center bg-black -z-10" aria-label="Baner główny">
+      <section className="relative h-[80vh] flex items-center justify-center bg-black" aria-label="Baner główny">
         <div className="absolute inset-0 bg-black/50 z-0" />
         {heroImages.map((image, index) => (
           <div
             key={image}
-            className="absolute inset-0 bg-cover bg-center -z-10 transition-opacity duration-1000"
+            className="absolute inset-0 transition-opacity duration-1000 hero-image"
             style={{
               backgroundImage: `url('${image}')`,
-              opacity: currentImageIndex === index ? 1 : 0
+              opacity: currentImageIndex === index ? 1 : 0,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat'
             }}
             role="img"
             aria-label="Zdjęcie motocykla w tle"
           />
         ))}
-        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 bg-black/30 backdrop-blur-sm py-8 rounded-lg max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
-            MotoPoradnia
-          </h1>
-          <p className="text-xl sm:text-2xl text-white/90 mb-8">
-            Fachowa pomoc przy zakupie, transporcie i serwisie motocykli jest to firma, stworzona przez ludzi, którzy nie wyobrażają sobie otaczającego ich świata bez jednośladów.
-          </p>
-          <Link
-            href="/o-nas"
-            className="inline-flex items-center text-white font-semibold hover:text-[#C62400] transition-colors duration-200"
-            aria-label="Przejdź do strony O nas"
-          >
-            Dowiedz się więcej o nas
-            <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40 z-[1]" 
+          aria-hidden="true"
+        />
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 py-8 rounded-lg max-w-4xl mx-auto">
+          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-lg">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6">
+              MotoPoradnia
+            </h1>
+            <p className="text-xl sm:text-2xl text-white/90 mb-8">
+              Fachowa pomoc przy zakupie, transporcie i serwisie motocykli jest to firma, stworzona przez ludzi, którzy nie wyobrażają sobie otaczającego ich świata bez jednośladów.
+            </p>
+            <Link
+              href="/o-nas"
+              className="inline-flex items-center text-white font-semibold hover:text-[#fff] transition-colors duration-200 bg-[#C62400] hover:bg-[#A01D00] text-white px-8 py-3 rounded-lg transition-colors"
+              aria-label="Przejdź do strony O nas"
+            >
+              Dowiedz się więcej o nas
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -155,28 +164,22 @@ export default function Home() {
       </section>
 
       {/* Panel reklamowy z filmem */}
-<section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]">
-  <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-    <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">Zobacz nas w akcji</h2>
-    <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }} className="bg-[#F3F3F3] rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 max-w-6xl mx-auto overflow-hidden">
-      <iframe
-        src="https://www.youtube.com/embed/6KlCvhyna94"
-        title="MotoPoradnia - Film promocyjny"
-        frameBorder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          border: 0
-        }}
-      ></iframe>
-    </div>
-  </div>
-</section>
+      <section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center mb-12">Film promocyjny o nas</h2>
+          <div className="max-w-4xl mx-auto">
+            <div className="relative w-full aspect-video rounded-lg overflow-hidden shadow-lg bg-black">
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/6KlCvhyna94"
+                title="Film promocyjny"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-16 sm:py-24 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] text-black shadow-2xl border-t border-white/10" aria-labelledby="cta-heading">

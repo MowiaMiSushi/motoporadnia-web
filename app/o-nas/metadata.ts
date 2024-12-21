@@ -1,17 +1,34 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'O nas | MotoPoradnia - Profesjonalny Serwis Motocyklowy w Poznaniu',
-  description: 'Poznaj zespół MotoPoradni - pasjonatów motocykli z wieloletnim doświadczeniem. Oferujemy profesjonalne usługi serwisowe, szkolenia i doradztwo przy zakupie motocykli w Poznaniu.',
-  keywords: 'serwis motocyklowy Poznań, mechanik motocyklowy, zespół MotoPoradnia, doświadczeni mechanicy, pasjonaci motocykli, historia firmy MotoPoradnia',
+  title: 'O nas | MotoPoradnia - Historia i Doświadczenie',
+  description: 'Poznaj historię MotoPoradni - profesjonalnego serwisu motocyklowego w Poznaniu. Dowiedz się więcej o naszym doświadczeniu, zespole i pasji do motocykli.',
+  keywords: 'historia motoporadnia, serwis motocyklowy poznań historia, doświadczenie mechanik motocyklowy, zespół motoporadnia, warsztat motocyklowy poznań',
   openGraph: {
-    title: 'O nas | MotoPoradnia - Profesjonalny Serwis Motocyklowy',
-    description: 'Poznaj zespół MotoPoradni - pasjonatów motocykli z wieloletnim doświadczeniem. Profesjonalne usługi serwisowe i doradztwo.',
-    images: ['/images/o-nas_1.jpg'],
+    title: 'O nas | MotoPoradnia - Historia i Doświadczenie',
+    description: 'Poznaj historię MotoPoradni - profesjonalnego serwisu motocyklowego w Poznaniu. Wieloletnie doświadczenie i pasja do motocykli.',
+    images: ['/images/DSC_6044.jpg'],
     type: 'website',
     locale: 'pl_PL',
   },
+  alternates: {
+    canonical: 'https://motoporadnia.pl/o-nas',
+  },
   twitter: {
     card: 'summary_large_image',
+    title: 'O nas | MotoPoradnia - Historia i Doświadczenie',
+    description: 'Poznaj historię MotoPoradni - profesjonalnego serwisu motocyklowego w Poznaniu. Wieloletnie doświadczenie i pasja do motocykli.',
+    images: ['/images/DSC_6044.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }; 

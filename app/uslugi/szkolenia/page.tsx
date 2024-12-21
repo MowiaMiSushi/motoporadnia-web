@@ -5,6 +5,7 @@ import { faPhone, faEnvelope, faCalendar, faInfoCircle } from '@fortawesome/free
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 
 const heroImages = [
   '/images/szkolenia_1.jpg',
@@ -219,7 +220,7 @@ export default function Trainings() {
                           className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-md hover:shadow-lg font-medium"
                           aria-label={`Dowiedz się więcej o szkoleniu ${event.title}`}
                         >
-                          <FontAwesomeIcon icon={faInfoCircle} className="mr-2" aria-hidden="true" />
+                          <FontAwesomeIcon icon={faFacebook} className="mr-2" aria-hidden="true" />
                           Dowiedz się więcej
                         </a>
                         <Link
@@ -227,6 +228,7 @@ export default function Trainings() {
                           className="inline-flex items-center justify-center px-4 py-2 bg-[#C62400] hover:bg-[#A01D00] text-white rounded-lg transition-colors shadow-md hover:shadow-lg font-medium"
                           aria-label={`Umów się na szkolenie ${event.title}`}
                         >
+                          <FontAwesomeIcon icon={faPhone} className="mr-2" aria-hidden="true" />
                           Umów się
                         </Link>
                       </div>

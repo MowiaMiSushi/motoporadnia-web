@@ -7,3 +7,15 @@
     border-radius: 0.5rem;
   }
 }
+
+@media (max-width: 768px) {
+  .hero-image {
+    background-position: center 25% !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hero-image {
+    background-position: center center !important;
+  }
+}

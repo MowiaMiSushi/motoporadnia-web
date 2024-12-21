@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -20,7 +21,7 @@ const platforms = [
     icon: faMotorcycle,
   },
   {
-    name: 'Facebook Marketplace',
+    name: 'Facebook',
     description: 'Społecznościowa platforma ogłoszeniowa',
     url: 'https://www.facebook.com/motoporadnia/?locale=pl_PL',
     icon: faFacebook,
@@ -93,25 +94,69 @@ const steps = [
   }
 ];
 
+const heroImages = [
+  '/images/komis_1.jpg',
+  '/images/hero-bg_1.jpg',
+  '/images/hero-bg_2.jpg',
+];
+
 export default function Komis() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="animate-fadeIn">
-      {/* Hero sekcja */}
-      <section className="relative py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+      {/* Hero section */}
+      <section className="relative h-[60vh] flex items-center justify-center bg-black" aria-label="Baner główny">
+        <div className="absolute inset-0 bg-black/50 z-0" />
+        {heroImages.map((image, index) => (
+          <div
+            key={image}
+            className="absolute inset-0 transition-opacity duration-1000 hero-image"
+            style={{
+              backgroundImage: `url('${image}')`,
+              opacity: currentImageIndex === index ? 1 : 0,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat'
+            }}
+            role="img"
+            aria-label="Zdjęcie motocykla w tle"
+          />
+        ))}
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40 z-[1]" 
+          aria-hidden="true"
+        />
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 py-8 rounded-lg max-w-4xl mx-auto">
+          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-lg">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
               Komis motocyklowy
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Profesjonalna pomoc w sprzedaży i zakupie motocykla
+            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
+              Profesjonalna pomoc w sprzedaży i zakupie motocykla. 
+              Sprawdzamy stan techniczny i dokumentację każdego pojazdu.
             </p>
-          </motion.div>
+            <Link
+              href="#platforms"
+              className="inline-flex items-center text-white font-semibold bg-[#C62400] hover:bg-[#A01D00] px-8 py-3 rounded-lg transition-colors"
+              aria-label="Zobacz nasze ogłoszenia"
+            >
+              Zobacz nasze ogłoszenia
+              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </section>
 

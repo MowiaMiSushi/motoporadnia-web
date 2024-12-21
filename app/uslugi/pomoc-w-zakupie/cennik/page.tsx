@@ -1,10 +1,29 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faClipboardCheck, faHandshake, faShieldAlt, faPhone, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 
+const heroImages = [
+  '/images/usluga_sprawdzanie_1.jpg',
+  '/images/hero-bg_1.jpg',
+  '/images/hero-bg_2.jpg',
+];
+
 export default function PurchaseAssistancePricingPage() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === heroImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const pricingCategories = [
     {
       title: 'Oględziny motocykla',
@@ -41,13 +60,33 @@ export default function PurchaseAssistancePricingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero section */}
-      <section className="relative bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] py-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
+      <section className="relative h-[60vh] flex items-center justify-center bg-black" aria-label="Baner główny">
+        <div className="absolute inset-0 bg-black/50 z-0" />
+        {heroImages.map((image, index) => (
+          <div
+            key={image}
+            className="absolute inset-0 transition-opacity duration-1000 hero-image"
+            style={{
+              backgroundImage: `url('${image}')`,
+              opacity: currentImageIndex === index ? 1 : 0,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat'
+            }}
+            role="img"
+            aria-label="Zdjęcie motocykla w tle"
+          />
+        ))}
+        <div 
+          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40 z-[1]" 
+          aria-hidden="true"
+        />
+        <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 py-8 rounded-lg max-w-4xl mx-auto">
+          <div className="bg-black/30 backdrop-blur-sm p-8 rounded-lg">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
               Cennik pomocy w zakupie motocykla
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
               Profesjonalne wsparcie przy zakupie motocykla. 
               Ceny mogą się różnić w zależności od lokalizacji i zakresu usług.
             </p>
