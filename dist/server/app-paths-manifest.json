@@ -1,0 +1,5 @@
+{
+  "/uslugi/serwis/page": "app/uslugi/serwis/page.js",
+  "/o-nas/page": "app/o-nas/page.js",
+  "/uslugi/pomoc-w-zakupie/page": "app/uslugi/pomoc-w-zakupie/page.js"
+}

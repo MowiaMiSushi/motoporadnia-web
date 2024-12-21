@@ -7,6 +7,11 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { Session } from 'next-auth';
+
+interface HeaderProps {
+  session: Session | null;
+}
 
 const navigation = [
   { name: 'Strona główna', href: '/' },
@@ -32,7 +37,7 @@ const navigation = [
   { name: 'Kontakt', href: '/kontakt' },
 ];
 
-export default function Header() {
+export default function Header({ session }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 

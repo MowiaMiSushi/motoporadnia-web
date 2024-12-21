@@ -3,15 +3,16 @@
 import React from 'react';
 import { Providers } from './providers';
 import Navigation from './components/layout/Navigation';
-import { Session } from 'next-auth';
+import { useSession } from 'next-auth/react';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
-  session: Session | null;
 }
 
-export function ClientLayout({ children, session }: ClientLayoutProps) {
+export function ClientLayout({ children }: ClientLayoutProps) {
+  const { data: session } = useSession();
+
   return (
-    <Navigation>{children}</Navigation>
+    <Navigation session={session}>{children}</Navigation>
   );
 } 
