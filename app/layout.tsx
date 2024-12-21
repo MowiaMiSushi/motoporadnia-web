@@ -1,14 +1,14 @@
-'use client';
-
-import './styles/globals.css';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ClientLayout } from './client-layout';
-import { metadata } from './metadata';
+import './globals.css';
 import { Providers } from './providers';
 
 const inter = Inter({ subsets: ['latin', 'latin-ext'] });
 
-export { metadata };
+export const metadata: Metadata = {
+  title: 'MotoPoradnia',
+  description: 'Twój zaufany warsztat samochodowy',
+};
 
 export default function RootLayout({
   children,
@@ -16,11 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl" className="h-full">
-      <body className={`${inter.className} h-full bg-background`}>
-        <Providers>
-          <ClientLayout>{children}</ClientLayout>
-        </Providers>
+    <html lang="pl">
+      <body className={inter.className}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
