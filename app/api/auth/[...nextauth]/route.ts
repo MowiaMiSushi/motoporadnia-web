@@ -1,81 +1,64 @@
-import NextAuth from 'next-auth';
+import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 
-// Dane użytkownika z bazy
-const users = [
-  {
-    id: '675bbbeae85eb3e3331d0199',
-    name: 'admin-adrian',
-    username: 'admin-adrian',
-    email: 'admin@motoporadnia.pl',
-    role: 'admin',
-    createdAt: '2024-12-13T04:45:30.468+00:00',
-    password: 'Administrator25!',
-  },
-];
-
-const handler = NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
+      id: 'credentials',
       name: 'Credentials',
       credentials: {
-        username: { label: 'Username', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          throw new Error('Wymagane są nazwa użytkownika i hasło');
+          throw new Error('Wprowadź nazwę użytkownika i hasło');
         }
 
-        const user = users.find(u => u.username === credentials.username);
-        
-        if (!user) {
-          throw new Error('Nieprawidłowa nazwa użytkownika lub hasło');
+        const validUsername = 'admin-adrian';
+        const validPasswordHash = '$2a$12$wLyxAjrxVtxhh70sBbeu6uHvTAVaJlMgP956XR4XA15k38LpihJ0.';
+
+        if (credentials.username === validUsername) {
+          const isValid = await compare(credentials.password, validPasswordHash);
+          if (isValid) {
+            return {
+              id: '1',
+              name: 'Admin',
+              email: 'admin@motoporadnia.pl',
+              role: 'admin'
+            };
+          }
         }
 
-        
-        const isPasswordValid = credentials.password === user.password;
-
-        if (!isPasswordValid) {
-          throw new Error('Nieprawidłowa nazwa użytkownika lub hasło');
-        }
-
-        return {
-          id: user.id,
-          name: user.name,
-          username: user.username,
-          email: user.email,
-          role: user.role,
-        };
-      },
-    }),
+        throw new Error('Nieprawidłowa nazwa użytkownika lub hasło');
+      }
+    })
   ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 dni
-  },
   pages: {
-    signIn: '/admin/login',
+    signIn: '/admin/login'
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.username = user.username;
-        token.email = user.email;
         token.role = user.role;
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.username = token.username as string;
-        session.user.email = token.email as string;
-        session.user.role = token.role as string;
+        session.user.role = token.role;
+        session.user.id = token.id as string;
       }
       return session;
-    },
+    }
   },
-});
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60 // 24 godziny
+  }
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST }; 

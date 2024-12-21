@@ -3,6 +3,8 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { User } from 'next-auth';
+import { JWT } from 'next-auth/jwt';
+import { Session } from 'next-auth';
 
 interface ExtendedUser extends User {
   id: string;
@@ -14,6 +16,24 @@ interface ExtendedUser extends User {
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Brak zmiennej środowiskowej MONGODB_URI');
+}
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      role: string;
+    }
+  }
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    role: string;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -66,21 +86,17 @@ export const authOptions: NextAuthOptions = {
     signIn: '/admin/login'
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT & { role?: string }; user: any }) {
       if (user) {
         token.id = user.id;
-        token.username = user.username;
         token.role = user.role;
-        token.email = user.email;
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT & { role?: string } }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.username = token.username;
-        session.user.role = token.role;
-        session.user.email = token.email;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     }

@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MotoPoradnia Web
 
-## Getting Started
+Strona internetowa dla firmy MotoPoradnia, oferującej profesjonalne usługi motocyklowe.
 
-First, run the development server:
+## Funkcje
 
+- Strona główna z prezentacją usług
+- Panel administracyjny do zarządzania treścią
+- Responsywny design
+- Optymalizacja SEO
+- System zarządzania treścią (CMS)
+
+## Technologie
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- NextAuth.js
+- React
+- Framer Motion
+
+## Wymagania
+
+- Node.js 18+
+- npm 9+
+
+## Instalacja
+
+1. Sklonuj repozytorium:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/MowiaMiSushi/motoporadnia-web.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Przejdź do katalogu projektu:
+```bash
+cd motoporadnia-web
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Zainstaluj zależności:
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Skopiuj plik `.env.example` do `.env.local` i uzupełnij wymagane zmienne środowiskowe:
+```bash
+cp .env.example .env.local
+```
 
-## Learn More
+5. Uruchom serwer deweloperski:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Struktura projektu
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+motoporadnia-web/
+├── app/                    # Główny katalog aplikacji
+│   ├── admin/             # Panel administracyjny
+│   ├── api/               # Endpointy API
+│   ├── components/        # Komponenty React
+│   └── ...
+├── content/               # Pliki z treścią
+├── public/               # Statyczne pliki
+└── ...
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+Aplikacja jest hostowana na Netlify. Każdy push do gałęzi `main` automatycznie wyzwala nowy deployment.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Licencja
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ten projekt jest własnością firmy MotoPoradnia. Wszelkie prawa zastrzeżone.

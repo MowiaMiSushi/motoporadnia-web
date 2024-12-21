@@ -180,7 +180,7 @@ export default function Serwis() {
     return (
         <div className="min-h-screen bg-white">
             {/* Hero section */}
-            <section className="relative h-[60vh] flex items-center justify-center bg-black overflow-hidden">
+            <section className="relative h-[80vh] flex items-center justify-center bg-black" aria-label="Baner główny">
                 <div className="absolute inset-0 bg-black/50 z-0" />
                 <AnimatePresence mode="wait">
                     <motion.div
