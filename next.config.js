@@ -7,7 +7,8 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || 'https://motoporadnia-web.netlify.app',
   },
-  output: 'standalone',
+  output: 'export',
+  distDir: 'dist',
 }
 
 module.exports = nextConfig 
