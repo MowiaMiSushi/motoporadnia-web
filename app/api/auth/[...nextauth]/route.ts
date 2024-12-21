@@ -34,7 +34,7 @@ const handler = NextAuth({
           throw new Error('Nieprawidłowa nazwa użytkownika lub hasło');
         }
 
-        // Tymczasowo porównujemy hasła bezpośrednio
+        
         const isPasswordValid = credentials.password === user.password;
 
         if (!isPasswordValid) {

@@ -1,21 +1,15 @@
 import { connectToDatabase } from './db';
-import { MongoDBAdapter } from '@auth/mongodb-adapter';
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-import { MongoClient } from 'mongodb';
-import clientPromise from '@/lib/mongodb';
-import { JWT } from 'next-auth/jwt';
+import { User } from 'next-auth';
 
-interface ExtendedUser {
+interface ExtendedUser extends User {
   id: string;
   name: string;
+  username: string;
   email: string;
   role: string;
-}
-
-interface ExtendedToken extends JWT {
-  role?: string;
 }
 
 if (!process.env.MONGODB_URI) {
@@ -23,7 +17,6 @@ if (!process.env.MONGODB_URI) {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
       name: 'credentials',
@@ -55,6 +48,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user._id.toString(),
             name: user.username,
+            username: user.username,
             email: user.email,
             role: user.role
           } as ExtendedUser;
@@ -74,15 +68,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        (token as ExtendedToken).id = user.id;
-        (token as ExtendedToken).role = (user as ExtendedUser).role;
+        token.id = user.id;
+        token.username = user.username;
+        token.role = user.role;
+        token.email = user.email;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = (token as ExtendedToken).id;
-        (session.user as any).role = (token as ExtendedToken).role;
+        session.user.id = token.id;
+        session.user.username = token.username;
+        session.user.role = token.role;
+        session.user.email = token.email;
       }
       return session;
     }
