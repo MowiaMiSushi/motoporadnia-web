@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ['latin', 'latin-ext'] });
 export const metadata: Metadata = {
   title: 'MotoPoradnia',
   description: 'Twój zaufany warsztat samochodowy',
+  metadataBase: new URL('https://motoporadnia-web.netlify.app'),
 };
 
 export default function RootLayout({
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl">
+    <html lang="pl" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>{children}</Providers>
       </body>
