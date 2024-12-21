@@ -1,25 +1,3 @@
 {
-  "pages": {
-    "/o-nas/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/o-nas/page.js"
-    ],
-    "/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/layout.css",
-      "static/chunks/app/layout.js"
-    ],
-    "/uslugi/pomoc-w-zakupie/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/uslugi/pomoc-w-zakupie/page.js"
-    ],
-    "/uslugi/serwis/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/uslugi/serwis/page.js"
-    ]
-  }
+  "pages": {}
 }
