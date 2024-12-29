@@ -22,19 +22,27 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: false
+        redirect: false,
+        callbackUrl: '/admin/dashboard'
       });
 
       console.log('Wynik logowania:', result);
 
-      if (result?.error) {
-        setError(`Błąd logowania: ${result.error}`);
-      } else if (result?.ok) {
-        window.location.href = '/admin/dashboard';
+      if (!result) {
+        throw new Error('Brak odpowiedzi z serwera');
+      }
+
+      if (result.error) {
+        setError(result.error);
+      } else if (result.ok) {
+        // Poczekaj chwilę przed przekierowaniem
+        setTimeout(() => {
+          window.location.href = '/admin/dashboard';
+        }, 500);
       }
     } catch (err) {
       console.error('Błąd logowania:', err);
-      setError(`Wystąpił błąd podczas logowania: ${err instanceof Error ? err.message : 'Nieznany błąd'}`);
+      setError(err instanceof Error ? err.message : 'Wystąpił nieznany błąd');
     } finally {
       setIsLoading(false);
     }

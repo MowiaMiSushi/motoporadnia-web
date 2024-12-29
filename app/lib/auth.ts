@@ -23,7 +23,7 @@ export const authOptions: AuthOptions = {
 
           if (!credentials?.username || !credentials?.password) {
             console.log('Brak danych logowania');
-            return null;
+            throw new Error('Wprowadź login i hasło');
           }
 
           const { db } = await connectToDatabase();
@@ -35,7 +35,7 @@ export const authOptions: AuthOptions = {
 
           if (!user) {
             console.log('Nie znaleziono użytkownika');
-            return null;
+            throw new Error('Nieprawidłowy login lub hasło');
           }
 
           const isValid = await compare(credentials.password, user.password);
@@ -43,7 +43,7 @@ export const authOptions: AuthOptions = {
 
           if (!isValid) {
             console.log('Nieprawidłowe hasło');
-            return null;
+            throw new Error('Nieprawidłowy login lub hasło');
           }
 
           return {
@@ -53,29 +53,35 @@ export const authOptions: AuthOptions = {
           };
         } catch (error) {
           console.error('Błąd autoryzacji:', error);
-          return null;
+          throw error;
         }
       },
     }),
   ],
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: '/admin/login',
-    error: '/admin/login',
-  },
   session: { 
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 dni
   },
+  pages: {
+    signIn: '/admin/login',
+    error: '/admin/login',
+  },
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role;
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.role = token.role as string;
+      if (session.user) {
+        session.user.role = token.role as string;
+        session.user.id = token.id as string;
+      }
       return session;
     },
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: true, // Włącz tryb debug
 } 
