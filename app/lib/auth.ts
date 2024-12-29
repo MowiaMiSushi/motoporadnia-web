@@ -19,10 +19,7 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials: Credentials | undefined) {
         try {
-          console.log('Autoryzacja - dane:', { username: credentials?.username });
-
           if (!credentials?.username || !credentials?.password) {
-            console.log('Brak danych logowania');
             throw new Error('Wprowadź login i hasło');
           }
 
@@ -31,18 +28,13 @@ export const authOptions: AuthOptions = {
             username: credentials.username,
           });
 
-          console.log('Znaleziono użytkownika:', !!user);
-
           if (!user) {
-            console.log('Nie znaleziono użytkownika');
             throw new Error('Nieprawidłowy login lub hasło');
           }
 
           const isValid = await compare(credentials.password, user.password);
-          console.log('Hasło poprawne:', isValid);
 
           if (!isValid) {
-            console.log('Nieprawidłowe hasło');
             throw new Error('Nieprawidłowy login lub hasło');
           }
 
@@ -83,5 +75,5 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-  debug: true, // Włącz tryb debug
+  debug: false,
 } 

@@ -2,12 +2,10 @@
 
 import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,29 +19,17 @@ export default function LoginPage() {
 
       console.log('Próba logowania:', { username });
 
-      const result = await signIn('credentials', {
+      // Użyj bezpośredniego przekierowania
+      await signIn('credentials', {
         username,
         password,
-        redirect: false,
+        callbackUrl: '/admin/dashboard',
+        redirect: true
       });
 
-      console.log('Wynik logowania:', result);
-
-      if (!result) {
-        throw new Error('Brak odpowiedzi z serwera');
-      }
-
-      if (result.error) {
-        console.error('Błąd logowania:', result.error);
-        setError(result.error);
-      } else if (result.ok) {
-        console.log('Logowanie udane, przekierowuję...');
-        router.push('/admin/dashboard');
-      }
     } catch (err) {
       console.error('Błąd logowania:', err);
       setError(err instanceof Error ? err.message : 'Wystąpił nieznany błąd');
-    } finally {
       setIsLoading(false);
     }
   }
