@@ -50,8 +50,10 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 dni
   },
   pages: {
     signIn: '/admin/login',
@@ -71,4 +73,5 @@ export const authOptions: AuthOptions = {
       return token;
     }
   },
+  debug: process.env.NODE_ENV === 'development',
 } 

@@ -21,13 +21,22 @@ export default function LoginPage() {
         username,
         password,
         callbackUrl: '/admin/dashboard',
-        redirect: true,
+        redirect: false,
       });
 
-      // Nie potrzebujemy obsługiwać przekierowania, bo redirect: true
+      if (result?.error) {
+        setError(`Błąd logowania: ${result.error}`);
+        console.error('Błąd logowania:', result);
+      } else if (result?.ok) {
+        window.location.href = '/admin/dashboard';
+      } else {
+        setError('Wystąpił nieznany błąd podczas logowania');
+        console.error('Nieznany błąd:', result);
+      }
     } catch (err) {
       console.error('Błąd logowania:', err);
-      setError('Wystąpił błąd podczas logowania');
+      setError(err instanceof Error ? err.message : 'Wystąpił nieznany błąd podczas logowania');
+    } finally {
       setIsLoading(false);
     }
   }
