@@ -60,6 +60,20 @@ export const authOptions: AuthOptions = {
     signOut: '/',
     error: '/admin/login',
   },
+  basePath: '/api/auth',
+  trustHost: true,
+  useSecureCookies: true,
+  cookies: {
+    sessionToken: {
+      name: 'next-auth.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true
+      }
+    }
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -75,20 +89,11 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Jeśli URL zawiera admin/login, przekieruj do dashboardu
-      if (url.includes('/admin/login')) {
+      // Zawsze przekieruj do dashboardu po zalogowaniu
+      if (url.includes('/api/auth/signin') || url.includes('/admin/login')) {
         return `${baseUrl}/admin/dashboard`;
       }
-      // Jeśli URL jest względny (zaczyna się od /)
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
-      }
-      // Jeśli URL jest z tej samej domeny
-      if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      // W przeciwnym razie przekieruj na stronę główną
-      return baseUrl;
+      return url;
     }
-  },
+  }
 } 
