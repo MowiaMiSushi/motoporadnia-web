@@ -1,7 +1,7 @@
 'use client';
 
-import { useSession, signIn } from 'next-auth/react';
-import { usePathname } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function AdminAuthCheck({
@@ -11,6 +11,7 @@ export default function AdminAuthCheck({
 }) {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const isLoginPage = pathname === '/admin/login';
 
   useEffect(() => {
@@ -23,15 +24,15 @@ export default function AdminAuthCheck({
 
     if (!session && !isLoginPage) {
       console.log('Przekierowanie do logowania - brak sesji');
-      signIn(undefined, { callbackUrl: '/admin/dashboard' });
+      router.push('/admin/login');
     } else if (session?.user?.role === 'admin' && isLoginPage) {
       console.log('Przekierowanie do dashboardu - zalogowany admin');
-      window.location.href = '/admin/dashboard';
+      router.push('/admin/dashboard');
     } else if (session && session.user?.role !== 'admin') {
       console.log('Przekierowanie do logowania - brak uprawnień admina');
-      signIn(undefined, { callbackUrl: '/admin/dashboard' });
+      router.push('/admin/login');
     }
-  }, [session, status, isLoginPage, pathname]);
+  }, [session, status, isLoginPage, pathname, router]);
 
   // Podczas ładowania pokaż loader
   if (status === 'loading') {

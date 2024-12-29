@@ -2,10 +2,12 @@
 
 import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,7 +21,6 @@ export default function LoginPage() {
 
       console.log('Próba logowania:', { username });
 
-      // Najpierw spróbuj zalogować bez przekierowania
       const result = await signIn('credentials', {
         username,
         password,
@@ -37,13 +38,7 @@ export default function LoginPage() {
         setError(result.error);
       } else if (result.ok) {
         console.log('Logowanie udane, przekierowuję...');
-        // Użyj bezpośredniego przekierowania
-        signIn('credentials', {
-          username,
-          password,
-          callbackUrl: '/admin/dashboard',
-          redirect: true,
-        });
+        router.push('/admin/dashboard');
       }
     } catch (err) {
       console.error('Błąd logowania:', err);
