@@ -1,0 +1,55 @@
+{
+  "hero": {
+    "title": "Kontakt",
+    "description": "Jesteśmy do Twojej dyspozycji. Skontaktuj się z nami w dogodny dla Ciebie sposób.",
+    "images": [
+      "/images/DSC_6044.jpg",
+      "/images/hero-bg_1.jpg",
+      "/images/hero-bg_2.jpg",
+      "/images/hero-bg_3.png"
+    ]
+  },
+  "contactInfo": {
+    "address": {
+      "street": "ul. Węglowa 9/11",
+      "city": "Poznań",
+      "postalCode": "60-122",
+      "additionalInfo": "(Wjazd od ulicy Górniczej)",
+      "mapsUrl": "https://www.google.com/maps/place/Motoporadnia/@52.3820632,16.8732338,17z/data=!4m6!3m5!1s0x6b3a30447fea247d:0xfebbfd65d6023f50!8m2!3d52.3816215!4d16.8719611!16s%2Fg%2F11rylcfqmv",
+      "coordinates": {
+        "latitude": 52.38206317978576,
+        "longitude": 16.869772376940436
+      }
+    },
+    "phone": "+48 789 059 578",
+    "email": "kontakt@motoporadnia.pl",
+    "hours": {
+      "weekdays": "8:30 - 16:30",
+      "weekend": "Zamknięte"
+    }
+  },
+  "social": {
+    "platforms": [
+      {
+        "name": "Facebook",
+        "url": "https://facebook.com/motoporadnia",
+        "icon": "faFacebook"
+      },
+      {
+        "name": "Instagram",
+        "url": "https://instagram.com/motoporadnia",
+        "icon": "faInstagram"
+      },
+      {
+        "name": "Youtube",
+        "url": "https://www.youtube.com/@motoporadnia",
+        "icon": "faYoutube"
+      }
+    ]
+  },
+  "seo": {
+    "type": "MotorcycleRepair",
+    "name": "MotoPoradnia",
+    "priceRange": "$$"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "hero": {
+    "title": "Cennik transportu motocykli",
+    "description": "Oferujemy profesjonalny transport motocykli w konkurencyjnych cenach. Wszystkie ceny są orientacyjne i mogą się różnić w zależności od specyfiki zlecenia.",
+    "images": [
+      "/images/transport_1.jpg",
+      "/images/transport_2.jpg",
+      "/images/transport_3.jpg",
+      "/images/transport_4.jpg",
+      "/images/transport_5.jpg"
+    ]
+  },
+  "pricingCategories": [
+    {
+      "title": "Transport lokalny",
+      "icon": "faTruck",
+      "description": "Transport na terenie Poznania i okolic",
+      "items": [
+        {
+          "name": "Transport w granicach Poznania",
+          "price": "od 150 zł"
+        },
+        {
+          "name": "Transport do 30 km od Poznania",
+          "price": "od 200 zł"
+        },
+        {
+          "name": "Transport do 50 km od Poznania",
+          "price": "od 250 zł"
+        }
+      ]
+    },
+    {
+      "title": "Transport krajowy",
+      "icon": "faRoute",
+      "description": "Transport na terenie całej Polski",
+      "items": [
+        {
+          "name": "Transport do 100 km",
+          "price": "od 350 zł"
+        },
+        {
+          "name": "Transport do 200 km",
+          "price": "od 500 zł"
+        },
+        {
+          "name": "Transport powyżej 200 km",
+          "price": "2,5 zł/km"
+        }
+      ]
+    },
+    {
+      "title": "Usługi dodatkowe",
+      "icon": "faHandshake",
+      "description": "Dodatkowe usługi transportowe",
+      "items": [
+        {
+          "name": "Pomoc przy załadunku/rozładunku",
+          "price": "od 50 zł"
+        },
+        {
+          "name": "Zabezpieczenie motocykla",
+          "price": "w cenie"
+        },
+        {
+          "name": "Ubezpieczenie transportu",
+          "price": "w cenie"
+        }
+      ]
+    }
+  ]
+}

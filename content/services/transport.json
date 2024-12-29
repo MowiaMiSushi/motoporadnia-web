@@ -1,0 +1,73 @@
+{
+  "hero": {
+    "title": "Transport motocykli",
+    "description": "Profesjonalny i bezpieczny transport motocykli na terenie całego kraju. Gwarantujemy bezpieczeństwo i terminowość.",
+    "images": [
+      "/images/transport_1.jpg",
+      "/images/transport_2.jpg",
+      "/images/transport_3.jpg"
+    ]
+  },
+  "mainSections": [
+    {
+      "title": "Bezpieczny transport",
+      "content": "Zapewniamy profesjonalny transport motocykli z wykorzystaniem specjalistycznej przyczepy i systemu mocowań. Każdy motocykl jest odpowiednio zabezpieczony na czas transportu.",
+      "image": "/images/transport_1.jpg"
+    },
+    {
+      "title": "Doświadczeni kierowcy",
+      "content": "Nasi kierowcy posiadają wieloletnie doświadczenie w transporcie motocykli i dbają o bezpieczeństwo powierzonych im pojazdów.",
+      "image": "/images/transport_2.jpg"
+    }
+  ],
+  "services": [
+    {
+      "title": "Transport lokalny",
+      "description": "Transport na terenie miasta i okolic.",
+      "price": "od 150 zł"
+    },
+    {
+      "title": "Transport krajowy",
+      "description": "Transport na terenie całego kraju.",
+      "price": "od 2 zł/km"
+    },
+    {
+      "title": "Transport ekspresowy",
+      "description": "Pilny transport w trybie ekspresowym.",
+      "price": "wycena indywidualna"
+    }
+  ],
+  "features": {
+    "title": "Co wyróżnia nasz transport?",
+    "items": [
+      "Specjalistyczna przyczepa transportowa",
+      "System profesjonalnych mocowań",
+      "Doświadczeni kierowcy",
+      "Ubezpieczenie ładunku",
+      "Transport door-to-door",
+      "Możliwość transportu kilku motocykli jednocześnie"
+    ]
+  },
+  "additionalInfo": {
+    "title": "Informacje dodatkowe",
+    "description": "Przed transportem zawsze:",
+    "items": [
+      "Sprawdzamy stan techniczny motocykla",
+      "Dokumentujemy fotograficznie stan pojazdu",
+      "Zabezpieczamy wrażliwe elementy",
+      "Ustalamy dokładny termin odbioru i dostawy",
+      "Potwierdzamy trasę i koszty"
+    ]
+  },
+  "coverage": {
+    "title": "Obszar działania",
+    "description": "Świadczymy usługi transportowe na terenie całej Polski. Główne obszary działania to:",
+    "regions": [
+      "Warszawa i okolice",
+      "Cała Polska centralna",
+      "Województwo mazowieckie",
+      "Możliwość transportu w całym kraju",
+      "Transport międzywojewódzki"
+    ]
+  }
+}

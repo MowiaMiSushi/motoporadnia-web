@@ -1,0 +1,76 @@
+{
+  "hero": {
+    "title": "Cennik pomocy w zakupie motocykla",
+    "description": "Profesjonalne wsparcie przy zakupie motocykla. Ceny mogą się różnić w zależności od lokalizacji i zakresu usług.",
+    "images": [
+      "/images/usluga_sprawdzanie_1.jpg",
+      "/images/hero-bg_1.jpg",
+      "/images/hero-bg_2.jpg"
+    ]
+  },
+  "pricingCategories": [
+    {
+      "title": "Oględziny motocykla",
+      "icon": "faSearch",
+      "description": "Sprawdzenie stanu technicznego motocykla",
+      "items": [
+        {
+          "name": "Oględziny w Poznaniu",
+          "price": "od 200 zł"
+        },
+        {
+          "name": "Oględziny do 50 km od Poznania",
+          "price": "od 300 zł"
+        },
+        {
+          "name": "Oględziny powyżej 50 km",
+          "price": "indywidualnie"
+        }
+      ]
+    },
+    {
+      "title": "Kompleksowa pomoc",
+      "icon": "faHandshake",
+      "description": "Pełne wsparcie przy zakupie",
+      "items": [
+        {
+          "name": "Wyszukiwanie ofert",
+          "price": "od 300 zł"
+        },
+        {
+          "name": "Negocjacje z sprzedającym",
+          "price": "w cenie"
+        },
+        {
+          "name": "Pomoc w formalnościach",
+          "price": "w cenie"
+        }
+      ]
+    },
+    {
+      "title": "Usługi dodatkowe",
+      "icon": "faClipboardCheck",
+      "description": "Dodatkowe wsparcie przy zakupie",
+      "items": [
+        {
+          "name": "Sprawdzenie historii pojazdu",
+          "price": "od 50 zł"
+        },
+        {
+          "name": "Weryfikacja dokumentów",
+          "price": "od 100 zł"
+        },
+        {
+          "name": "Doradztwo techniczne",
+          "price": "od 150 zł"
+        }
+      ]
+    },
+    {
+      "title": "Nowa kategoria",
+      "icon": "faSearch",
+      "description": "Opis kategorii",
+      "items": []
+    }
+  ]
+}

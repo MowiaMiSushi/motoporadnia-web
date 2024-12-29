@@ -1,0 +1,67 @@
+{
+  "hero": {
+    "title": "Pomoc w zakupie motocykla",
+    "description": "Profesjonalne wsparcie i doradztwo przy zakupie motocykla. Sprawdzimy stan techniczny i historię pojazdu.",
+    "images": [
+      "/images/usluga_sprawdzanie_1.jpg",
+      "/images/usluga_sprawdzanie_2.jpg",
+      "/images/serwis_2.jpg"
+    ]
+  },
+  "mainSections": [
+    {
+      "title": "Profesjonalne doradztwo przy zakupie",
+      "content": "Główną dziedziną naszej działalności jest doradztwo i pomoc w zakupie motocykla. Wykorzystując nasze wieloletnie doświadczenie w mechanice motocyklowej oraz korzystając z wielu profesjonalnych narzędzi, staramy się w jak najbardziej rzetelny sposób ocenić rzeczywisty stan techniczny oglądanego motocykla.",
+      "image": "/images/usluga_sprawdzanie_1.jpg",
+      "content2": "Oglądając motocykl bazujemy na stworzonym przez nas raporcie weryfikacyjnym, aby nie pominąć istotnych i newralgicznych punktów w motocyklu."
+    },
+    {
+      "title": "Profesjonalne narzędzia diagnostyczne",
+      "content": "Podczas oględzin, wykorzystujemy takie narzędzia jak wskaźnik osiowości tylnego koła, profesjonalny miernik lakieru, tester akumulatorów czy tester jakości płynu hamulcowego i chłodniczego.",
+      "image": "/images/usluga_sprawdzanie_2.jpg",
+      "content2": "Pomoc w zakupie motocykla jako usługa jest dostępna także w formie zdalnej, klient otrzymuje od nas raport z dokonanych oględzin wraz z pakietem zdjęć i filmików ukazujących stan faktyczny oglądanego motocykla poprzez aplikacje WhatsApp niezwłocznie po dokonanych oględzinach."
+    }
+  ],
+  "features": {
+    "title": "Co zawiera usługa pomocy w zakupie motocykla?",
+    "items": [
+      "Ocena stanu technicznego motocykla",
+      "Weryfikacja historii pojazdu",
+      "Jazda próbna",
+      "Wstępny kosztorys ewentualnych napraw",
+      "Negocjacja ceny zakupu w oparciu o konkretne argumenty",
+      "Możliwość przetransportowania motocykla",
+      "Zniżkę na dokonanie podstawowych czynności serwisowych w naszym warsztacie"
+    ]
+  },
+  "additionalInfo": {
+    "firstBike": {
+      "title": "Pierwszy motocykl - co przygotować?",
+      "description": "Jeśli zgłaszasz się do nas w celu poszukiwania swojego pierwszego motocykla, przygotuj dla nas takie informacje jak:",
+      "items": [
+        "Jaki planujesz przeznaczyć budżet na zakup motocykla?",
+        "Czy masz zakupioną kompletną odzież motocyklową?",
+        "Jakie są Twoje preferencje dotyczące motocykla? Sport, Naked a może coś z klasy Adventure?",
+        "Czy masz jakieś doświadczenie motocyklowe poza kursem prawa jazdy?",
+        "Jakie są Twoje predyspozycje, to znaczy waga i wzrost"
+      ]
+    },
+    "selectedBike": {
+      "title": "Masz wybrany motocykl?",
+      "description": "Natomiast jeśli przychodzisz z konkretnym egzemplarzem, prosimy o uzyskanie takich informacji jak:",
+      "items": [
+        "numer VIN",
+        "data pierwszej rejestracji (za granicą)",
+        "numer rejestracyjny"
+      ],
+      "additionalInfo": "Wszystkie wyżej wymienione informacje znajdują się na pierwszej stronie dowodu rejestracyjnego, te dane pozwolą nam na sprawdzenie historii pojazdu i weryfikacje historii kolizyjnej."
+    }
+  },
+  "remoteService": {
+    "title": "Zakup w pełni zdalny!",
+    "description": [
+      "Świadczymy również usługę zakupu w pełni zdalnego!",
+      "Jeśli nie masz czasu aby wybrać się wspólnie z nami na miejsce oględzin i chcesz zaufać naszemu profesjonalizmowi oferujemy zakup zdalny motocykla! Jedziemy, weryfikujemy, kupujemy i dostarczamy Twój motocykl pod dom bez Twojej obecności!"
+    ]
+  }
+}
