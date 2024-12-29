@@ -10,9 +10,9 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-[176px] bg-white shadow-md z-10">
+    <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between h-16">
+        <div className="flex flex-wrap items-center justify-between h-14">
           <Link
             href="/admin/dashboard"
             className={`text-lg flex items-center space-x-2 p-2 rounded hover:bg-gray-100 ${

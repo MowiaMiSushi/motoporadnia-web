@@ -11,12 +11,10 @@ export default function AdminLayout({
   return (
     <AdminAuthCheck>
       <div className="min-h-screen bg-gray-100">
-        <div className="pt-[176px]"> {/* Wysokość top-bara (44px) + headera (132px) */}
-          <AdminNav />
-          <main className="pt-16 px-4">
-            {children}
-          </main>
-        </div>
+        <AdminNav />
+        <main className="px-4 mt-4">
+          {children}
+        </main>
       </div>
     </AdminAuthCheck>
   );
