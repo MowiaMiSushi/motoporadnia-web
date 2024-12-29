@@ -32,11 +32,13 @@ interface PageContent {
       weekdays: string;
       weekend: string;
     };
-    socialMedia: {
-      facebook: string;
-      instagram: string;
-      youtube: string;
-    };
+  };
+  social: {
+    platforms: Array<{
+      name: string;
+      url: string;
+      icon: string;
+    }>;
   };
   seo: {
     type: string;
@@ -261,41 +263,33 @@ export default function Contact() {
                     </div>
                   </div>
 
-                  {/* Media społecznościowe */}
+                  {/* Social Media */}
                   <div className="flex items-start">
                     <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-[#2C3E50] rounded-lg flex items-center justify-center">
                       <FontAwesomeIcon icon={faFacebook} className="text-white text-lg sm:text-xl" />
                     </div>
                     <div className="ml-3 sm:ml-4">
-                      <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Media społecznościowe</h3>
-                      <div className="flex gap-4">
-                        <a
-                          href={content.contactInfo.socialMedia.facebook}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-sm sm:text-base text-gray-600 hover:text-[#1877F2] transition-colors"
-                        >
-                          <FontAwesomeIcon icon={faFacebook} className="mr-2" />
-                          Facebook
-                        </a>
-                        <a
-                          href={content.contactInfo.socialMedia.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-sm sm:text-base text-gray-600 hover:text-[#E4405F] transition-colors"
-                        >
-                          <FontAwesomeIcon icon={faInstagram} className="mr-2" />
-                          Instagram
-                        </a>
-                        <a
-                          href={content.contactInfo.socialMedia.youtube}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-sm sm:text-base text-gray-600 hover:text-[#FF0000] transition-colors"
-                        >
-                          <FontAwesomeIcon icon={faYoutube} className="mr-2" />
-                          YouTube
-                        </a>
+                      <h3 className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">Social Media</h3>
+                      <div className="flex space-x-4">
+                        {content.social.platforms.map((platform) => (
+                          <a
+                            key={platform.name}
+                            href={platform.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-600 hover:text-[#C62400] transition-colors"
+                          >
+                            <FontAwesomeIcon 
+                              icon={
+                                platform.icon === 'faFacebook' ? faFacebook :
+                                platform.icon === 'faInstagram' ? faInstagram :
+                                platform.icon === 'faYoutube' ? faYoutube :
+                                faFacebook
+                              } 
+                              className="text-2xl" 
+                            />
+                          </a>
+                        ))}
                       </div>
                     </div>
                   </div>
