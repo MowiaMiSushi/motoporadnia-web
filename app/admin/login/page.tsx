@@ -2,12 +2,10 @@
 
 import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -24,22 +22,14 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: false,
+        redirect: true,
         callbackUrl: '/admin/dashboard'
       });
 
       console.log('Wynik logowania:', result);
-
-      if (result?.error) {
-        console.error('Błąd logowania:', result.error);
-        setError('Nieprawidłowy login lub hasło');
-      } else if (result?.ok) {
-        router.replace('/admin/dashboard');
-      }
     } catch (err) {
       console.error('Błąd logowania:', err);
       setError('Wystąpił błąd podczas logowania');
-    } finally {
       setIsLoading(false);
     }
   }
