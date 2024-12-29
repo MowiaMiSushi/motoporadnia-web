@@ -50,6 +50,11 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 godziny
+  },
   pages: {
     signIn: '/admin/login',
     signOut: '/',
@@ -70,20 +75,20 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Jeśli URL zawiera admin/login, przekieruj do dashboardu
+      if (url.includes('/admin/login')) {
+        return `${baseUrl}/admin/dashboard`;
+      }
       // Jeśli URL jest względny (zaczyna się od /)
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
       // Jeśli URL jest z tej samej domeny
-      else if (url.startsWith(baseUrl)) {
+      if (url.startsWith(baseUrl)) {
         return url;
       }
       // W przeciwnym razie przekieruj na stronę główną
       return baseUrl;
     }
-  },
-  session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 24 godziny
   },
 } 

@@ -2,13 +2,14 @@
 
 import { signIn, useSession } from 'next-auth/react';
 import { FormEvent, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (session) {
@@ -46,6 +47,7 @@ export default function LoginPage() {
         username,
         password,
         redirect: false,
+        callbackUrl: '/admin/dashboard'
       });
 
       if (result?.error) {
