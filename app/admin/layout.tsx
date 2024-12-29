@@ -11,8 +11,14 @@ export default function AdminLayout({
   return (
     <>
       <style jsx global>{`
-        header {
+        header, .top-bar {
           display: none !important;
+        }
+        #__next {
+          padding-top: 0 !important;
+        }
+        main {
+          margin-top: 0 !important;
         }
       `}</style>
       <AdminAuthCheck>
