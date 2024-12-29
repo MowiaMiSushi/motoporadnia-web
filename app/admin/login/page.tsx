@@ -22,14 +22,20 @@ export default function LoginPage() {
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: true,
-        callbackUrl: '/admin/dashboard'
+        redirect: false
       });
 
       console.log('Wynik logowania:', result);
+
+      if (result?.error) {
+        setError(`Błąd logowania: ${result.error}`);
+      } else if (result?.ok) {
+        window.location.href = '/admin/dashboard';
+      }
     } catch (err) {
       console.error('Błąd logowania:', err);
-      setError('Wystąpił błąd podczas logowania');
+      setError(`Wystąpił błąd podczas logowania: ${err instanceof Error ? err.message : 'Nieznany błąd'}`);
+    } finally {
       setIsLoading(false);
     }
   }

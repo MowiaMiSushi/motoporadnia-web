@@ -19,16 +19,23 @@ export default function AdminAuthCheck({
     console.log('Status sesji:', status);
     console.log('Sesja:', session);
     console.log('Ścieżka:', pathname);
+    console.log('Role:', session?.user?.role);
+
+    const handleRedirect = (path: string) => {
+      if (window.location.pathname !== path) {
+        window.location.href = path;
+      }
+    };
 
     if (!session && !isLoginPage) {
       console.log('Przekierowanie do logowania - brak sesji');
-      window.location.href = '/admin/login';
+      handleRedirect('/admin/login');
     } else if (session?.user?.role === 'admin' && isLoginPage) {
       console.log('Przekierowanie do dashboardu - zalogowany admin');
-      window.location.href = '/admin/dashboard';
+      handleRedirect('/admin/dashboard');
     } else if (session && session.user?.role !== 'admin') {
       console.log('Przekierowanie do logowania - brak uprawnień admina');
-      window.location.href = '/admin/login';
+      handleRedirect('/admin/login');
     }
   }, [session, status, isLoginPage, pathname]);
 
