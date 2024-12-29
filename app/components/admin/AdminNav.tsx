@@ -4,10 +4,16 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHome, faFile, faImages, faMoneyBill, faSearch, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 export default function AdminNav() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+
+  // Nie pokazuj nawigacji jeśli użytkownik nie jest zalogowany
+  if (!session) {
+    return null;
+  }
 
   const handleSignOut = async () => {
     await signOut({ redirect: true, callbackUrl: '/' });

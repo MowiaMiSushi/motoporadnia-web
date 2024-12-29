@@ -10,13 +10,19 @@ export default function LoginPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
+  // Przekieruj do dashboardu jeśli użytkownik jest zalogowany
   useEffect(() => {
     if (session) {
       router.replace('/admin/dashboard');
     }
   }, [session, router]);
 
-  // Jeśli trwa ładowanie sesji, pokaż loader
+  // Nie pokazuj formularza logowania jeśli użytkownik jest zalogowany
+  if (session) {
+    return null;
+  }
+
+  // Pokaż loader podczas sprawdzania sesji
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -25,11 +31,6 @@ export default function LoginPage() {
         </div>
       </div>
     );
-  }
-
-  // Jeśli użytkownik jest zalogowany, nie pokazuj formularza
-  if (session) {
-    return null;
   }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -50,16 +51,13 @@ export default function LoginPage() {
 
       if (result?.error) {
         setError(result.error);
-        setIsLoading(false);
       } else if (result?.ok) {
-        // Poczekaj chwilę przed przekierowaniem
-        setTimeout(() => {
-          router.replace('/admin/dashboard');
-        }, 100);
+        router.replace('/admin/dashboard');
       }
     } catch (err) {
       setError('Wystąpił błąd podczas logowania');
       console.error('Błąd logowania:', err);
+    } finally {
       setIsLoading(false);
     }
   }
