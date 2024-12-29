@@ -9,13 +9,20 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AdminAuthCheck>
-      <div className="min-h-screen bg-gray-100">
-        <AdminNav />
-        <main className="pt-16">
-          {children}
-        </main>
-      </div>
-    </AdminAuthCheck>
+    <>
+      <style jsx global>{`
+        header {
+          display: none !important;
+        }
+      `}</style>
+      <AdminAuthCheck>
+        <div className="min-h-screen bg-gray-100">
+          <AdminNav />
+          <main className="pt-16 px-4">
+            {children}
+          </main>
+        </div>
+      </AdminAuthCheck>
+    </>
   );
 } 

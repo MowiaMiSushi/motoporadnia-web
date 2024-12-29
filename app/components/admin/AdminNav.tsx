@@ -10,9 +10,9 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between py-4">
+    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-10">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex flex-wrap items-center justify-between h-16">
           <Link
             href="/admin/dashboard"
             className={`text-lg flex items-center space-x-2 p-2 rounded hover:bg-gray-100 ${
@@ -23,7 +23,7 @@ export default function AdminNav() {
             <span>Dashboard</span>
           </Link>
           
-          <div className="flex flex-wrap items-center space-x-4">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/admin/pages"
               className={`text-lg flex items-center space-x-2 p-2 rounded hover:bg-gray-100 ${
