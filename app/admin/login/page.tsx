@@ -1,31 +1,11 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { FormEvent, useState, useEffect } from 'react';
+import { FormEvent, useState } from 'react';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [dbStatus, setDbStatus] = useState<string>('');
-
-  useEffect(() => {
-    // Sprawdź stan bazy przy ładowaniu strony
-    async function checkDatabase() {
-      try {
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
-        if (data.error) {
-          setDbStatus(`Problem z bazą danych: ${data.message}`);
-        } else {
-          setDbStatus(`Baza danych działa poprawnie. Admin: ${data.admin.username}`);
-        }
-      } catch (err) {
-        setDbStatus('Nie można połączyć się z bazą danych');
-        console.error('Błąd sprawdzania bazy:', err);
-      }
-    }
-    checkDatabase();
-  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,28 +17,17 @@ export default function LoginPage() {
       const username = formData.get('username') as string;
       const password = formData.get('password') as string;
 
-      console.log('Próba logowania:', { username });
-
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: false,
+        callbackUrl: '/admin/dashboard',
+        redirect: true,
       });
 
-      console.log('Wynik logowania:', result);
-
-      if (result?.error) {
-        setError(result.error);
-      } else if (result?.ok) {
-        // Użyj window.location.href zamiast redirect: true
-        window.location.href = '/admin/dashboard';
-      } else {
-        setError('Wystąpił nieznany błąd');
-      }
+      // Nie potrzebujemy obsługiwać przekierowania, bo redirect: true
     } catch (err) {
       console.error('Błąd logowania:', err);
-      setError(err instanceof Error ? err.message : 'Wystąpił nieznany błąd');
-    } finally {
+      setError('Wystąpił błąd podczas logowania');
       setIsLoading(false);
     }
   }
@@ -67,11 +36,6 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow">
         <h2 className="text-2xl font-bold text-center mb-6">Panel administracyjny</h2>
-        {dbStatus && (
-          <div className="mb-4 p-3 text-sm bg-blue-50 text-blue-600 rounded">
-            {dbStatus}
-          </div>
-        )}
         {error && (
           <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded">
             {error}
