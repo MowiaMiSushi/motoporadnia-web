@@ -2,10 +2,12 @@
 
 import { signIn } from 'next-auth/react';
 import { FormEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -17,25 +19,30 @@ export default function LoginPage() {
       const username = formData.get('username') as string;
       const password = formData.get('password') as string;
 
+      console.log('Próba logowania:', { username });
+
       const result = await signIn('credentials', {
         username,
         password,
-        callbackUrl: '/admin/dashboard',
         redirect: false,
+        callbackUrl: '/admin/dashboard',
       });
 
+      console.log('Wynik logowania:', result);
+
       if (result?.error) {
-        setError(`Błąd logowania: ${result.error}`);
-        console.error('Błąd logowania:', result);
+        console.error('Błąd logowania:', result.error);
+        setError(result.error);
       } else if (result?.ok) {
-        window.location.href = '/admin/dashboard';
+        console.log('Logowanie udane, przekierowuję...');
+        router.push('/admin/dashboard');
       } else {
-        setError('Wystąpił nieznany błąd podczas logowania');
-        console.error('Nieznany błąd:', result);
+        console.error('Nieoczekiwany wynik:', result);
+        setError('Wystąpił nieoczekiwany błąd');
       }
     } catch (err) {
-      console.error('Błąd logowania:', err);
-      setError(err instanceof Error ? err.message : 'Wystąpił nieznany błąd podczas logowania');
+      console.error('Błąd podczas logowania:', err);
+      setError('Wystąpił błąd podczas logowania');
     } finally {
       setIsLoading(false);
     }

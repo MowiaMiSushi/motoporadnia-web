@@ -1,22 +1,16 @@
+import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  // Pozwól na dostęp do strony logowania
-  if (request.nextUrl.pathname === '/admin/login') {
+export default withAuth(
+  function middleware(req) {
     return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
   }
-
-  // Dla innych ścieżek admin sprawdź token w ciasteczku
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    const token = request.cookies.get('next-auth.session-token');
-    if (!token) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
-    }
-  }
-
-  return NextResponse.next();
-}
+);
 
 export const config = {
   matcher: ['/admin/:path*']

@@ -53,25 +53,23 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 dni
   },
   pages: {
     signIn: '/admin/login',
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
     async session({ session, token }) {
       if (session?.user) {
         session.user.id = token.sub as string;
         session.user.role = token.role as string;
       }
       return session;
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
     }
-  },
-  debug: process.env.NODE_ENV === 'development',
+  }
 } 
