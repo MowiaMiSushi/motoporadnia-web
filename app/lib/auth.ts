@@ -73,13 +73,6 @@ export const authOptions: AuthOptions = {
         session.user.role = token.role as string;
       }
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      // Zawsze przekieruj do dashboardu po zalogowaniu
-      if (url.includes('/api/auth/signin') || url.includes('/admin/login')) {
-        return `${baseUrl}/admin/dashboard`;
-      }
-      return url.startsWith(baseUrl) ? url : baseUrl;
     }
   }
 } 
