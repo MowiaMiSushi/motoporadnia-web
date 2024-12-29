@@ -19,17 +19,26 @@ export default function LoginPage() {
 
       console.log('Próba logowania:', { username });
 
-      // Użyj bezpośredniego przekierowania
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         username,
         password,
-        callbackUrl: '/admin/dashboard',
-        redirect: true
+        redirect: false,
       });
 
+      console.log('Wynik logowania:', result);
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.ok) {
+        // Użyj window.location.href zamiast redirect: true
+        window.location.href = '/admin/dashboard';
+      } else {
+        setError('Wystąpił nieznany błąd');
+      }
     } catch (err) {
       console.error('Błąd logowania:', err);
       setError(err instanceof Error ? err.message : 'Wystąpił nieznany błąd');
+    } finally {
       setIsLoading(false);
     }
   }
@@ -43,25 +52,31 @@ export default function LoginPage() {
             {error}
           </div>
         )}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              Login
+            </label>
             <input
+              id="username"
               name="username"
               type="text"
-              placeholder="Login"
               required
               disabled={isLoading}
-              className="w-full p-2 border rounded"
+              className="mt-1 w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <div className="mb-6">
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              Hasło
+            </label>
             <input
+              id="password"
               name="password"
               type="password"
-              placeholder="Hasło"
               required
               disabled={isLoading}
-              className="w-full p-2 border rounded"
+              className="mt-1 w-full p-2 border rounded focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <button
