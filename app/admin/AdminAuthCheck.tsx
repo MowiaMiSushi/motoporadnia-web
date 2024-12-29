@@ -17,12 +17,21 @@ export default function AdminAuthCheck({
   useEffect(() => {
     if (status === 'loading') return;
 
+    console.log('Status sesji:', status);
+    console.log('Sesja:', session);
+    console.log('Ścieżka:', pathname);
+
     if (!session && !isLoginPage) {
-      router.push('/admin/login');
+      console.log('Przekierowanie do logowania - brak sesji');
+      router.replace('/admin/login');
     } else if (session?.user?.role === 'admin' && isLoginPage) {
-      router.push('/admin/dashboard');
+      console.log('Przekierowanie do dashboardu - zalogowany admin');
+      router.replace('/admin/dashboard');
+    } else if (session && session.user?.role !== 'admin') {
+      console.log('Przekierowanie do logowania - brak uprawnień admina');
+      router.replace('/admin/login');
     }
-  }, [session, status, router, isLoginPage]);
+  }, [session, status, router, isLoginPage, pathname]);
 
   // Podczas ładowania pokaż loader
   if (status === 'loading') {
@@ -33,8 +42,8 @@ export default function AdminAuthCheck({
     );
   }
 
-  // Jeśli to nie jest strona logowania i użytkownik nie jest zalogowany, nie renderuj nic
-  if (!isLoginPage && !session?.user?.role) {
+  // Jeśli to nie jest strona logowania i użytkownik nie jest zalogowany lub nie jest adminem, nie renderuj nic
+  if (!isLoginPage && (!session?.user?.role || session.user.role !== 'admin')) {
     return null;
   }
 

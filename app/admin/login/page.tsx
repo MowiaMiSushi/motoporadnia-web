@@ -25,11 +25,13 @@ export default function LoginPage() {
         username,
         password,
         redirect: false,
+        callbackUrl: '/admin/dashboard'
       });
 
       console.log('Wynik logowania:', result);
 
       if (result?.error) {
+        console.error('Błąd logowania:', result.error);
         setError('Nieprawidłowy login lub hasło');
       } else if (result?.ok) {
         router.replace('/admin/dashboard');
