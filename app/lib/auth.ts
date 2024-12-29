@@ -60,20 +60,6 @@ export const authOptions: AuthOptions = {
     signOut: '/',
     error: '/admin/login',
   },
-  basePath: '/api/auth',
-  trustHost: true,
-  useSecureCookies: true,
-  cookies: {
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true
-      }
-    }
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -93,7 +79,7 @@ export const authOptions: AuthOptions = {
       if (url.includes('/api/auth/signin') || url.includes('/admin/login')) {
         return `${baseUrl}/admin/dashboard`;
       }
-      return url;
+      return url.startsWith(baseUrl) ? url : baseUrl;
     }
   }
 } 
