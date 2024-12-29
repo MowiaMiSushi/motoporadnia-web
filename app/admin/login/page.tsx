@@ -19,12 +19,11 @@ export default function LoginPage() {
 
       console.log('Próba logowania:', { username });
 
-      const baseUrl = window.location.origin;
+      // Najpierw spróbuj zalogować bez przekierowania
       const result = await signIn('credentials', {
         username,
         password,
         redirect: false,
-        callbackUrl: `${baseUrl}/admin/dashboard`
       });
 
       console.log('Wynik logowania:', result);
@@ -34,12 +33,17 @@ export default function LoginPage() {
       }
 
       if (result.error) {
+        console.error('Błąd logowania:', result.error);
         setError(result.error);
       } else if (result.ok) {
-        // Poczekaj chwilę przed przekierowaniem
-        setTimeout(() => {
-          window.location.href = `${baseUrl}/admin/dashboard`;
-        }, 500);
+        console.log('Logowanie udane, przekierowuję...');
+        // Użyj bezpośredniego przekierowania
+        signIn('credentials', {
+          username,
+          password,
+          callbackUrl: '/admin/dashboard',
+          redirect: true,
+        });
       }
     } catch (err) {
       console.error('Błąd logowania:', err);
