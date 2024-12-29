@@ -2,7 +2,7 @@ export const contactData = {
   hero: {
     title: "Kontakt",
     description: "Jesteśmy do Twojej dyspozycji. Skontaktuj się z nami w dogodny dla Ciebie sposób.",
-    images: ["/images/hero-bg_1.jpg", "/images/hero-bg_2.jpg", "/images/hero-bg_3.jpg"]
+    images: ["/images/hero-bg_1.webp", "/images/hero-bg_2.webp", "/images/hero-bg_3.webp"]
   },
   contactInfo: {
     address: {
