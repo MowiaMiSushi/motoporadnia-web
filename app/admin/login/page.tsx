@@ -1,13 +1,36 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
-import { FormEvent, useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { FormEvent, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    if (session) {
+      router.replace('/admin/dashboard');
+    }
+  }, [session, router]);
+
+  // Jeśli trwa ładowanie sesji, pokaż loader
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-t-[#C62400] border-gray-200 rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Jeśli użytkownik jest zalogowany, nie pokazuj formularza
+  if (session) {
+    return null;
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -19,30 +42,20 @@ export default function LoginPage() {
       const username = formData.get('username') as string;
       const password = formData.get('password') as string;
 
-      console.log('Próba logowania:', { username });
-
       const result = await signIn('credentials', {
         username,
         password,
         redirect: false,
-        callbackUrl: '/admin/dashboard',
       });
 
-      console.log('Wynik logowania:', result);
-
       if (result?.error) {
-        console.error('Błąd logowania:', result.error);
         setError(result.error);
       } else if (result?.ok) {
-        console.log('Logowanie udane, przekierowuję...');
-        router.push('/admin/dashboard');
-      } else {
-        console.error('Nieoczekiwany wynik:', result);
-        setError('Wystąpił nieoczekiwany błąd');
+        router.replace('/admin/dashboard');
       }
     } catch (err) {
-      console.error('Błąd podczas logowania:', err);
       setError('Wystąpił błąd podczas logowania');
+      console.error('Błąd logowania:', err);
     } finally {
       setIsLoading(false);
     }
