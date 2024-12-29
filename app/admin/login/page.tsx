@@ -19,11 +19,12 @@ export default function LoginPage() {
 
       console.log('Próba logowania:', { username });
 
+      const baseUrl = window.location.origin;
       const result = await signIn('credentials', {
         username,
         password,
         redirect: false,
-        callbackUrl: '/admin/dashboard'
+        callbackUrl: `${baseUrl}/admin/dashboard`
       });
 
       console.log('Wynik logowania:', result);
@@ -37,7 +38,7 @@ export default function LoginPage() {
       } else if (result.ok) {
         // Poczekaj chwilę przed przekierowaniem
         setTimeout(() => {
-          window.location.href = '/admin/dashboard';
+          window.location.href = `${baseUrl}/admin/dashboard`;
         }, 500);
       }
     } catch (err) {
