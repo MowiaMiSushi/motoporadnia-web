@@ -1,11 +1,31 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, useEffect } from 'react';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [dbStatus, setDbStatus] = useState<string>('');
+
+  useEffect(() => {
+    // Sprawdź stan bazy przy ładowaniu strony
+    async function checkDatabase() {
+      try {
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
+        if (data.error) {
+          setDbStatus(`Problem z bazą danych: ${data.message}`);
+        } else {
+          setDbStatus(`Baza danych działa poprawnie. Admin: ${data.admin.username}`);
+        }
+      } catch (err) {
+        setDbStatus('Nie można połączyć się z bazą danych');
+        console.error('Błąd sprawdzania bazy:', err);
+      }
+    }
+    checkDatabase();
+  }, []);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -47,6 +67,11 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full p-8 bg-white rounded-lg shadow">
         <h2 className="text-2xl font-bold text-center mb-6">Panel administracyjny</h2>
+        {dbStatus && (
+          <div className="mb-4 p-3 text-sm bg-blue-50 text-blue-600 rounded">
+            {dbStatus}
+          </div>
+        )}
         {error && (
           <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded">
             {error}

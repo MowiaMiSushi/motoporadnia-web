@@ -19,25 +19,35 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials: Credentials | undefined) {
         try {
+          console.log('Rozpoczynam autoryzację:', { username: credentials?.username });
+
           if (!credentials?.username || !credentials?.password) {
+            console.log('Brak danych logowania');
             throw new Error('Wprowadź login i hasło');
           }
 
+          console.log('Łączę z bazą danych...');
           const { db } = await connectToDatabase();
+          
+          console.log('Szukam użytkownika...');
           const user = await db.collection('users').findOne({
             username: credentials.username,
           });
 
+          console.log('Znaleziono użytkownika:', !!user);
           if (!user) {
             throw new Error('Nieprawidłowy login lub hasło');
           }
 
+          console.log('Sprawdzam hasło...');
           const isValid = await compare(credentials.password, user.password);
+          console.log('Hasło poprawne:', isValid);
 
           if (!isValid) {
             throw new Error('Nieprawidłowy login lub hasło');
           }
 
+          console.log('Logowanie udane, zwracam dane użytkownika');
           return {
             id: user._id.toString(),
             name: user.username,
@@ -61,6 +71,7 @@ export const authOptions: AuthOptions = {
   },
   callbacks: {
     async jwt({ token, user }) {
+      console.log('JWT Callback:', { token, user });
       if (user) {
         token.role = user.role;
         token.id = user.id;
@@ -68,6 +79,7 @@ export const authOptions: AuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      console.log('Session Callback:', { session, token });
       if (session.user) {
         session.user.role = token.role as string;
         session.user.id = token.id as string;
@@ -75,5 +87,5 @@ export const authOptions: AuthOptions = {
       return session;
     },
   },
-  debug: false,
+  debug: true, // Włączamy tryb debug, żeby zobaczyć więcej informacji
 } 
