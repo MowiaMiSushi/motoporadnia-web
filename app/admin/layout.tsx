@@ -11,13 +11,25 @@ export default function AdminLayout({
   return (
     <>
       <style jsx global>{`
-        header, .top-bar {
+        body > header,
+        body > div > header,
+        body > div.top-bar,
+        div[class*="top-bar"],
+        div[class*="topBar"],
+        nav.top-bar,
+        .top-bar,
+        #top-bar {
           display: none !important;
         }
-        #__next {
+        body {
           padding-top: 0 !important;
+          margin-top: 0 !important;
         }
-        main {
+        #__next, 
+        main,
+        div[class*="main"],
+        div[class*="content"] {
+          padding-top: 0 !important;
           margin-top: 0 !important;
         }
       `}</style>
