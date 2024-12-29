@@ -10,7 +10,7 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white shadow-md z-10">
+    <nav className="sticky top-[176px] bg-white shadow-md z-10">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-wrap items-center justify-between h-16">
           <Link

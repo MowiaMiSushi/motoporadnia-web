@@ -9,38 +9,15 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <style jsx global>{`
-        body > header,
-        body > div > header,
-        body > div.top-bar,
-        div[class*="top-bar"],
-        div[class*="topBar"],
-        nav.top-bar,
-        .top-bar,
-        #top-bar {
-          display: none !important;
-        }
-        body {
-          padding-top: 0 !important;
-          margin-top: 0 !important;
-        }
-        #__next, 
-        main,
-        div[class*="main"],
-        div[class*="content"] {
-          padding-top: 0 !important;
-          margin-top: 0 !important;
-        }
-      `}</style>
-      <AdminAuthCheck>
-        <div className="min-h-screen bg-gray-100">
+    <AdminAuthCheck>
+      <div className="min-h-screen bg-gray-100">
+        <div className="pt-[176px]"> {/* Wysokość top-bara (44px) + headera (132px) */}
           <AdminNav />
           <main className="pt-16 px-4">
             {children}
           </main>
         </div>
-      </AdminAuthCheck>
-    </>
+      </div>
+    </AdminAuthCheck>
   );
 } 
