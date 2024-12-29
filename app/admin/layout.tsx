@@ -1,6 +1,7 @@
 'use client';
 
 import AdminAuthCheck from './components/AdminAuthCheck';
+import AdminNav from '@/app/components/admin/AdminNav';
 
 export default function AdminLayout({
   children,
@@ -9,8 +10,11 @@ export default function AdminLayout({
 }) {
   return (
     <AdminAuthCheck>
-      <div className="min-h-screen bg-gray-50">
-        <main>{children}</main>
+      <div className="min-h-screen bg-gray-100">
+        <AdminNav />
+        <main className="pt-16">
+          {children}
+        </main>
       </div>
     </AdminAuthCheck>
   );
