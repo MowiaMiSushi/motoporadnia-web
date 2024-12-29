@@ -9,6 +9,10 @@ import { signOut } from 'next-auth/react';
 export default function AdminNav() {
   const pathname = usePathname();
 
+  const handleSignOut = async () => {
+    await signOut({ redirect: true, callbackUrl: '/' });
+  };
+
   return (
     <nav className="bg-white shadow-md">
       <div className="max-w-7xl mx-auto px-4">
@@ -65,7 +69,7 @@ export default function AdminNav() {
             </Link>
             
             <button
-              onClick={() => signOut({ callbackUrl: '/admin/login' })}
+              onClick={handleSignOut}
               className="text-lg flex items-center space-x-2 p-2 rounded hover:bg-gray-100 text-gray-600"
             >
               <FontAwesomeIcon icon={faSignOutAlt} className="w-5 h-5" />
