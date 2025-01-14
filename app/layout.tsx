@@ -5,7 +5,11 @@ import { Providers } from './providers';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: 'MotoPoradnia',
@@ -18,7 +22,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl">
+    <html lang="pl" className={inter.className}>
       <body className={inter.className}>
         <Providers>
           <Header />
