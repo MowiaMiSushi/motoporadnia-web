@@ -75,10 +75,15 @@ export const authOptions: AuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
+      if (url.includes('/admin/login')) {
+        return `${baseUrl}/admin/dashboard`;
+      }
+      
       const callbackUrl = new URL(url, baseUrl).searchParams.get('callbackUrl');
       if (callbackUrl && callbackUrl.startsWith(baseUrl)) {
         return callbackUrl;
       }
+      
       return `${baseUrl}/admin/dashboard`;
     }
   }

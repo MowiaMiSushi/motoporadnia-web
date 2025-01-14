@@ -19,26 +19,15 @@ export default function LoginPage() {
       const username = formData.get('username') as string;
       const password = formData.get('password') as string;
 
-      console.log('Próba logowania:', { username });
-
       const result = await signIn('credentials', {
         username,
         password,
-        redirect: false,
+        redirect: true,
         callbackUrl: '/admin/dashboard',
       });
 
-      console.log('Wynik logowania:', result);
-
       if (result?.error) {
-        console.error('Błąd logowania:', result.error);
         setError(result.error);
-      } else if (result?.ok) {
-        console.log('Logowanie udane, przekierowuję...');
-        router.push('/admin/dashboard');
-      } else {
-        console.error('Nieoczekiwany wynik:', result);
-        setError('Wystąpił nieoczekiwany błąd');
       }
     } catch (err) {
       console.error('Błąd podczas logowania:', err);
