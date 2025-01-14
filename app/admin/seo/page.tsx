@@ -140,11 +140,28 @@ export default function SeoAdmin() {
 
   const fetchSeoData = async () => {
     try {
-      const response = await fetch('/api/admin/seo');
+      setIsLoading(true);
+      const response = await fetch('/api/admin/seo', {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
       if (response.ok) {
         const data = await response.json();
         console.log('Pobrane dane SEO:', data);
         setSeoData(data);
+        
+        if (selectedPage) {
+          const updatedPage = pages.find(p => p.id === selectedPage.id);
+          if (updatedPage) {
+            setSelectedPage({
+              ...updatedPage,
+              seoData: data[updatedPage.id] || updatedPage.seoData
+            });
+          }
+        }
       } else {
         console.error('Failed to fetch SEO data:', await response.text());
         if (Object.keys(seoData).length === 0) {
@@ -166,6 +183,12 @@ export default function SeoAdmin() {
   };
 
   useEffect(() => {
+    if (selectedPage) {
+      fetchSeoData();
+    }
+  }, [selectedPage?.id]);
+
+  useEffect(() => {
     fetchSeoData();
   }, []);
 
@@ -174,7 +197,6 @@ export default function SeoAdmin() {
 
     try {
       console.log('Rozpoczynam zapisywanie dla strony:', selectedPage.id);
-      console.log('Aktualne dane SEO:', seoData);
       
       const updatedSeoData = {
         ...seoData,
@@ -187,6 +209,7 @@ export default function SeoAdmin() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
         },
         body: JSON.stringify(updatedSeoData),
       });
@@ -195,7 +218,9 @@ export default function SeoAdmin() {
       
       if (response.ok) {
         setSeoData(updatedSeoData);
+        
         await fetchSeoData();
+        
         showNotification({
           title: 'Sukces',
           message: `Ustawienia SEO dla strony "${selectedPage.name}" zostały zapisane`,
