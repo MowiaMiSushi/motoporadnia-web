@@ -125,16 +125,6 @@ export default function Komis() {
             <p className="text-xl text-white/90 max-w-3xl mx-auto mb-8">
               {content.hero.description}
             </p>
-            <a
-              href="https://www.otomoto.pl/"
-              className="inline-flex items-center text-white font-semibold bg-[#C62400] hover:bg-[#A01D00] px-8 py-3 rounded-lg transition-colors"
-              aria-label="Zobacz nasze ogłoszenia"
-            >
-              Zobacz nasze ogłoszenia
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </a>
           </div>
         </div>
       </section>
