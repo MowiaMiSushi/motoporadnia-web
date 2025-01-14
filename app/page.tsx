@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWrench, faTruck, faHandshake, faGraduationCap, faMotorcycle, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 
 interface HomePageContent {
   hero: {
@@ -182,16 +181,18 @@ export default function Home() {
       <section className="relative h-[80vh] flex items-center justify-center bg-black" aria-label="Baner gówny">
         <div className="absolute inset-0 bg-black/50 z-0" />
         {content.hero.images.map((image, index) => (
-          <Image
+          <div
             key={image}
-            src={image}
-            alt="Zdjęcie motocykla w tle"
-            fill
-            priority
-            quality={75}
-            sizes="100vw"
             className="absolute inset-0 transition-opacity duration-1000 hero-image"
-            style={{ objectFit: 'cover' }}
+            style={{
+              backgroundImage: `url('${image}')`,
+              opacity: currentImageIndex === index ? 1 : 0,
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat'
+            }}
+            role="img"
+            aria-label="Zdjęcie motocykla w tle"
           />
         ))}
         <div 
