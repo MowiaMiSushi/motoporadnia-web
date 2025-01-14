@@ -315,7 +315,7 @@ export default function Home() {
             </a>
             <Link
               href={content.cta.secondaryButton.link}
-              className="btn-secondary bg-white/10 hover:bg-white/20 text-black px-8 py-3 rounded-lg transition-colors hover:shadow-lg hover:bg-grey-100"
+              className="bg-white text-gray-900 px-8 py-3 rounded-lg transition-colors inline-flex items-center justify-center hover:bg-gray-50 border border-gray-200"
             >
               <FontAwesomeIcon icon={faEnvelope} className="mr-2" aria-hidden="true" />
               {content.cta.secondaryButton.text}
