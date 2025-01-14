@@ -138,46 +138,34 @@ export default function SeoAdmin() {
   const [seoData, setSeoData] = useState<{ [key: string]: any }>({});
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchSeoData = async () => {
-      try {
-        const response = await fetch('/api/admin/seo');
-        if (response.ok) {
-          const data = await response.json();
-          setSeoData(data);
-        } else {
-          console.error('Failed to fetch SEO data:', await response.text());
-          // Używamy domyślnych danych z tablicy pages
+  const fetchSeoData = async () => {
+    try {
+      const response = await fetch('/api/admin/seo');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Pobrane dane SEO:', data);
+        setSeoData(data);
+      } else {
+        console.error('Failed to fetch SEO data:', await response.text());
+        if (Object.keys(seoData).length === 0) {
           const defaultData = pages.reduce<Record<string, SeoData>>((acc, page) => {
             acc[page.id] = page.seoData;
             return acc;
           }, {});
           setSeoData(defaultData);
-          showNotification({
-            title: 'Informacja',
-            message: 'Załadowano domyślne ustawienia SEO',
-            type: 'info'
-          });
         }
-      } catch (error) {
-        console.error('Error fetching SEO data:', error);
-        // Używamy domyślnych danych z tablicy pages
-        const defaultData = pages.reduce<Record<string, SeoData>>((acc, page) => {
-          acc[page.id] = page.seoData;
-          return acc;
-        }, {});
-        setSeoData(defaultData);
-        showNotification({
-          title: 'Informacja',
-          message: 'Załadowano domyślne ustawienia SEO',
-          type: 'info'
-        });
-      } finally {
-        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching SEO data:', error);
+    } finally {
+      setIsLoading(false);
+      if (!selectedPage) {
         setSelectedPage(pages[0]);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchSeoData();
   }, []);
 
@@ -207,12 +195,12 @@ export default function SeoAdmin() {
       
       if (response.ok) {
         setSeoData(updatedSeoData);
+        await fetchSeoData();
         showNotification({
           title: 'Sukces',
           message: `Ustawienia SEO dla strony "${selectedPage.name}" zostały zapisane`,
           type: 'success'
         });
-        router.refresh();
       } else {
         const errorData = await response.json();
         console.error('Odpowiedź błędu:', errorData);
@@ -249,7 +237,10 @@ export default function SeoAdmin() {
               {pages.map((page) => (
                 <button
                   key={page.id}
-                  onClick={() => setSelectedPage(page)}
+                  onClick={() => {
+                    setSelectedPage(page);
+                    console.log('Wybrana strona:', page.id);
+                  }}
                   className={`w-full flex items-center px-4 py-2 text-sm font-medium rounded-md ${
                     selectedPage?.id === page.id
                       ? 'bg-red-50 text-red-700'
