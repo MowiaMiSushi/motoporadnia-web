@@ -52,10 +52,12 @@ export const authOptions: AuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60,
   },
   pages: {
     signIn: '/admin/login',
+    signOut: '/',
     error: '/admin/login',
   },
   callbacks: {
@@ -71,6 +73,13 @@ export const authOptions: AuthOptions = {
         session.user.role = token.role as string;
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      const callbackUrl = new URL(url, baseUrl).searchParams.get('callbackUrl');
+      if (callbackUrl && callbackUrl.startsWith(baseUrl)) {
+        return callbackUrl;
+      }
+      return `${baseUrl}/admin/dashboard`;
     }
   }
 } 
