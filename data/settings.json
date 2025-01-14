@@ -1,0 +1,19 @@
+{
+  "siteTitle": "MotoPoradnia - Warsztat Motocyklowy",
+  "siteDescription": "Profesjonalny serwis motocyklowy, transport, szkolenia i pomoc w zakupie motocykli",
+  "contactEmail": "kontakt@motoporadnia.pl",
+  "phoneNumber": "+48 789 059 578",
+  "address": "ul. Węglowa 9/11 60-122 Poznań",
+  "openingHours": "Poniedziałek - Piątek: 8:30 - 16:30, Weekend - Odpoczywamy",
+  "socialMedia": {
+    "facebook": "https://facebook.com/motoporadnia",
+    "instagram": "https://instagram.com/motoporadnia"
+  },
+  "seo": {
+    "defaultTitle": "MotoPoradnia - Profesjonalny Serwis Motocyklowy w Poznaniu",
+    "defaultDescription": "MotoPoradnia oferuje profesjonalny serwis motocyklowy, transport motocykli, szkolenia i pomoc w zakupie. Sprawdź naszą ofertę!",
+    "defaultKeywords": "serwis motocyklowy, warsztat motocyklowy, naprawa motocykli, transport motocykli, szkolenia motocyklowe, pomoc w zakupie motocykla, Poznań",
+    "googleAnalyticsId": "",
+    "googleSearchConsoleId": ""
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "hero": {
+    "title": "Szkolenia motocyklowe na torze.",
+    "description": "Profesjonalne szkolenia na najlepszych torach w Polsce. Rozwijaj swoje umiejętności pod okiem doświadczonych instruktorów.",
+    "images": [
+      "/images/szkolenia_1.jpg",
+      "/images/szkolenia_2.jpeg",
+      "/images/szkolenia_3.jpg"
+    ]
+  },
+  "trainings": [
+    {
+      "id": "tor-bydgoszcz",
+      "name": "Szkolenie na torze Bydgoszcz",
+      "description": "Profesjonalne szkolenie na jednym z najlepszych torów w Polsce. Poznaj techniki jazdy torowej i popraw swoje umiejętności pod okiem doświadczonych instruktorów.",
+      "includes": [
+        "Teoria jazdy torowej",
+        "Techniki pokonywania zakrętów",
+        "Pozycja na motocyklu",
+        "Analiza telemetrii",
+        "Materiały szkoleniowe"
+      ]
+    },
+    {
+      "id": "tor-kisielin",
+      "name": "Szkolenie na torze Stary Kisielin",
+      "description": "Szkolenie na technicznym torze w Starym Kisielinie. Idealne miejsce do nauki precyzyjnej jazdy i doskonalenia techniki.",
+      "includes": [
+        "Teoria jazdy torowej",
+        "Dobór linii przejazdu",
+        "Techniki hamowania",
+        "Praca z gazem",
+        "Analiza przejazdów"
+      ]
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "title": "Szkolenie Bydgoszcz - Kwiecień 2025",
+      "date": "12-13.04.2025",
+      "location": "Tor Bydgoszcz",
+      "fbEvent": "https://facebook.com/events/123",
+      "description": "Dwudniowe szkolenie na torze w Bydgoszczy. Grupa początkująca i średniozaawansowana."
+    },
+    {
+      "id": 2,
+      "title": "Szkolenie Stary Kisielin - Maj 2025",
+      "date": "18-19.05.2025",
+      "location": "Tor Stary Kisielin",
+      "fbEvent": "https://facebook.com/events/124",
+      "description": "Intensywne szkolenie dla wszystkich poziomów zaawansowania."
+    },
+    {
+      "id": 3,
+      "title": "Szkolenie Bydgoszcz - Czerwiec 2025",
+      "date": "15-16.06.2025",
+      "location": "Tor Bydgoszcz",
+      "fbEvent": "https://facebook.com/events/125",
+      "description": "Szkolenie zaawansowane z analizą telemetrii."
+    },
+    {
+      "id": 4,
+      "title": "Szkolenie Stary Kisielin - Lipiec 2025",
+      "date": "20-21.07.2025",
+      "location": "Tor Stary Kisielin",
+      "fbEvent": "https://facebook.com/events/126",
+      "description": "Szkolenie dla początkujących i średniozaawansowanych."
+    },
+    {
+      "id": 5,
+      "title": "Szkolenie Bydgoszcz - Sierpień 2025",
+      "date": "17-18.08.2025",
+      "location": "Tor Bydgoszcz",
+      "fbEvent": "https://facebook.com/events/127",
+      "description": "Ostatnie letnie szkolenie na torze w Bydgoszczy."
+    }
+  ],
+  "cta": {
+    "title": "Gotowy na nowe wyzwania?",
+    "description": "Skontaktuj się z nami i rozpocznij swoją przygodę z jazdą torową",
+    "phoneNumber": "789059578"
+  },
+  "schedule": {
+    "title": "Harmonogram szkoleń 2025",
+    "subtitle": "Zapisz się na najbliższy termin"
+  }
+}

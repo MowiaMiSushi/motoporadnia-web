@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "title": "Serwis motocykli",
+    "description": "Profesjonalny serwis motocykli wszystkich marek. Naprawy, przeglądy i diagnostyka.",
+    "images": [
+      "/images/serwis_1.jpg",
+      "/images/serwis_2.jpg",
+      "/images/serwis_3.jpg"
+    ]
+  },
+  "mainSections": [
+    {
+      "title": "Kompleksowa obsługa serwisowa",
+      "content": "Nasz serwis oferuje pełen zakres usług serwisowych dla motocykli wszystkich marek. Dysponujemy profesjonalnym sprzętem diagnostycznym i doświadczoną kadrą mechaników.",
+      "image": "/images/serwis_1.jpg"
+    },
+    {
+      "title": "Nowoczesne wyposażenie",
+      "content": "Korzystamy z najnowocześniejszego sprzętu diagnostycznego i narzędzi, co pozwala nam na precyzyjną diagnostykę i skuteczne naprawy.",
+      "image": "/images/serwis_2.jpg"
+    }
+  ],
+  "services": [
+    {
+      "title": "Przegląd okresowy",
+      "description": "Kompleksowy przegląd techniczny motocykla zgodnie z zaleceniami producenta.",
+      "price": "od 200 zł"
+    },
+    {
+      "title": "Wymiana oleju",
+      "description": "Wymiana oleju silnikowego wraz z filtrem.",
+      "price": "od 150 zł"
+    },
+    {
+      "title": "Diagnostyka komputerowa",
+      "description": "Pełna diagnostyka elektroniki motocykla.",
+      "price": "od 100 zł"
+    }
+  ],
+  "features": {
+    "title": "Co wyróżnia nasz serwis?",
+    "items": [
+      "Profesjonalny sprzęt diagnostyczny",
+      "Doświadczeni mechanicy",
+      "Szybka realizacja napraw",
+      "Konkurencyjne ceny",
+      "Gwarancja na wykonane usługi",
+      "Możliwość transportu motocykla"
+    ]
+  },
+  "additionalInfo": {
+    "title": "Informacje dodatkowe",
+    "description": "Przed rozpoczęciem prac serwisowych zawsze:",
+    "items": [
+      "Przeprowadzamy dokładną diagnostykę",
+      "Konsultujemy z klientem zakres prac",
+      "Przedstawiamy szczegółowy kosztorys",
+      "Ustalamy termin realizacji",
+      "Informujemy o postępach prac"
+    ]
+  }
+}

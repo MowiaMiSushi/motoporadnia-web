@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "title": "Komis motocyklowy.",
+    "description": "Profesjonalny skup i sprzedaż motocykli używanych. Gwarantujemy uczciwą wycenę i bezpieczne transakcje.",
+    "images": [
+      "/images/komis_1.jpg",
+      "/images/hero-bg_1.jpg",
+      "/images/hero-bg_2.jpg"
+    ]
+  },
+  "platforms": [
+    {
+      "name": "OtoMoto",
+      "description": "Największa platforma ogłoszeń motoryzacyjnych w Polsce",
+      "url": "https://www.otomoto.pl/",
+      "icon": "faMotorcycle"
+    },
+    {
+      "name": "OLX",
+      "description": "Popularna platforma ogłoszeniowa z szerokim wyborem motocykli",
+      "url": "https://www.olx.pl/",
+      "icon": "faMotorcycle"
+    },
+    {
+      "name": "Facebook",
+      "description": "Społecznościowa platforma ogłoszeniowa",
+      "url": "https://www.facebook.com/motoporadnia/?locale=pl_PL",
+      "icon": "faFacebook"
+    },
+    {
+      "name": "Instagram",
+      "description": "Śledź nasze najnowsze ogłoszenia na Instagramie",
+      "url": "https://www.instagram.com/motoporadnia/",
+      "icon": "faInstagram"
+    }
+  ],
+  "steps": [
+    {
+      "title": "Wstępna wycena",
+      "description": "Na podstawie przesłanych zdjęć i opisu dokonujemy wstępnej wyceny motocykla.",
+      "icon": "faSearch"
+    },
+    {
+      "title": "Oględziny",
+      "description": "Umawiamy się na spotkanie, podczas którego dokładnie sprawdzamy stan techniczny pojazdu.",
+      "icon": "faListCheck"
+    },
+    {
+      "title": "Dokumentacja fotograficzna",
+      "description": "Wykonujemy profesjonalne zdjęcia motocykla do ogłoszenia.",
+      "icon": "faCamera"
+    },
+    {
+      "title": "Umowa komisu",
+      "description": "Podpisujemy umowę komisową, ustalając warunki sprzedaży.",
+      "icon": "faFileContract"
+    },
+    {
+      "title": "Wystawienie ogłoszenia",
+      "description": "Przygotowujemy atrakcyjne ogłoszenie i publikujemy je na popularnych portalach.",
+      "icon": "faHandshake"
+    },
+    {
+      "title": "Finalizacja sprzedaży",
+      "description": "Po znalezieniu kupca finalizujemy transakcję i wypłacamy środki.",
+      "icon": "faMoneyBillWave"
+    }
+  ],
+  "cta": {
+    "title": "Chcesz sprzedać lub kupić motocykl?",
+    "description": "Skontaktuj się z nami i skorzystaj z naszego doświadczenia",
+    "phoneNumber": "789059578"
+  }
+}

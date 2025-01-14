@@ -1,0 +1,56 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+@layer components {
+  iframe {
+    border-radius: 0.5rem;
+  }
+
+  .login-input {
+    @apply appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-red-500 focus:border-red-500 focus:z-10 sm:text-sm transition-colors;
+  }
+
+  .login-input:first-of-type {
+    @apply rounded-t-md;
+  }
+
+  .login-input:last-of-type {
+    @apply rounded-b-md;
+  }
+
+  .login-button {
+    @apply w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#C62400] hover:bg-[#A01D00] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors;
+  }
+
+  .login-button:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-image {
+    background-position: center 25% !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hero-image {
+    background-position: center center !important;
+  }
+}
