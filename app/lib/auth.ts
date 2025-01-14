@@ -52,12 +52,10 @@ export const authOptions: AuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'jwt',
-    maxAge: 24 * 60 * 60, // 24 godziny
+    strategy: "jwt",
   },
   pages: {
     signIn: '/admin/login',
-    signOut: '/',
     error: '/admin/login',
   },
   callbacks: {
