@@ -103,7 +103,7 @@ const pages: PageSeo[] = [
     }
   },
   {
-    id: 'purchase-help',
+    id: 'pomoc-w-zakupie',
     name: 'Pomoc w zakupie',
     path: '/uslugi/pomoc-w-zakupie',
     icon: faHandshake,
@@ -190,6 +190,9 @@ export default function SeoAdmin() {
         [selectedPage.id]: pageSeoData
       };
 
+      console.log('Saving SEO data for page:', selectedPage.id);
+      console.log('Updated SEO data:', updatedSeoData);
+
       const response = await fetch('/api/admin/seo', {
         method: 'POST',
         headers: {
@@ -202,18 +205,19 @@ export default function SeoAdmin() {
         setSeoData(updatedSeoData);
         showNotification({
           title: 'Sukces',
-          message: 'Ustawienia SEO zostały zapisane',
+          message: `Ustawienia SEO dla strony "${selectedPage.name}" zostały zapisane`,
           type: 'success'
         });
         router.refresh();
       } else {
-        throw new Error(await response.text());
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Unknown error');
       }
     } catch (err) {
       console.error('Błąd podczas zapisywania ustawień SEO:', err);
       showNotification({
         title: 'Błąd',
-        message: 'Wystąpił błąd podczas zapisywania ustawień SEO',
+        message: `Nie udało się zapisać ustawień SEO dla strony "${selectedPage.name}"`,
         type: 'error'
       });
     }
