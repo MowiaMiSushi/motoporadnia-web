@@ -1,10 +1,21 @@
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-const handleLogout = async () => {
+export default function AdminNav() {
   const router = useRouter();
-  await signOut({ 
-    redirect: false
-  });
-  router.push('/');
-}; 
+
+  const handleLogout = async () => {
+    await signOut({ 
+      redirect: false
+    });
+    router.push('/');
+  }; 
+
+  return (
+    // ... reszta komponentu ...
+    <button onClick={handleLogout}>
+      Wyloguj się
+    </button>
+    // ... reszta komponentu ...
+  );
+} 
