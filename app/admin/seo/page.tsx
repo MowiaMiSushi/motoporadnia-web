@@ -103,7 +103,7 @@ const pages: PageSeo[] = [
     }
   },
   {
-    id: 'pomoc-w-zakupie',
+    id: 'purchase-help',
     name: 'Pomoc w zakupie',
     path: '/uslugi/pomoc-w-zakupie',
     icon: faHandshake,
@@ -185,13 +185,15 @@ export default function SeoAdmin() {
     if (!selectedPage) return;
 
     try {
+      console.log('Rozpoczynam zapisywanie dla strony:', selectedPage.id);
+      console.log('Aktualne dane SEO:', seoData);
+      
       const updatedSeoData = {
         ...seoData,
         [selectedPage.id]: pageSeoData
       };
 
-      console.log('Saving SEO data for page:', selectedPage.id);
-      console.log('Updated SEO data:', updatedSeoData);
+      console.log('Dane do wysłania:', updatedSeoData);
 
       const response = await fetch('/api/admin/seo', {
         method: 'POST',
@@ -201,6 +203,8 @@ export default function SeoAdmin() {
         body: JSON.stringify(updatedSeoData),
       });
 
+      console.log('Status odpowiedzi:', response.status);
+      
       if (response.ok) {
         setSeoData(updatedSeoData);
         showNotification({
@@ -211,6 +215,7 @@ export default function SeoAdmin() {
         router.refresh();
       } else {
         const errorData = await response.json();
+        console.error('Odpowiedź błędu:', errorData);
         throw new Error(errorData.error || 'Unknown error');
       }
     } catch (err) {
