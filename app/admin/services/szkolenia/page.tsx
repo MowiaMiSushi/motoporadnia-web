@@ -260,43 +260,54 @@ export default function TrainingEditor() {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
-        <div className="space-y-2">
+        <div className="space-y-4">
           {content?.hero.images.map((image, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <input
-                type="text"
-                value={image}
-                onChange={(e) => {
-                  const newImages = [...content.hero.images];
-                  newImages[index] = e.target.value;
-                  setContent({
-                    ...content,
-                    hero: { ...content.hero, images: newImages }
-                  });
-                }}
-                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-              <button
-                onClick={() => {
-                  setCurrentImageIndex(index);
-                  setShowImageSelector(true);
-                }}
-                className="p-2 text-gray-600 hover:text-red-600"
-              >
-                <FontAwesomeIcon icon={faImage} />
-              </button>
-              <button
-                onClick={() => {
-                  const newImages = content.hero.images.filter((_, i) => i !== index);
-                  setContent({
-                    ...content,
-                    hero: { ...content.hero, images: newImages }
-                  });
-                }}
-                className="p-2 text-gray-600 hover:text-red-600"
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
+            <div key={index} className="space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={image}
+                  onChange={(e) => {
+                    const newImages = [...content.hero.images];
+                    newImages[index] = e.target.value;
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+                <button
+                  onClick={() => {
+                    setCurrentImageIndex(index);
+                    setShowImageSelector(true);
+                  }}
+                  className="p-2 text-gray-600 hover:text-red-600"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                </button>
+                <button
+                  onClick={() => {
+                    const newImages = content.hero.images.filter((_, i) => i !== index);
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="p-2 text-gray-600 hover:text-red-600"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+              {image && (
+                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                  <img
+                    src={image}
+                    alt={`Podgląd ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
             </div>
           ))}
           <button
