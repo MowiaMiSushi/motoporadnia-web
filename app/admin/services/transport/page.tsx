@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faImage, faTimes, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-toastify';
 
 interface MainSection {
   title: string;
@@ -90,11 +91,153 @@ const initialContent: PageContent = {
   }
 };
 
+interface ImageSelectorProps {
+  currentImage: string;
+  onImageSelect: (image: string) => void;
+  onClose: () => void;
+}
+
+const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorProps) => {
+  const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        console.log('ImageSelector: Rozpoczynam pobieranie listy zdjęć');
+        const response = await fetch('/api/admin/images');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('ImageSelector: Pobrane dane:', data);
+          if (data.success && Array.isArray(data.images)) {
+            const processedImages = data.images.map((img: string) => 
+              img.startsWith('/') ? img : `/${img}`
+            );
+            console.log('ImageSelector: Przetworzone zdjęcia:', processedImages);
+            setImages(processedImages);
+          } else {
+            console.error('ImageSelector: Nieprawidłowy format danych:', data);
+          }
+        } else {
+          console.error('ImageSelector: Błąd pobierania zdjęć:', response.status);
+        }
+      } catch (error) {
+        console.error('ImageSelector: Error fetching images:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    console.log('ImageSelector: Rozpoczynam upload pliku:', file.name);
+    setUploadStatus('uploading');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('ImageSelector: Upload zakończony sukcesem:', data);
+        const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
+        setImages(prev => [...prev, imageUrl]);
+        handleImageSelect(imageUrl);
+        setUploadStatus('success');
+        toast.success('Zdjęcie zostało dodane');
+      } else {
+        console.error('ImageSelector: Błąd podczas uploadu:', response.status);
+        setUploadStatus('error');
+        toast.error('Błąd podczas dodawania zdjęcia');
+      }
+    } catch (error) {
+      console.error('ImageSelector: Błąd podczas uploadu:', error);
+      setUploadStatus('error');
+      toast.error('Błąd podczas dodawania zdjęcia');
+    }
+  };
+
+  const handleImageSelect = (image: string) => {
+    console.log('ImageSelector: Wybrano zdjęcie:', image);
+    onImageSelect(image);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Wybierz zdjęcie</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            ref={fileInputRef}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadStatus === 'uploading'}
+            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
+          >
+            <FontAwesomeIcon icon={faUpload} />
+            {uploadStatus === 'uploading' ? 'Uploadowanie...' : 'Upload nowego zdjęcia'}
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="text-center py-4">Ładowanie...</div>
+        ) : (
+          <div className="grid grid-cols-3 gap-4">
+            {images.map((image, index) => (
+              <div
+                key={index}
+                onClick={() => handleImageSelect(image)}
+                className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
+                  currentImage === image ? 'border-red-500' : 'border-transparent'
+                }`}
+              >
+                <img
+                  src={image}
+                  alt={`Gallery image ${index + 1}`}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    console.error('ImageSelector: Błąd ładowania zdjęcia:', image);
+                    e.currentTarget.src = '/images/placeholder.webp';
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function TransportEditor() {
   const [content, setContent] = useState<PageContent | null>(null);
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -198,16 +341,77 @@ export default function TransportEditor() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">Zdjęcia (po jednym URL w linii)</label>
-        <textarea
-          value={content.hero.images.join('\n')}
-          onChange={(e) => setContent({
-            ...content,
-            hero: { ...content.hero, images: e.target.value.split('\n').filter(url => url.trim()) }
-          })}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
+        <div className="space-y-4">
+          {content.hero.images.map((image, index) => (
+            <div key={index} className="flex items-center gap-4 p-4 border rounded-md">
+              <div className="w-24 h-24 relative">
+                <img
+                  src={image}
+                  alt={`Hero image ${index + 1}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={image}
+                  onChange={(e) => {
+                    const newImages = [...content.hero.images];
+                    newImages[index] = e.target.value;
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowImageSelector(`hero-${index}`);
+                  }}
+                  className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
+                  title="Wybierz z galerii"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newImages = content.hero.images.filter((_, i) => i !== index);
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="text-red-600 p-2 hover:bg-red-50 rounded-md"
+                  title="Usuń zdjęcie"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setContent({
+                ...content,
+                hero: {
+                  ...content.hero,
+                  images: [...content.hero.images, '']
+                }
+              });
+            }}
+            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Dodaj zdjęcie
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -234,7 +438,8 @@ export default function TransportEditor() {
           <div className="flex justify-between items-center">
             <h4 className="font-medium">Sekcja {index + 1}</h4>
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const newSections = content.mainSections.filter((_, i) => i !== index);
                 setContent({ ...content, mainSections: newSections });
               }}
@@ -338,7 +543,8 @@ export default function TransportEditor() {
             <div className="flex justify-between items-center">
               <h4 className="font-medium">Obszar {index + 1}</h4>
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   const newAreas = content.operatingArea.areas.filter((_, i) => i !== index);
                   setContent({
                     ...content,
@@ -449,9 +655,7 @@ export default function TransportEditor() {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className={`bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors ${
-            isSaving ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors disabled:bg-gray-400"
         >
           {isSaving ? 'Zapisywanie...' : 'Zapisz zmiany'}
         </button>
@@ -500,6 +704,33 @@ export default function TransportEditor() {
           {activeSection === 'cta' && renderCTAEditor()}
         </div>
       </div>
+
+      {showImageSelector !== null && content && (
+        <ImageSelector
+          currentImage={
+            typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')
+              ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))]
+              : ''
+          }
+          onImageSelect={(image) => {
+            console.log('TransportEditor: Wybrano zdjęcie:', {
+              showImageSelector,
+              image
+            });
+            
+            const newContent = { ...content };
+            
+            if (typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')) {
+              const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
+              newContent.hero.images[imageIndex] = image;
+            }
+            
+            setContent(newContent);
+            setShowImageSelector(null);
+          }}
+          onClose={() => setShowImageSelector(null)}
+        />
+      )}
     </div>
   );
 } 
