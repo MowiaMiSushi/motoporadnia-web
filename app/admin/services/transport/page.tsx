@@ -246,13 +246,18 @@ export default function TransportEditor() {
         body: JSON.stringify(content),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to save content');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save content');
       }
 
+      const result = await response.json();
       console.log('TransportEditor: Content zapisany pomyślnie:', result);
+
+      if (result.content) {
+        console.log('TransportEditor: Aktualizuję stan komponentu z danymi z serwera');
+        setContent(result.content);
+      }
 
       showNotification({
         title: 'Sukces',
@@ -260,17 +265,6 @@ export default function TransportEditor() {
         type: 'success'
       });
 
-      // Odśwież dane
-      const refreshResponse = await fetch('/api/content/services/transport');
-      if (refreshResponse.ok) {
-        const refreshedData = await refreshResponse.json();
-        if (Object.keys(refreshedData).length > 0) {
-          console.log('TransportEditor: Odświeżone dane:', refreshedData);
-          setContent(refreshedData);
-        }
-      }
-
-      router.refresh();
     } catch (error) {
       console.error('TransportEditor: Błąd podczas zapisywania:', error);
       showNotification({
@@ -281,6 +275,32 @@ export default function TransportEditor() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleImageSelect = (image: string, type: string, index: number) => {
+    console.log('TransportEditor: Wybrano zdjęcie:', { type, index, image });
+    
+    const newContent = { ...content };
+    
+    if (type === 'hero') {
+      if (!newContent.hero.images) {
+        newContent.hero.images = [];
+      }
+      newContent.hero.images[index] = image;
+    } else if (type === 'main-section') {
+      if (!newContent.mainSections[index]) {
+        newContent.mainSections[index] = {
+          title: '',
+          description: '',
+          image: ''
+        };
+      }
+      newContent.mainSections[index].image = image;
+    }
+    
+    console.log('TransportEditor: Aktualizuję content z nowym zdjęciem:', newContent);
+    setContent(newContent);
+    setShowImageSelector(null);
   };
 
   if (isLoading) {
@@ -477,7 +497,10 @@ export default function TransportEditor() {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setShowImageSelector(`main-section-${index}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowImageSelector(`main-section-${index}`);
+                  }}
                   className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
                   title="Wybierz z galerii"
                 >
@@ -714,35 +737,19 @@ export default function TransportEditor() {
         </div>
       </div>
 
-      {showImageSelector !== null && content && (
+      {showImageSelector !== null && (
         <ImageSelector
           currentImage={
-            typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')
-              ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))]
-              : typeof showImageSelector === 'string' && showImageSelector.startsWith('main-section-')
-              ? content.mainSections[parseInt(showImageSelector.replace('main-section-', ''))].image
+            showImageSelector.startsWith('hero-')
+              ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))] || ''
+              : showImageSelector.startsWith('main-section-')
+              ? content.mainSections[parseInt(showImageSelector.replace('main-section-', ''))].image || ''
               : ''
           }
           onImageSelect={(image) => {
-            console.log('TransportEditor: Wybrano zdjęcie:', {
-              showImageSelector,
-              image
-            });
-            
-            const newContent = { ...content };
-            
-            if (typeof showImageSelector === 'string') {
-              if (showImageSelector.startsWith('hero-')) {
-                const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
-                newContent.hero.images[imageIndex] = image;
-              } else if (showImageSelector.startsWith('main-section-')) {
-                const sectionIndex = parseInt(showImageSelector.replace('main-section-', ''));
-                newContent.mainSections[sectionIndex].image = image;
-              }
-            }
-            
-            setContent(newContent);
-            setShowImageSelector(null);
+            const type = showImageSelector.startsWith('hero-') ? 'hero' : 'main-section';
+            const index = parseInt(showImageSelector.replace(type === 'hero' ? 'hero-' : 'main-section-', ''));
+            handleImageSelect(image, type, index);
           }}
           onClose={() => setShowImageSelector(null)}
         />

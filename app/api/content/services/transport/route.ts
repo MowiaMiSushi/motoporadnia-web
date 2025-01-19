@@ -31,14 +31,19 @@ export async function GET() {
       content = JSON.parse(fileContent);
       console.log('Transport GET: Successfully read content');
     } catch (error) {
-      console.log('Transport GET: File not found or invalid, returning empty content');
-      content = {};
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        console.log('Transport GET: File not found, returning empty content');
+        content = {};
+      } else {
+        console.error('Transport GET: Error reading file:', error);
+        throw error;
+      }
     }
 
     return NextResponse.json(content);
   } catch (error) {
     console.error('Transport GET: Error:', error);
-    return NextResponse.json({}, { status: 200 });
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -53,7 +58,13 @@ export async function POST(request: Request) {
     await ensureDirectoryExists();
 
     const content = await request.json();
-    console.log('Transport POST: Saving content:', JSON.stringify(content, null, 2));
+    console.log('Transport POST: Received content:', JSON.stringify(content, null, 2));
+
+    // Weryfikacja struktury contentu
+    if (!content || !content.hero || !Array.isArray(content.hero.images)) {
+      console.error('Transport POST: Invalid content structure');
+      return NextResponse.json({ error: 'Invalid content structure' }, { status: 400 });
+    }
 
     await writeFile(contentPath, JSON.stringify(content, null, 2), 'utf-8');
     console.log('Transport POST: Content saved successfully');
@@ -61,11 +72,12 @@ export async function POST(request: Request) {
     // Weryfikacja zapisu
     const savedContent = await readFile(contentPath, 'utf-8');
     const parsedContent = JSON.parse(savedContent);
-    console.log('Transport POST: Verification - content read back:', JSON.stringify(parsedContent, null, 2));
+    console.log('Transport POST: Verification - content read back successfully');
 
     return NextResponse.json({ 
       success: true,
-      message: 'Content saved successfully'
+      message: 'Content saved successfully',
+      content: parsedContent
     });
   } catch (error) {
     console.error('Transport POST: Error:', error);
