@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faImage, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faImage, faUpload, faGripVertical } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface HeroSection {
   title: string;
@@ -487,77 +488,180 @@ export default function PurchaseAssistanceEditor() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">URL Zdjęcia</label>
-            <input
-              type="text"
-              value={section.image}
-              onChange={(e) => {
-                const newSections = [...content.mainSections];
-                newSections[index] = { ...section, image: e.target.value };
-                setContent({ ...content, mainSections: newSections });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcie</label>
+            <div className="flex items-center gap-4 p-4 border rounded-md">
+              <div className="w-24 h-24 relative">
+                <img
+                  src={section.image}
+                  alt={`Section image ${index + 1}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={section.image}
+                  onChange={(e) => {
+                    const newSections = [...content.mainSections];
+                    newSections[index] = { ...section, image: e.target.value };
+                    setContent({ ...content, mainSections: newSections });
+                  }}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowImageSelector(`mainSection-${index}`)}
+                  className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
+                  title="Wybierz z galerii"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ))}
     </div>
   );
 
-  const renderServiceFeaturesEditor = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Zawartość usługi</h3>
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
-        <input
-          type="text"
-          value={content.serviceFeatures.title}
-          onChange={(e) => setContent({
-            ...content,
-            serviceFeatures: { ...content.serviceFeatures, title: e.target.value }
-          })}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-        />
-      </div>
-      {content.serviceFeatures.features.map((feature, index) => (
-        <div key={index} className="border p-4 rounded-md space-y-4">
-          <h4 className="font-medium">Element {index + 1}</h4>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Ikona</label>
-            <input
-              type="text"
-              value={feature.icon}
-              onChange={(e) => {
-                const newFeatures = [...content.serviceFeatures.features];
-                newFeatures[index] = { ...feature, icon: e.target.value };
-                setContent({
-                  ...content,
-                  serviceFeatures: { ...content.serviceFeatures, features: newFeatures }
-                });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tekst</label>
-            <input
-              type="text"
-              value={feature.text}
-              onChange={(e) => {
-                const newFeatures = [...content.serviceFeatures.features];
-                newFeatures[index] = { ...feature, text: e.target.value };
-                setContent({
-                  ...content,
-                  serviceFeatures: { ...content.serviceFeatures, features: newFeatures }
-                });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
+  const renderServiceFeaturesEditor = () => {
+    const handleDragEnd = (result: any) => {
+      if (!result.destination) return;
+
+      const items = Array.from(content.serviceFeatures.features);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+
+      setContent({
+        ...content,
+        serviceFeatures: {
+          ...content.serviceFeatures,
+          features: items
+        }
+      });
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Zawartość usługi</h3>
+          <button
+            onClick={() => {
+              const newFeatures = [...content.serviceFeatures.features];
+              newFeatures.push({ icon: 'faHandshake', text: 'Nowa funkcja' });
+              setContent({
+                ...content,
+                serviceFeatures: {
+                  ...content.serviceFeatures,
+                  features: newFeatures
+                }
+              });
+            }}
+            className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Dodaj element
+          </button>
         </div>
-      ))}
-    </div>
-  );
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
+          <input
+            type="text"
+            value={content.serviceFeatures.title}
+            onChange={(e) => setContent({
+              ...content,
+              serviceFeatures: { ...content.serviceFeatures, title: e.target.value }
+            })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+          />
+        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="features">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                {content.serviceFeatures.features.map((feature, index) => (
+                  <Draggable key={index} draggableId={`feature-${index}`} index={index}>
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className="border p-4 rounded-md space-y-4"
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-4">
+                            <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab">
+                              <FontAwesomeIcon icon={faGripVertical} />
+                            </div>
+                            <h4 className="font-medium">{feature.text || 'Nowa funkcja'}</h4>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const newFeatures = content.serviceFeatures.features.filter((_, i) => i !== index);
+                              setContent({
+                                ...content,
+                                serviceFeatures: {
+                                  ...content.serviceFeatures,
+                                  features: newFeatures
+                                }
+                              });
+                            }}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Ikona FontAwesome</label>
+                          <input
+                            type="text"
+                            value={feature.icon}
+                            onChange={(e) => {
+                              const newFeatures = [...content.serviceFeatures.features];
+                              newFeatures[index] = { ...feature, icon: e.target.value };
+                              setContent({
+                                ...content,
+                                serviceFeatures: {
+                                  ...content.serviceFeatures,
+                                  features: newFeatures
+                                }
+                              });
+                            }}
+                            placeholder="np. faHandshake, faWrench, faTruck"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Tekst</label>
+                          <input
+                            type="text"
+                            value={feature.text}
+                            onChange={(e) => {
+                              const newFeatures = [...content.serviceFeatures.features];
+                              newFeatures[index] = { ...feature, text: e.target.value };
+                              setContent({
+                                ...content,
+                                serviceFeatures: {
+                                  ...content.serviceFeatures,
+                                  features: newFeatures
+                                }
+                              });
+                            }}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+      </div>
+    );
+  };
 
   const renderInfoSectionsEditor = () => (
     <div className="space-y-4">
@@ -784,6 +888,8 @@ export default function PurchaseAssistanceEditor() {
           currentImage={
             typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')
               ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))]
+              : typeof showImageSelector === 'string' && showImageSelector.startsWith('mainSection-')
+              ? content.mainSections[parseInt(showImageSelector.replace('mainSection-', ''))].image
               : ''
           }
           onImageSelect={(image) => {
@@ -794,6 +900,14 @@ export default function PurchaseAssistanceEditor() {
               setContent({
                 ...content,
                 hero: { ...content.hero, images: newImages }
+              });
+            } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('mainSection-')) {
+              const sectionIndex = parseInt(showImageSelector.replace('mainSection-', ''));
+              const newSections = [...content.mainSections];
+              newSections[sectionIndex] = { ...newSections[sectionIndex], image };
+              setContent({
+                ...content,
+                mainSections: newSections
               });
             }
             setShowImageSelector(null);
