@@ -42,26 +42,26 @@ const initialContent: PageContent = {
     title: "Transport motocykli Poznań i Europa",
     description: "Profesjonalny transport motocykli na terenie Poznania, całej Polski i Europy. Bezpieczny przewóz jednośladów z pełnym ubezpieczeniem.",
     images: [
-      "/images/transport_1.jpg",
-      "/images/transport_2.jpg",
-      "/images/transport_3.jpg"
+      "/images/transport_1.webp",
+      "/images/transport_2.webp",
+      "/images/transport_3.webp"
     ]
   },
   mainSections: [
     {
       title: "Profesjonalny transport motocykli na terenie Poznania i Europy",
       description: "Transport motocykli wykonujemy w sposób w pełni profesjonalny, z najwyższą dbałością o bezpieczeństwo Twojego jednośladu. Specjalizujemy się w bezpiecznym i sprawnym transporcie motocykli zarówno lokalnie, jak i na długich dystansach międzynarodowych.",
-      image: "/images/transport_3.jpg"
+      image: "/images/transport_3.webp"
     },
     {
       title: "Największa gwarancja bezpieczeństwa",
       description: "Dla maksymalnego bezpieczeństwa podczas załadunku i rozładunku, korzystamy z wytrzymałego najazdu aluminiowego o udźwigu do 400kg. Transportowany motocykl jest zamocowany w specjalnym doku pod przednie koło, które uniemożliwia jego przechylenie na boki.",
-      image: "/images/transport_1.jpg"
+      image: "/images/transport_1.webp"
     },
     {
       title: "Najlepsze zabezpieczenie motocykla",
       description: "Każdy motocykl zabezpieczamy profesjonalnymi pasami transportowymi w 2 lub 4 punktach, w zależności od typu i gabarytów jednośladu. Oferujemy możliwość przewozu do 2 motocykli jednocześnie, co pozwala zoptymalizować koszty transportu.",
-      image: "/images/transport_2.jpg"
+      image: "/images/transport_2.webp"
     }
   ],
   operatingArea: {
