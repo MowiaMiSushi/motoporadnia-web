@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     // Ścieżka do katalogu z obrazami
-    const imagesDirectory = path.join(process.cwd(), 'public', 'images', 'brands');
+    const imagesDirectory = path.join(process.cwd(), 'public', 'images');
     
     // Pobierz listę plików
     const files = readdirSync(imagesDirectory, { withFileTypes: true });
@@ -21,7 +21,7 @@ export async function GET() {
     // Filtruj tylko pliki obrazów i twórz ścieżki względne
     const images = files
       .filter(file => file.isFile() && /\.(jpg|jpeg|png|webp)$/i.test(file.name))
-      .map(file => `/images/brands/${file.name}`);
+      .map(file => `/images/${file.name}`);
 
     // Zwróć listę ścieżek do obrazów
     return NextResponse.json({ images });

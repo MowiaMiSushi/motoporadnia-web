@@ -87,20 +87,21 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
   useEffect(() => {
     const fetchImages = async () => {
       try {
-        console.log('Rozpoczynam pobieranie listy zdjęć');
+        console.log('ImageSelector: Rozpoczynam pobieranie listy zdjęć');
         const response = await fetch('/api/admin/images');
         if (response.ok) {
           const data = await response.json();
-          console.log('Pobrane zdjęcia:', data.images);
-          // Upewnij się, że ścieżki zaczynają się od /
+          console.log('ImageSelector: Pobrane zdjęcia:', data);
           const processedImages = data.images.map((img: string) => 
             img.startsWith('/') ? img : `/${img}`
           );
-          console.log('Przetworzone ścieżki zdjęć:', processedImages);
+          console.log('ImageSelector: Przetworzone ścieżki zdjęć:', processedImages);
           setImages(processedImages);
+        } else {
+          console.error('ImageSelector: Błąd pobierania zdjęć:', response.status);
         }
       } catch (error) {
-        console.error('Error fetching images:', error);
+        console.error('ImageSelector: Error fetching images:', error);
       } finally {
         setIsLoading(false);
       }
@@ -178,7 +179,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
               <div
                 key={index}
                 onClick={() => {
-                  console.log('Wybrano zdjęcie:', image);
+                  console.log('ImageSelector: Kliknięto zdjęcie:', image);
                   onImageSelect(image);
                 }}
                 className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
@@ -190,7 +191,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
                   alt={`Gallery image ${index + 1}`}
                   className="w-full h-full object-contain"
                   onError={(e) => {
-                    console.error('Błąd ładowania zdjęcia:', image);
+                    console.error('ImageSelector: Błąd ładowania zdjęcia:', image);
                     e.currentTarget.src = '/images/placeholder.webp';
                   }}
                 />
@@ -924,14 +925,17 @@ export default function ServiceAdmin() {
               : typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')
               ? (() => {
                   const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
-                  return content.brands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)];
+                  const currentImage = content.brands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)];
+                  console.log('Current hover image:', currentImage);
+                  return currentImage;
                 })()
               : ''
           }
           onImageSelect={(image) => {
-            console.log('Aktualizacja zdjęcia:', {
+            console.log('ServiceAdmin: Wybrano zdjęcie:', {
               showImageSelector,
-              image
+              image,
+              content: JSON.stringify(content, null, 2)
             });
             
             if (typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')) {
@@ -946,6 +950,11 @@ export default function ServiceAdmin() {
               const brandIndex = parseInt(showImageSelector.replace('brand-logo-', ''));
               const newBrands = [...content.brands];
               newBrands[brandIndex].image = image;
+              console.log('ServiceAdmin: Aktualizacja logo marki:', {
+                brandIndex,
+                image,
+                newBrands
+              });
               setContent({
                 ...content,
                 brands: newBrands
@@ -953,14 +962,37 @@ export default function ServiceAdmin() {
             } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')) {
               const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
               const newBrands = [...content.brands];
-              console.log('Aktualizacja hover image:', {
-                brandIndex,
-                imageIndex,
+              const brandIdx = parseInt(brandIndex);
+              const imgIdx = parseInt(imageIndex);
+              
+              console.log('ServiceAdmin: Aktualizacja hover image przed:', {
+                brandIndex: brandIdx,
+                imageIndex: imgIdx,
                 image,
-                currentBrand: newBrands[parseInt(brandIndex)]
+                currentBrand: newBrands[brandIdx],
+                hoverImages: newBrands[brandIdx].hoverImages
               });
-              newBrands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)] = image;
-              console.log('Po aktualizacji:', newBrands[parseInt(brandIndex)].hoverImages);
+
+              // Upewnij się, że tablica hoverImages istnieje
+              if (!newBrands[brandIdx].hoverImages) {
+                newBrands[brandIdx].hoverImages = [];
+              }
+
+              // Upewnij się, że indeks istnieje w tablicy
+              while (newBrands[brandIdx].hoverImages.length <= imgIdx) {
+                newBrands[brandIdx].hoverImages.push('');
+              }
+
+              newBrands[brandIdx].hoverImages[imgIdx] = image;
+
+              console.log('ServiceAdmin: Aktualizacja hover image po:', {
+                brandIndex: brandIdx,
+                imageIndex: imgIdx,
+                image,
+                updatedBrand: newBrands[brandIdx],
+                updatedHoverImages: newBrands[brandIdx].hoverImages
+              });
+
               setContent({
                 ...content,
                 brands: newBrands
