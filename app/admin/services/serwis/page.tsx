@@ -349,7 +349,7 @@ export default function ServiceAdmin() {
                           <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-gray-600">
                             <FontAwesomeIcon icon={faGripVertical} />
                           </div>
-                          <h4 className="font-medium">Usługa {index + 1}</h4>
+                          <h4 className="font-medium">{service.title || 'Nowa usługa'}</h4>
                           <button
                             onClick={() => toggleService(index)}
                             className="text-gray-500 hover:text-gray-700"
@@ -460,7 +460,7 @@ export default function ServiceAdmin() {
                           <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-gray-600">
                             <FontAwesomeIcon icon={faGripVertical} />
                           </div>
-                          <h4 className="font-medium">Marka {index + 1}</h4>
+                          <h4 className="font-medium">{brand.name || 'Nowa marka'}</h4>
                           <button
                             onClick={() => toggleBrand(index)}
                             className="text-gray-500 hover:text-gray-700"
