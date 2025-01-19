@@ -114,6 +114,41 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
     fetchImages();
   }, []);
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    console.log('ImageSelector: Rozpoczynam upload pliku:', file.name);
+    setUploadStatus('uploading');
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('ImageSelector: Upload zakończony sukcesem:', data);
+        const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
+        setImages(prev => [...prev, imageUrl]);
+        handleImageSelect(imageUrl);
+        setUploadStatus('success');
+        toast.success('Zdjęcie zostało dodane');
+      } else {
+        console.error('ImageSelector: Błąd podczas uploadu:', response.status);
+        setUploadStatus('error');
+        toast.error('Błąd podczas dodawania zdjęcia');
+      }
+    } catch (error) {
+      console.error('ImageSelector: Błąd podczas uploadu:', error);
+      setUploadStatus('error');
+      toast.error('Błąd podczas dodawania zdjęcia');
+    }
+  };
+
   const handleImageSelect = (image: string) => {
     console.log('ImageSelector: Wybrano zdjęcie:', image);
     onImageSelect(image);
@@ -127,6 +162,24 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
           <h3 className="text-lg font-semibold">Wybierz zdjęcie</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             <FontAwesomeIcon icon={faTimes} />
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            ref={fileInputRef}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadStatus === 'uploading'}
+            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
+          >
+            <FontAwesomeIcon icon={faUpload} />
+            {uploadStatus === 'uploading' ? 'Uploadowanie...' : 'Upload nowego zdjęcia'}
           </button>
         </div>
 
@@ -356,6 +409,34 @@ export default function ServiceAdmin() {
       ...prev,
       [index]: !prev[index]
     }));
+  };
+
+  const updateBrandHoverImage = (brandIndex: number, imageIndex: number, newImage: string) => {
+    console.log('ServiceAdmin: Aktualizacja hover image:', {
+      brandIndex,
+      imageIndex,
+      newImage,
+      currentBrand: content.brands[brandIndex]
+    });
+
+    const newContent = { ...content };
+    if (!newContent.brands[brandIndex].hoverImages) {
+      newContent.brands[brandIndex].hoverImages = [];
+    }
+
+    // Upewnij się, że tablica ma odpowiednią długość
+    while (newContent.brands[brandIndex].hoverImages.length <= imageIndex) {
+      newContent.brands[brandIndex].hoverImages.push('');
+    }
+
+    newContent.brands[brandIndex].hoverImages[imageIndex] = newImage;
+    
+    console.log('ServiceAdmin: Zaktualizowany stan brandu:', {
+      brandIndex,
+      updatedBrand: newContent.brands[brandIndex]
+    });
+
+    setContent(newContent);
   };
 
   const renderHeroEditor = () => (
@@ -690,7 +771,7 @@ export default function ServiceAdmin() {
                                 <div key={imageIndex} className="flex items-center gap-4 p-4 border rounded-md">
                                   <div className="w-24 h-24 relative">
                                     <img
-                                      src={image}
+                                      src={image || '/images/placeholder.webp'}
                                       alt={`Hover image ${imageIndex + 1}`}
                                       className="w-full h-full object-cover rounded-md"
                                     />
@@ -699,23 +780,7 @@ export default function ServiceAdmin() {
                                     <input
                                       type="text"
                                       value={image}
-                                      onChange={(e) => {
-                                        const newBrands = [...content.brands];
-                                        if (!newBrands[index].hoverImages) {
-                                          newBrands[index].hoverImages = [];
-                                        }
-                                        newBrands[index].hoverImages[imageIndex] = e.target.value;
-                                        console.log('Aktualizacja hover image przez input:', {
-                                          brandIndex: index,
-                                          imageIndex,
-                                          newValue: e.target.value,
-                                          newBrands
-                                        });
-                                        setContent({
-                                          ...content,
-                                          brands: newBrands
-                                        });
-                                      }}
+                                      onChange={(e) => updateBrandHoverImage(index, imageIndex, e.target.value)}
                                       className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                                     />
                                   </div>
@@ -724,7 +789,8 @@ export default function ServiceAdmin() {
                                       onClick={() => {
                                         console.log('Wybieranie hover image:', {
                                           brandIndex: index,
-                                          imageIndex
+                                          imageIndex,
+                                          currentImage: image
                                         });
                                         setShowImageSelector(`brand-hover-${index}-${imageIndex}`);
                                       }}
@@ -735,12 +801,10 @@ export default function ServiceAdmin() {
                                     </button>
                                     <button
                                       onClick={() => {
-                                        const newBrands = [...content.brands];
-                                        newBrands[index].hoverImages = (newBrands[index].hoverImages || []).filter((_, i) => i !== imageIndex);
-                                        setContent({
-                                          ...content,
-                                          brands: newBrands
-                                        });
+                                        const newContent = { ...content };
+                                        newContent.brands[index].hoverImages = (newContent.brands[index].hoverImages || [])
+                                          .filter((_, i) => i !== imageIndex);
+                                        setContent(newContent);
                                       }}
                                       className="text-red-600 p-2 hover:bg-red-50 rounded-md"
                                       title="Usuń zdjęcie"
