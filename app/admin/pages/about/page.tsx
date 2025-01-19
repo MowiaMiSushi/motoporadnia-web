@@ -259,7 +259,7 @@ export default function AboutPageEditor() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [showImageSelector, setShowImageSelector] = useState<number | null>(null);
+  const [showImageSelector, setShowImageSelector] = useState<number | string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -550,7 +550,21 @@ export default function AboutPageEditor() {
         </div>
         {content.team.members.map((member, index) => (
           <div key={index} className="border p-4 rounded-md space-y-4">
-            <h4 className="font-medium">Członek zespołu {index + 1}</h4>
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Członek zespołu {index + 1}</h4>
+              <button
+                onClick={() => {
+                  const newMembers = content.team.members.filter((_, i) => i !== index);
+                  setContent({
+                    ...content,
+                    team: { ...content.team, members: newMembers }
+                  });
+                }}
+                className="text-red-600 hover:text-red-700"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Imię</label>
               <input
@@ -584,53 +598,56 @@ export default function AboutPageEditor() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">URL Zdjęcia</label>
-              <input
-                type="text"
-                value={member.image}
-                onChange={(e) => {
-                  const newMembers = [...content.team.members];
-                  newMembers[index] = { ...member, image: e.target.value };
-                  setContent({
-                    ...content,
-                    team: { ...content.team, members: newMembers }
-                  });
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
+              <label className="block text-sm font-medium text-gray-700">Zdjęcie</label>
+              <div className="mt-1 flex items-center gap-4">
+                <input
+                  type="text"
+                  value={member.image}
+                  onChange={(e) => {
+                    const newMembers = [...content.team.members];
+                    newMembers[index] = { ...member, image: e.target.value };
+                    setContent({
+                      ...content,
+                      team: { ...content.team, members: newMembers }
+                    });
+                  }}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+                <button
+                  onClick={() => setShowImageSelector(`team-${index}`)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                  Wybierz zdjęcie
+                </button>
+              </div>
+              {member.image && (
+                <div className="mt-2">
+                  <img
+                    src={member.image}
+                    alt={`Zdjęcie ${member.name}`}
+                    className="max-w-xs rounded-md"
+                  />
+                </div>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                const newMembers = content.team.members.filter((_, i) => i !== index);
-                setContent({
-                  ...content,
-                  team: { ...content.team, members: newMembers }
-                });
-              }}
-              className="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"
-            >
-              Usuń członka zespołu
-            </button>
           </div>
         ))}
         <button
-          type="button"
           onClick={() => {
+            const newMembers = [
+              ...content.team.members,
+              { name: '', position: '', image: '' }
+            ];
             setContent({
               ...content,
-              team: {
-                ...content.team,
-                members: [
-                  ...content.team.members,
-                  { name: '', position: '', image: '' }
-                ]
-              }
+              team: { ...content.team, members: newMembers }
             });
           }}
-          className="px-4 py-2 text-sm text-indigo-600 hover:bg-indigo-50 rounded-md"
+          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors"
         >
-          Dodaj członka zespołu
+          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+          Dodaj nowego członka zespołu
         </button>
       </div>
     );
@@ -786,19 +803,38 @@ export default function AboutPageEditor() {
         </div>
       </div>
 
-      {showImageSelector !== null && content && (
+      {(showImageSelector !== null && content) && (
         <ImageSelector
-          currentImage={content.history.sections[showImageSelector].image}
+          currentImage={
+            typeof showImageSelector === 'number'
+              ? content.history.sections[showImageSelector].image
+              : typeof showImageSelector === 'string' && showImageSelector.startsWith('team-')
+              ? content.team.members[parseInt(showImageSelector.replace('team-', ''))].image
+              : ''
+          }
           onImageSelect={(image) => {
-            const newSections = [...content.history.sections];
-            newSections[showImageSelector] = {
-              ...newSections[showImageSelector],
-              image
-            };
-            setContent({
-              ...content,
-              history: { ...content.history, sections: newSections }
-            });
+            if (typeof showImageSelector === 'number') {
+              const newSections = [...content.history.sections];
+              newSections[showImageSelector] = {
+                ...newSections[showImageSelector],
+                image
+              };
+              setContent({
+                ...content,
+                history: { ...content.history, sections: newSections }
+              });
+            } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('team-')) {
+              const memberIndex = parseInt(showImageSelector.replace('team-', ''));
+              const newMembers = [...content.team.members];
+              newMembers[memberIndex] = {
+                ...newMembers[memberIndex],
+                image
+              };
+              setContent({
+                ...content,
+                team: { ...content.team, members: newMembers }
+              });
+            }
           }}
           onClose={() => setShowImageSelector(null)}
         />
