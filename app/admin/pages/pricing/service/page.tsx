@@ -269,16 +269,31 @@ export default function ServicePricingEditor() {
         <h3 className="text-lg font-semibold">Cennik usług</h3>
         <div className="flex gap-2">
           <button
-            onClick={() => setExpandedSections(prev => {
-              const allSections = content?.priceList.reduce((acc, _, index) => ({
-                ...acc,
-                [index]: true
-              }), {});
-              return Object.keys(prev).length === content?.priceList.length ? {} : allSections;
-            })}
+            onClick={() => {
+              if (!content) return;
+              
+              setExpandedSections(prev => {
+                // Sprawdzamy, czy wszystkie sekcje są rozwinięte
+                const allExpanded = content.priceList.every((_, index) => prev[index]);
+                
+                if (allExpanded) {
+                  // Jeśli wszystkie są rozwinięte, zwijamy wszystkie
+                  return {};
+                } else {
+                  // Jeśli nie wszystkie są rozwinięte, rozwijamy wszystkie
+                  return content.priceList.reduce((acc, _, index) => ({
+                    ...acc,
+                    [index]: true
+                  }), {});
+                }
+              });
+            }}
             className="bg-gray-100 text-gray-600 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
           >
-            {Object.keys(expandedSections).length === content?.priceList.length ? 'Zwiń wszystkie' : 'Rozwiń wszystkie'}
+            {content?.priceList.every((_, index) => expandedSections[index]) 
+              ? 'Zwiń wszystkie' 
+              : 'Rozwiń wszystkie'
+            }
           </button>
           <button
             onClick={() => setContent(content ? {
