@@ -5,6 +5,10 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faTruck, faMoneyBill, faTruckArrowRight, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
+import { readFile } from 'fs/promises';
+import path from 'path';
+import { Metadata } from 'next';
+import { headers } from 'next/headers';
 
 interface MainSection {
     title: string;
@@ -90,187 +94,112 @@ const defaultContent: PageContent = {
     }
 };
 
-export default function Transport() {
-    const [content, setContent] = useState<PageContent>(defaultContent);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [isLoading, setIsLoading] = useState(true);
+const iconMap: { [key: string]: any } = {
+    faTruck,
+    faTruckArrowRight,
+    faRoadBarrier
+};
 
-    useEffect(() => {
-        const fetchContent = async () => {
-            try {
-                const response = await fetch('/api/content/services/transport');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data && data.content) {
-                        // Mapujemy dane z bazy do struktury komponentu
-                        const mappedContent: PageContent = {
-                            hero: data.content.hero,
-                            mainSections: defaultContent.mainSections, // Używamy domyślnych sekcji
-                            operatingArea: defaultContent.operatingArea, // Używamy domyślnego obszaru działania
-                            cta: defaultContent.cta // Używamy domyślnego CTA
-                        };
-                        setContent(mappedContent);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching content:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+async function getTransportContent() {
+    try {
+        const contentPath = path.join(process.cwd(), 'content', 'services', 'transport.json');
+        const content = await readFile(contentPath, 'utf-8');
+        return JSON.parse(content);
+    } catch (error) {
+        console.error('Error reading transport content:', error);
+        return null;
+    }
+}
 
-        fetchContent();
-    }, []);
+export const revalidate = 0; // Wyłączamy cache dla tej strony
 
-    useEffect(() => {
-        if (content?.hero?.images?.length) {
-            const interval = setInterval(() => {
-                setCurrentImageIndex((prevIndex) =>
-                    prevIndex === content.hero.images.length - 1 ? 0 : prevIndex + 1
-                );
-            }, 10000);
-
-            return () => clearInterval(interval);
-        }
-    }, [content]);
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-xl">Ładowanie...</div>
-            </div>
-        );
+export default async function TransportPage() {
+    const content = await getTransportContent();
+    
+    if (!content) {
+        return <div>Błąd wczytywania treści</div>;
     }
 
-    const getIconByName = (iconName: string) => {
-        const icons: { [key: string]: any } = {
-            faTruck,
-            faTruckArrowRight,
-            faRoadBarrier
-        };
-        return icons[iconName] || faTruck;
-    };
-
     return (
-        <div className="min-h-screen bg-white">
-            {/* Hero section */}
-            <section className="relative h-[60vh] md:h-[80vh] flex items-center justify-center bg-black" aria-label="Baner główny">
-                {content.hero.images.map((image, index) => (
-                    <div
-                        key={image}
-                        className="absolute inset-0 transition-opacity duration-1000"
-                        style={{
-                            opacity: currentImageIndex === index ? 1 : 0
-                        }}
-                    >
-                        <Image
+        <main className="min-h-screen">
+            {/* Hero Section */}
+            <section className="relative bg-gray-900 text-white py-24">
+                <div className="absolute inset-0 overflow-hidden">
+                    <div className="absolute inset-0 bg-black opacity-60"></div>
+                    {content.hero.images.map((image: string, index: number) => (
+                        <img
+                            key={index}
                             src={image}
                             alt="Transport motocykli"
-                            fill
-                            className="object-cover md:object-contain lg:object-cover"
-                            sizes="100vw"
-                            priority={index === 0}
-                            style={{
-                                objectPosition: 'center center'
-                            }}
+                            className={`absolute inset-0 w-full h-full object-cover ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
                         />
+                    ))}
+                </div>
+                <div className="relative container mx-auto px-4">
+                    <div className="max-w-3xl">
+                        <h1 className="text-4xl md:text-5xl font-bold mb-6">{content.hero.title}</h1>
+                        <p className="text-xl mb-8">{content.hero.description}</p>
                     </div>
-                ))}
-                <div className="absolute inset-0 bg-black/50 z-[1]" />
-                <div className="relative z-10 text-center px-4 sm:px-6 lg:px-8 bg-black/30 backdrop-blur-sm py-8 rounded-lg max-w-4xl mx-auto">
-                    <h1 className="text-4xl sm:text-5xl font-bold text-white mb-6">
-                        {content.hero.title}
-                    </h1>
-                    <p className="text-xl text-white/90 max-w-3xl mx-auto">
-                        {content.hero.description}
-                    </p>
-                    <Link
-                        href="/uslugi/transport/cennik"
-                        className="inline-flex items-center bg-[#C62400] hover:bg-[#A01D00] text-white px-8 py-3 rounded-lg transition-colors mt-6"
-                    >
-                        Sprawdź cennik
-                    </Link>
                 </div>
             </section>
 
-            {/* Main content */}
+            {/* Main Sections */}
             <section className="py-16">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-6xl mx-auto">
-                        {content.mainSections.map((section, index) => (
-                            <div key={index} className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16">
-                                <div className="grid md:grid-cols-2 gap-12 items-center">
-                                    <div className="space-y-6">
-                                        <h2 className="text-2xl font-bold text-[#C62400]">{section.title}</h2>
-                                        <p className="text-lg leading-relaxed text-gray-700">
-                                            {section.description}
-                                        </p>
-                                    </div>
-                                    <div className="relative h-[400px] rounded-lg overflow-hidden shadow-lg">
-                                        <Image
-                                            src={section.image}
-                                            alt={section.title}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
+                <div className="container mx-auto px-4">
+                    <div className="grid md:grid-cols-1 gap-12">
+                        {content.mainSections.map((section: any, index: number) => (
+                            <div key={index} className="flex flex-col md:flex-row items-center gap-8">
+                                <div className="md:w-1/2">
+                                    <img
+                                        src={section.image}
+                                        alt={section.title}
+                                        className="rounded-lg shadow-lg w-full"
+                                    />
+                                </div>
+                                <div className="md:w-1/2">
+                                    <h2 className="text-2xl font-bold mb-4">{section.title}</h2>
+                                    <p className="text-gray-600">{section.description}</p>
                                 </div>
                             </div>
                         ))}
-
-                        {/* Obszar działania */}
-                        <div className="bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC] rounded-lg shadow-lg p-8 mb-16">
-                            <div className="grid gap-12 items-center">
-                                <div className="space-y-6">
-                                    <h2 className="text-2xl font-bold text-[#C62400]">{content.operatingArea.title}</h2>
-                                    <p className="text-lg leading-relaxed text-gray-700">
-                                        {content.operatingArea.description}
-                                    </p>
-                                    <ul className="space-y-3 text-gray-700">
-                                        {content.operatingArea.areas.map((area, index) => (
-                                            <li key={index} className="flex items-center">
-                                                <FontAwesomeIcon icon={getIconByName(area.icon)} className="text-[#C62400] w-5 h-5 mr-3" />
-                                                {area.text}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <p className="text-lg leading-relaxed text-gray-700 mt-4">
-                                        {content.operatingArea.additionalInfo}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                </div>
+            </section>
+
+            {/* Operating Area */}
+            <section className="bg-gray-50 py-16">
+                <div className="container mx-auto px-4">
+                    <h2 className="text-3xl font-bold text-center mb-12">{content.operatingArea.title}</h2>
+                    <p className="text-xl text-center mb-12">{content.operatingArea.description}</p>
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {content.operatingArea.areas.map((area: any, index: number) => (
+                            <div key={index} className="bg-white p-6 rounded-lg shadow-lg text-center">
+                                <div className="text-red-600 text-4xl mb-4">
+                                    <FontAwesomeIcon icon={iconMap[area.icon]} />
+                                </div>
+                                <p className="text-gray-600">{area.text}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <p className="text-gray-600 mt-12 text-center max-w-3xl mx-auto">
+                        {content.operatingArea.additionalInfo}
+                    </p>
                 </div>
             </section>
 
             {/* CTA Section */}
-            <section className="py-16 bg-gradient-to-r from-[#FFFFFF] to-[#ECECEC]">
-                <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-3xl mx-auto text-center">
-                        <h2 className="text-3xl font-bold mb-6">{content.cta.title}</h2>
-                        <p className="text-xl mb-8 text-gray-600">
-                            {content.cta.description}
-                        </p>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a
-                                href={`tel:${content.cta.phoneNumber}`}
-                                className="bg-[#C62400] hover:bg-[#A01D00] text-white px-8 py-3 rounded-lg transition-colors inline-flex items-center justify-center"
-                            >
-                                <FontAwesomeIcon icon={faPhone} className="mr-2" />
-                                Zadzwoń teraz
-                            </a>
-                            <Link
-                                href="/uslugi/transport/cennik"
-                                className="bg-white text-gray-900 px-8 py-3 rounded-lg transition-colors inline-flex items-center justify-center hover:bg-gray-50 border border-gray-200"
-                            >
-                                <FontAwesomeIcon icon={faMoneyBill} className="mr-2" />
-                                Zobacz cennik
-                            </Link>
-                        </div>
-                    </div>
+            <section className="bg-red-600 text-white py-16">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-3xl font-bold mb-6">{content.cta.title}</h2>
+                    <p className="text-xl mb-8">{content.cta.description}</p>
+                    <a
+                        href={`tel:${content.cta.phoneNumber}`}
+                        className="inline-block bg-white text-red-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors"
+                    >
+                        {content.cta.phoneNumber}
+                    </a>
                 </div>
             </section>
-        </div>
+        </main>
     );
 } 
