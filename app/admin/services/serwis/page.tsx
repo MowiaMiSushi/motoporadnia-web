@@ -180,6 +180,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
                 onClick={() => {
                   console.log('Wybrano zdjęcie:', image);
                   onImageSelect(image);
+                  setShowImageSelector(null);
                 }}
                 className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
                   currentImage === image ? 'border-red-500' : 'border-transparent'
@@ -929,6 +930,11 @@ export default function ServiceAdmin() {
               : ''
           }
           onImageSelect={(image) => {
+            console.log('Aktualizacja zdjęcia:', {
+              showImageSelector,
+              image
+            });
+            
             if (typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')) {
               const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
               const newImages = [...content.hero.images];
@@ -939,11 +945,23 @@ export default function ServiceAdmin() {
               });
             } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-logo-')) {
               const brandIndex = parseInt(showImageSelector.replace('brand-logo-', ''));
-              updateBrand(brandIndex, 'image', image);
+              const newBrands = [...content.brands];
+              newBrands[brandIndex].image = image;
+              setContent({
+                ...content,
+                brands: newBrands
+              });
             } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')) {
               const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
               const newBrands = [...content.brands];
+              console.log('Aktualizacja hover image:', {
+                brandIndex,
+                imageIndex,
+                image,
+                currentBrand: newBrands[parseInt(brandIndex)]
+              });
               newBrands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)] = image;
+              console.log('Po aktualizacji:', newBrands[parseInt(brandIndex)].hoverImages);
               setContent({
                 ...content,
                 brands: newBrands

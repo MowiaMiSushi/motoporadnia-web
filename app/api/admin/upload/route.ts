@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     const fileName = `${baseName}-${timestamp}${extension}`;
 
     // Przygotuj ścieżkę do zapisu
-    const uploadDir = path.join(process.cwd(), 'public', 'images');
+    const uploadDir = path.join(process.cwd(), 'public', 'images', 'brands');
     const filePath = path.join(uploadDir, fileName);
 
     // Konwertuj File na Buffer
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     await writeFile(filePath, buffer);
 
     // Zwróć URL do zapisanego pliku
-    return NextResponse.json({ url: `/images/${fileName}` });
+    return NextResponse.json({ url: `/images/brands/${fileName}` });
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json({ error: 'Error uploading file' }, { status: 500 });
