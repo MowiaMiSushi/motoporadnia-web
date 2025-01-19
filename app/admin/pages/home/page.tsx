@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
 
 interface HeroSection {
   title: string;
@@ -131,6 +133,14 @@ const initialContent: HomePageContent = {
   }
 };
 
+const defaultService = {
+  icon: 'faHandshake',
+  title: 'Nowa usługa',
+  description: 'Opis nowej usługi',
+  link: '/',
+  linkText: 'Zobacz więcej'
+};
+
 export default function HomePageEditor() {
   const [content, setContent] = useState<HomePageContent>(initialContent);
   const [activeSection, setActiveSection] = useState<string>('hero');
@@ -196,6 +206,26 @@ export default function HomePageEditor() {
     }
   };
 
+  const addService = (section: 'services' | 'additional') => {
+    setContent(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        services: [...prev[section].services, { ...defaultService }]
+      }
+    }));
+  };
+
+  const removeService = (section: 'services' | 'additional', index: number) => {
+    setContent(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        services: prev[section].services.filter((_, i) => i !== index)
+      }
+    }));
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -258,7 +288,7 @@ export default function HomePageEditor() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">Zdjęcia (po jednym URL w linii)</label>
+        <label className="block text-sm font-medium text-gray-700">URL zdjęć (po jednym w linii)</label>
         <textarea
           value={content.hero.images.join('\n')}
           onChange={(e) => setContent({
@@ -274,7 +304,16 @@ export default function HomePageEditor() {
 
   const renderServicesEditor = () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Sekcja Usług</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Sekcja Usług</h3>
+        <button
+          onClick={() => addService('services')}
+          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          Dodaj usługę
+        </button>
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
         <input
@@ -289,7 +328,32 @@ export default function HomePageEditor() {
       </div>
       {content.services.services.map((service, index) => (
         <div key={index} className="border p-4 rounded-md space-y-4">
-          <h4 className="font-medium">Usługa {index + 1}</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">{service.title || 'Nowa usługa'}</h4>
+            <button
+              onClick={() => removeService('services', index)}
+              className="text-red-600 hover:text-red-700"
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Ikona FontAwesome</label>
+            <input
+              type="text"
+              value={service.icon}
+              onChange={(e) => {
+                const newServices = [...content.services.services];
+                newServices[index] = { ...service, icon: e.target.value };
+                setContent({
+                  ...content,
+                  services: { ...content.services, services: newServices }
+                });
+              }}
+              placeholder="np. faHandshake, faWrench, faTruck"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Tytuł</label>
             <input
@@ -323,7 +387,7 @@ export default function HomePageEditor() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Link</label>
+            <label className="block text-sm font-medium text-gray-700">URL strony</label>
             <input
               type="text"
               value={service.link}
@@ -361,7 +425,16 @@ export default function HomePageEditor() {
 
   const renderAdditionalEditor = () => (
     <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Sekcja Dodatkowa</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Sekcja Dodatkowa</h3>
+        <button
+          onClick={() => addService('additional')}
+          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          Dodaj usługę
+        </button>
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
         <input
@@ -376,7 +449,32 @@ export default function HomePageEditor() {
       </div>
       {content.additional.services.map((service, index) => (
         <div key={index} className="border p-4 rounded-md space-y-4">
-          <h4 className="font-medium">Usługa {index + 1}</h4>
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">{service.title || 'Nowa usługa'}</h4>
+            <button
+              onClick={() => removeService('additional', index)}
+              className="text-red-600 hover:text-red-700"
+            >
+              <FontAwesomeIcon icon={faTrash} />
+            </button>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Ikona FontAwesome</label>
+            <input
+              type="text"
+              value={service.icon}
+              onChange={(e) => {
+                const newServices = [...content.additional.services];
+                newServices[index] = { ...service, icon: e.target.value };
+                setContent({
+                  ...content,
+                  additional: { ...content.additional, services: newServices }
+                });
+              }}
+              placeholder="np. faMotorcycle, faGraduationCap"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+            />
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Tytuł</label>
             <input
@@ -410,7 +508,7 @@ export default function HomePageEditor() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">Link</label>
+            <label className="block text-sm font-medium text-gray-700">URL strony</label>
             <input
               type="text"
               value={service.link}

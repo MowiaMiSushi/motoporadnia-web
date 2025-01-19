@@ -559,7 +559,7 @@ export default function ServiceAdmin() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
-          <div className="text-xl">Ładowanie...</div>
+        <div className="text-xl">Ładowanie...</div>
         </div>
       </div>
     );
@@ -604,22 +604,22 @@ export default function ServiceAdmin() {
           >
             Marki
           </button>
-          <button
+              <button
             onClick={() => setActiveSection('cta')}
             className={`w-full text-left px-4 py-2 rounded ${
               activeSection === 'cta' ? 'bg-red-100 text-red-700' : 'hover:bg-gray-100'
             }`}
           >
             Sekcja CTA
-          </button>
-        </div>
+              </button>
+            </div>
 
         <div className="col-span-3 bg-white p-6 rounded-lg shadow">
           {activeSection === 'hero' && renderHeroEditor()}
           {activeSection === 'services' && renderServicesEditor()}
           {activeSection === 'brands' && renderBrandsEditor()}
           {activeSection === 'cta' && renderCTAEditor()}
-        </div>
+          </div>
       </div>
     </div>
   );
