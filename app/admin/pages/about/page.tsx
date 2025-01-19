@@ -380,51 +380,103 @@ export default function AboutPageEditor() {
     );
   }
 
-  const renderHeroEditor = () => {
-    if (!content?.hero) return null;
-    
-    return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Sekcja Hero</h3>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Tytuł</label>
-          <input
-            type="text"
-            value={content.hero.title}
-            onChange={(e) => setContent({
-              ...content,
-              hero: { ...content.hero, title: e.target.value }
-            })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Opis</label>
-          <input
-            type="text"
-            value={content.hero.description}
-            onChange={(e) => setContent({
-              ...content,
-              hero: { ...content.hero, description: e.target.value }
-            })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Zdjęcia w tle (po jednym URL w linii)</label>
-          <textarea
-            value={content.hero.images.join('\n')}
-            onChange={(e) => setContent({
-              ...content,
-              hero: { ...content.hero, images: e.target.value.split('\n').filter(url => url.trim()) }
-            })}
-            rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-          />
+  const renderHeroEditor = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Sekcja Hero</h3>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+        <input
+          type="text"
+          value={content.hero.title}
+          onChange={(e) => setContent({
+            ...content,
+            hero: { ...content.hero, title: e.target.value }
+          })}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Opis</label>
+        <textarea
+          value={content.hero.description}
+          onChange={(e) => setContent({
+            ...content,
+            hero: { ...content.hero, description: e.target.value }
+          })}
+          rows={3}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
+        <div className="space-y-4">
+          {content.hero.images.map((image, index) => (
+            <div key={index} className="flex items-center gap-4 p-4 border rounded-md">
+              <div className="w-24 h-24 relative">
+                <img
+                  src={image}
+                  alt={`Hero image ${index + 1}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={image}
+                  onChange={(e) => {
+                    const newImages = [...content.hero.images];
+                    newImages[index] = e.target.value;
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowImageSelector(`hero-${index}`)}
+                  className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
+                  title="Wybierz z galerii"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                </button>
+                <button
+                  onClick={() => {
+                    const newImages = content.hero.images.filter((_, i) => i !== index);
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="text-red-600 p-2 hover:bg-red-50 rounded-md"
+                  title="Usuń zdjęcie"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={() => {
+              setContent({
+                ...content,
+                hero: {
+                  ...content.hero,
+                  images: [...content.hero.images, '']
+                }
+              });
+            }}
+            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Dodaj zdjęcie
+          </button>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   const renderHistoryEditor = () => {
     if (!content?.history) return null;
@@ -929,6 +981,8 @@ export default function AboutPageEditor() {
               ? content.history.sections[showImageSelector].image
               : typeof showImageSelector === 'string' && showImageSelector.startsWith('team-')
               ? content.team.members[parseInt(showImageSelector.replace('team-', ''))].image
+              : typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')
+              ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))]
               : ''
           }
           onImageSelect={(image) => {
@@ -953,7 +1007,16 @@ export default function AboutPageEditor() {
                 ...content,
                 team: { ...content.team, members: newMembers }
               });
+            } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')) {
+              const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
+              const newImages = [...content.hero.images];
+              newImages[imageIndex] = image;
+              setContent({
+                ...content,
+                hero: { ...content.hero, images: newImages }
+              });
             }
+            setShowImageSelector(null);
           }}
           onClose={() => setShowImageSelector(null)}
         />
