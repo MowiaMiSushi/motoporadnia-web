@@ -5,10 +5,6 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faTruck, faMoneyBill, faTruckArrowRight, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
-import { readFile } from 'fs/promises';
-import path from 'path';
-import { Metadata } from 'next';
-import { headers } from 'next/headers';
 
 interface MainSection {
     title: string;
@@ -100,25 +96,36 @@ const iconMap: { [key: string]: any } = {
     faRoadBarrier
 };
 
-async function getTransportContent() {
-    try {
-        const contentPath = path.join(process.cwd(), 'content', 'services', 'transport.json');
-        const content = await readFile(contentPath, 'utf-8');
-        return JSON.parse(content);
-    } catch (error) {
-        console.error('Error reading transport content:', error);
-        return null;
-    }
-}
+export default function TransportPage() {
+    const [content, setContent] = useState<PageContent>(defaultContent);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-export const revalidate = 0; // Wyłączamy cache dla tej strony
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const response = await fetch('/api/content/services/transport');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (Object.keys(data).length > 0) {
+                        setContent(data);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching content:', error);
+            }
+        };
 
-export default async function TransportPage() {
-    const content = await getTransportContent();
-    
-    if (!content) {
-        return <div>Błąd wczytywania treści</div>;
-    }
+        fetchContent();
+
+        // Ustawienie interwału dla zmiany zdjęć
+        const interval = setInterval(() => {
+            setCurrentImageIndex((prev) => 
+                prev === content.hero.images.length - 1 ? 0 : prev + 1
+            );
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <main className="min-h-screen">
@@ -131,7 +138,9 @@ export default async function TransportPage() {
                             key={index}
                             src={image}
                             alt="Transport motocykli"
-                            className={`absolute inset-0 w-full h-full object-cover ${index === 0 ? 'opacity-100' : 'opacity-0'}`}
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                            }`}
                         />
                     ))}
                 </div>
