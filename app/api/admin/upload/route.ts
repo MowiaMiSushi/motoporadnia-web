@@ -1,51 +1,82 @@
 import { NextResponse } from 'next/server';
-import { writeFile } from 'fs/promises';
-import path from 'path';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { authOptions } from '../../auth/[...nextauth]/route';
+import { existsSync } from 'fs';
 
 export async function POST(request: Request) {
   try {
-    // Sprawdź uprawnienia
+    // Sprawdź autoryzację
     const session = await getServerSession(authOptions);
+    console.log('Upload: Status sesji:', session ? 'aktywna' : 'brak');
+    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.log('Upload: Brak autoryzacji');
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
+    // Pobierz plik z formularza
     const formData = await request.formData();
     const file = formData.get('file') as File;
     
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      console.log('Upload: Brak pliku');
+      return new NextResponse('No file uploaded', { status: 400 });
     }
 
     // Sprawdź typ pliku
     if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+      console.log('Upload: Nieprawidłowy typ pliku:', file.type);
+      return new NextResponse('Invalid file type', { status: 400 });
     }
 
     // Generuj bezpieczną nazwę pliku
     const timestamp = Date.now();
     const originalName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, '-');
-    const extension = path.extname(originalName);
-    const baseName = path.basename(originalName, extension);
-    const fileName = `${baseName}-${timestamp}${extension}`;
+    const fileName = `${timestamp}-${originalName}`;
+    
+    console.log('Upload: Przygotowuję plik:', {
+      originalName,
+      fileName,
+      type: file.type,
+      size: file.size
+    });
 
     // Przygotuj ścieżkę do zapisu
-    const uploadDir = path.join(process.cwd(), 'public', 'images');
-    const filePath = path.join(uploadDir, fileName);
+    const publicDir = join(process.cwd(), 'public');
+    const imagesDir = join(publicDir, 'images');
+
+    // Sprawdź czy katalog images istnieje, jeśli nie - utwórz go
+    if (!existsSync(imagesDir)) {
+      console.log('Upload: Tworzę katalog images');
+      await mkdir(imagesDir, { recursive: true });
+    }
+
+    const filePath = join(imagesDir, fileName);
 
     // Konwertuj File na Buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     // Zapisz plik
+    console.log('Upload: Zapisuję plik:', filePath);
     await writeFile(filePath, buffer);
+    console.log('Upload: Plik zapisany pomyślnie');
 
     // Zwróć URL do zapisanego pliku
-    return NextResponse.json({ url: `/images/${fileName}` });
+    const fileUrl = `/images/${fileName}`;
+    return NextResponse.json({ 
+      success: true,
+      url: fileUrl,
+      message: 'Plik został pomyślnie przesłany'
+    });
+
   } catch (error) {
-    console.error('Error uploading file:', error);
-    return NextResponse.json({ error: 'Error uploading file' }, { status: 500 });
+    console.error('Upload: Błąd podczas przetwarzania pliku:', error);
+    return NextResponse.json({ 
+      success: false,
+      error: 'Wystąpił błąd podczas przesyłania pliku'
+    }, { status: 500 });
   }
 } 
