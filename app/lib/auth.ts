@@ -53,7 +53,8 @@ export const authOptions: AuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 24 * 60 * 60,
+    maxAge: 7 * 24 * 60 * 60, // 7 dni
+    updateAge: 24 * 60 * 60, // 24 godziny
   },
   pages: {
     signIn: '/admin/login',
@@ -61,9 +62,10 @@ export const authOptions: AuthOptions = {
     error: '/admin/login',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.role = user.role;
+        token.email = user.email;
       }
       return token;
     },
@@ -71,20 +73,25 @@ export const authOptions: AuthOptions = {
       if (session?.user) {
         session.user.id = token.sub as string;
         session.user.role = token.role as string;
+        session.user.email = token.email as string;
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Jeśli URL zawiera /admin/login, przekieruj do dashboardu
       if (url.includes('/admin/login')) {
         return `${baseUrl}/admin/dashboard`;
       }
       
+      // Sprawdź czy jest callbackUrl i czy jest bezpieczny
       const callbackUrl = new URL(url, baseUrl).searchParams.get('callbackUrl');
-      if (callbackUrl && callbackUrl.startsWith(baseUrl)) {
+      if (callbackUrl && callbackUrl.startsWith(baseUrl) && callbackUrl.includes('/admin')) {
         return callbackUrl;
       }
       
+      // Domyślnie przekieruj do dashboardu
       return `${baseUrl}/admin/dashboard`;
     }
-  }
+  },
+  debug: process.env.NODE_ENV === 'development',
 } 

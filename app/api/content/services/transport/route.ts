@@ -9,13 +9,22 @@ const contentPath = path.join(process.cwd(), 'content', 'services', 'transport.j
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    
+    // Sprawdzamy czy użytkownik jest zalogowany i ma rolę admin
+    if (!session?.user?.email || session?.user?.role !== 'admin') {
+      console.log('Unauthorized access attempt:', {
+        email: session?.user?.email,
+        role: session?.user?.role
+      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const content = await readFile(contentPath, 'utf-8')
       .then(data => JSON.parse(data))
-      .catch(() => ({}));
+      .catch(() => {
+        console.log('No content file found, returning empty object');
+        return {};
+      });
 
     return NextResponse.json(content);
   } catch (error) {
@@ -27,7 +36,13 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    
+    // Sprawdzamy czy użytkownik jest zalogowany i ma rolę admin
+    if (!session?.user?.email || session?.user?.role !== 'admin') {
+      console.log('Unauthorized access attempt:', {
+        email: session?.user?.email,
+        role: session?.user?.role
+      });
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
