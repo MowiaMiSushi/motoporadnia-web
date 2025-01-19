@@ -13,13 +13,13 @@ const services = [
     id: 'serwis',
     title: 'Serwis motocykli',
     description: 'Edytuj zawartość strony serwisu motocyklowego',
-    sections: ['Hero', 'Main content', 'Cennik', 'Galeria', 'CTA']
+    sections: ['Hero', 'Main content', 'CTA']
   },
   {
     id: 'transport',
     title: 'Transport motocykli',
     description: 'Edytuj zawartość strony transportu motocykli',
-    sections: ['Hero', 'Main content', 'Cennik', 'FAQ', 'CTA']
+    sections: ['Hero', 'Main content', 'FAQ', 'CTA']
   },
   {
     id: 'szkolenia',
