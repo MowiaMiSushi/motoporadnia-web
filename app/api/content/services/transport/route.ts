@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
-
-const contentPath = path.join(process.cwd(), 'content', 'services', 'transport.json');
+import { connectToDatabase } from '@/lib/mongodb';
 
 export async function GET() {
   try {
@@ -19,14 +16,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const content = await readFile(contentPath, 'utf-8')
-      .then(data => JSON.parse(data))
-      .catch(() => {
-        console.log('No content file found, returning empty object');
-        return {};
-      });
+    const { db } = await connectToDatabase();
+    const content = await db.collection('content').findOne({ type: 'transport' });
 
-    return NextResponse.json(content);
+    if (!content) {
+      console.log('No content found, returning empty object');
+      return NextResponse.json({});
+    }
+
+    return NextResponse.json(content.data);
   } catch (error) {
     console.error('Error reading transport content:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -47,8 +45,22 @@ export async function POST(request: Request) {
     }
 
     const content = await request.json();
-    await writeFile(contentPath, JSON.stringify(content, null, 2));
+    const { db } = await connectToDatabase();
 
+    await db.collection('content').updateOne(
+      { type: 'transport' },
+      { 
+        $set: { 
+          type: 'transport',
+          data: content,
+          updatedAt: new Date(),
+          updatedBy: session.user.email
+        }
+      },
+      { upsert: true }
+    );
+
+    console.log('Content saved successfully by:', session.user.email);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error saving transport content:', error);

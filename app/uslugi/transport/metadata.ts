@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Transport Motocykli | MotoPoradnia Poznań',
-  description: 'Profesjonalny transport motocykli w Poznaniu i całej Polsce. Bezpieczny przewóz motocykli, quadów i skuterów. Laweta z wyciągarką i systemem mocowań.',
+  title: 'Transport motocykli - MotoPoradnia',
+  description: 'Profesjonalny transport motocykli na terenie Poznania i całej Polski. Bezpieczny przewóz jednośladów z pełnym ubezpieczeniem.',
   keywords: 'transport motocykli poznań, przewóz motocykli, laweta motocyklowa, transport quadów, transport skuterów poznań',
   openGraph: {
     title: 'Transport Motocykli | MotoPoradnia Poznań',
