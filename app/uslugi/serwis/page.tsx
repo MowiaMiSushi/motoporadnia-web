@@ -37,7 +37,7 @@ const defaultContent: PageContent = {
   hero: {
     title: "Profesjonalny serwis motocyklowy",
     description: "Oferujemy kompleksową obsługę serwisową motocykli wszystkich marek. Nasz zespół doświadczonych mechaników zadba o Twój jednoślad.",
-    images: ['/images/serwis_1.jpg', '/images/serwis_2.jpg']
+    images: ['/images/serwis_1.webp', '/images/serwis_2.webp']
   },
   services: [
     {
@@ -74,35 +74,35 @@ const defaultContent: PageContent = {
   brands: [
     {
       name: "Honda",
-      image: "/images/brands/honda.png"
+      image: "/images/brands/honda.webp"
     },
     {
       name: "Yamaha",
-      image: "/images/brands/yamaha.png"
+      image: "/images/brands/yamaha.webp"
     },
     {
       name: "Suzuki",
-      image: "/images/brands/suzuki.png"
+      image: "/images/brands/suzuki.webp"
     },
     {
       name: "Kawasaki",
-      image: "/images/brands/kawasaki.png"
+      image: "/images/brands/kawasaki.webp"
     },
     {
       name: "BMW",
-      image: "/images/brands/bmw.png"
+      image: "/images/brands/bmw.webp"
     },
     {
       name: "KTM",
-      image: "/images/brands/ktm.png"
+      image: "/images/brands/ktm.webp"
     },
     {
       name: "Ducati",
-      image: "/images/brands/ducati.png"
+      image: "/images/brands/ducati.webp"
     },
     {
       name: "Triumph",
-      image: "/images/brands/triumph.png"
+      image: "/images/brands/triumph.webp"
     }
   ],
   cta: {
