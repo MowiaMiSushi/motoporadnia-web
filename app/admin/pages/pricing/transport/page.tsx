@@ -152,7 +152,8 @@ export default function TransportPricingEditor() {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         },
-        body: JSON.stringify(dataToSave)
+        body: JSON.stringify(dataToSave),
+        cache: 'no-store'
       });
 
       const responseText = await response.text();
@@ -169,37 +170,36 @@ export default function TransportPricingEditor() {
 
       if (response.ok) {
         console.log('Admin: Dane zostały zapisane pomyślnie');
+        
+        // Aktualizuj stan lokalny
+        if (responseData.content) {
+          const { identifier, updatedAt, _id, ...contentData } = responseData.content;
+          setContent(contentData);
+        }
+
         showNotification({
           title: 'Sukces',
           message: 'Zmiany zostały zapisane',
           type: 'success'
         });
 
-        // Odśwież dane po zapisie
+        // Odśwież stronę kliencką
+        router.refresh();
+        
+        // Odśwież dane w komponencie
         const refreshResponse = await fetch('/api/content/pricing/transport', {
+          cache: 'no-store',
           headers: {
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'
           }
         });
         
-        const refreshedText = await refreshResponse.text();
-        console.log('Admin: Surowa odpowiedź z odświeżania:', refreshedText);
-        
         if (refreshResponse.ok) {
-          try {
-            const refreshedData = JSON.parse(refreshedText);
-            console.log('Admin: Odświeżone dane:', JSON.stringify(refreshedData, null, 2));
-            if (refreshedData.hero && refreshedData.pricingCategories) {
-              setContent(refreshedData);
-            }
-          } catch (e) {
-            console.error('Admin: Błąd parsowania odświeżonych danych:', e);
-          }
+          const refreshData = await refreshResponse.json();
+          console.log('Admin: Odświeżone dane:', JSON.stringify(refreshData, null, 2));
+          setContent(refreshData);
         }
-
-        // Wymuś odświeżenie strony klienckiej
-        router.refresh();
       } else {
         console.error('Admin: Błąd podczas zapisywania. Status:', response.status);
         console.error('Admin: Treść błędu:', responseText);
