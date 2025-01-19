@@ -22,13 +22,35 @@ export default function ServiceEditor() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch('/api/services/serwis');
-        if (response.ok) {
-          const data = await response.json();
-          setServices(data);
+        const response = await fetch('/api/services/serwis', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Błąd podczas pobierania danych');
+        }
+
+        const responseText = await response.text();
+        console.log('Admin: Surowa odpowiedź z API:', responseText);
+
+        const data = JSON.parse(responseText);
+        console.log('Admin: Przetworzone dane:', data);
+
+        if (data && Array.isArray(data.services)) {
+          setServices(data.services);
+        } else {
+          console.error('Admin: Nieprawidłowa struktura danych:', data);
+          showNotification({
+            title: 'Błąd',
+            message: 'Nieprawidłowa struktura danych z API',
+            type: 'error'
+          });
         }
       } catch (error) {
-        console.error('Error fetching services:', error);
+        console.error('Admin: Błąd podczas pobierania usług:', error);
         showNotification({
           title: 'Błąd',
           message: 'Nie udało się pobrać listy usług',
@@ -65,12 +87,16 @@ export default function ServiceEditor() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache'
         },
-        body: JSON.stringify(services),
+        body: JSON.stringify({ services }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save services');
+        const responseText = await response.text();
+        console.error('Admin: Błąd podczas zapisywania. Status:', response.status);
+        console.error('Admin: Treść błędu:', responseText);
+        throw new Error('Błąd podczas zapisywania zmian');
       }
 
       showNotification({
@@ -80,10 +106,10 @@ export default function ServiceEditor() {
       });
       router.refresh();
     } catch (error) {
-      console.error('Error saving services:', error);
+      console.error('Admin: Błąd podczas zapisywania usług:', error);
       showNotification({
         title: 'Błąd',
-        message: 'Nie udało się zapisać zmian',
+        message: error instanceof Error ? error.message : 'Błąd podczas zapisywania zmian',
         type: 'error'
       });
     } finally {
@@ -164,9 +190,9 @@ export default function ServiceEditor() {
               </div>
               <button
                 onClick={() => handleRemoveService(service.id)}
-                className="ml-4 text-red-600 hover:text-red-800"
+                className="ml-4 text-red-600 hover:text-red-700"
               >
-                <FontAwesomeIcon icon={faTrash} size="lg" />
+                <FontAwesomeIcon icon={faTrash} className="w-5 h-5" />
               </button>
             </div>
           </div>
