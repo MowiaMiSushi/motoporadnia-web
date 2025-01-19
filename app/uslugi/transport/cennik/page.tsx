@@ -51,9 +51,6 @@ export default function TransportPricingPage() {
           headers: {
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'
-          },
-          next: {
-            revalidate: 0
           }
         });
         

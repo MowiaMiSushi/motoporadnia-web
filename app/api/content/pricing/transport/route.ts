@@ -43,10 +43,11 @@ const defaultContent = {
 };
 
 export async function GET() {
+  let mongoClient;
   try {
     console.log('GET: Rozpoczynam pobieranie danych');
-    const client = await connectToDatabase();
-    const db = client.db();
+    const { client, db } = await connectToDatabase();
+    mongoClient = client;
 
     const content = await db.collection('content').findOne({ identifier: 'transport-pricing' });
     console.log('GET: Pobrane dane z bazy:', JSON.stringify(content, null, 2));
@@ -86,10 +87,16 @@ export async function GET() {
         'Expires': '0',
       }
     });
+  } finally {
+    if (mongoClient) {
+      console.log('GET: Zamykanie połączenia z bazą danych');
+      await mongoClient.close();
+    }
   }
 }
 
 export async function POST(request: Request) {
+  let mongoClient;
   try {
     console.log('POST: Rozpoczynam zapisywanie danych');
     let content;
@@ -135,6 +142,7 @@ export async function POST(request: Request) {
 
     console.log('POST: Próba połączenia z bazą danych');
     const { client, db } = await connectToDatabase();
+    mongoClient = client;
     console.log('POST: Połączenie z bazą danych ustanowione');
 
     try {
@@ -207,9 +215,6 @@ export async function POST(request: Request) {
           }
         }
       );
-    } finally {
-      console.log('POST: Zamykanie połączenia z bazą danych');
-      await client.close();
     }
   } catch (error) {
     console.error('POST: Nieoczekiwany błąd:', error);
@@ -228,5 +233,10 @@ export async function POST(request: Request) {
         }
       }
     );
+  } finally {
+    if (mongoClient) {
+      console.log('POST: Zamykanie połączenia z bazą danych');
+      await mongoClient.close();
+    }
   }
 } 
