@@ -75,7 +75,8 @@ export default function ServiceAdmin() {
   const [content, setContent] = useState<PageContent>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>('hero');
-  const [expandedSections, setExpandedSections] = useState<{ [key: number]: boolean }>({});
+  const [expandedServices, setExpandedServices] = useState<{ [key: number]: boolean }>({});
+  const [expandedBrands, setExpandedBrands] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -223,6 +224,40 @@ export default function ServiceAdmin() {
     }));
   };
 
+  const handleDragEndServices = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(content.services);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({ ...content, services: items });
+  };
+
+  const handleDragEndBrands = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(content.brands);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({ ...content, brands: items });
+  };
+
+  const toggleService = (index: number) => {
+    setExpandedServices(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  const toggleBrand = (index: number) => {
+    setExpandedBrands(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   const renderHeroEditor = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Sekcja Hero</h3>
@@ -269,56 +304,110 @@ export default function ServiceAdmin() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Usługi</h3>
-        <button
-          onClick={addService}
-          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
-        >
-          <FontAwesomeIcon icon={faPlus} className="mr-2" />
-          Dodaj usługę
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const allExpanded = content.services.every((_, index) => expandedServices[index]);
+              setExpandedServices(
+                content.services.reduce((acc, _, index) => ({
+                  ...acc,
+                  [index]: !allExpanded
+                }), {})
+              );
+            }}
+            className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            {content.services.every((_, index) => expandedServices[index]) 
+              ? 'Zwiń wszystkie' 
+              : 'Rozwiń wszystkie'
+            }
+          </button>
+          <button
+            onClick={addService}
+            className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
+          >
+            <FontAwesomeIcon icon={faPlus} className="mr-2" />
+            Dodaj usługę
+          </button>
+        </div>
       </div>
-      <div className="space-y-4">
-        {content.services.map((service, index) => (
-          <div key={index} className="border p-4 rounded-md space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium">Usługa {index + 1}</h4>
-              <button
-                onClick={() => removeService(index)}
-                className="text-red-600 hover:text-red-700"
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
+
+      <DragDropContext onDragEnd={handleDragEndServices}>
+        <Droppable droppableId="services">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {content.services.map((service, index) => (
+                <Draggable key={index} draggableId={`service-${index}`} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`border p-4 rounded-md ${snapshot.isDragging ? 'bg-gray-50' : ''}`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-gray-600">
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <h4 className="font-medium">Usługa {index + 1}</h4>
+                          <button
+                            onClick={() => toggleService(index)}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <FontAwesomeIcon 
+                              icon={expandedServices[index] ? faChevronUp : faChevronDown}
+                              className="w-4 h-4"
+                            />
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => removeService(index)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+
+                      {expandedServices[index] && (
+                        <div className="mt-4 space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Ikona</label>
+                            <input
+                              type="text"
+                              value={service.icon}
+                              onChange={(e) => updateService(index, 'icon', e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+                            <input
+                              type="text"
+                              value={service.title}
+                              onChange={(e) => updateService(index, 'title', e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Opis</label>
+                            <textarea
+                              value={service.description}
+                              onChange={(e) => updateService(index, 'description', e.target.value)}
+                              rows={3}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Ikona</label>
-              <input
-                type="text"
-                value={service.icon}
-                onChange={(e) => updateService(index, 'icon', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tytuł</label>
-              <input
-                type="text"
-                value={service.title}
-                onChange={(e) => updateService(index, 'title', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Opis</label>
-              <textarea
-                value={service.description}
-                onChange={(e) => updateService(index, 'description', e.target.value)}
-                rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
@@ -326,47 +415,101 @@ export default function ServiceAdmin() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Marki</h3>
-        <button
-          onClick={addBrand}
-          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
-        >
-          <FontAwesomeIcon icon={faPlus} className="mr-2" />
-          Dodaj markę
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const allExpanded = content.brands.every((_, index) => expandedBrands[index]);
+              setExpandedBrands(
+                content.brands.reduce((acc, _, index) => ({
+                  ...acc,
+                  [index]: !allExpanded
+                }), {})
+              );
+            }}
+            className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            {content.brands.every((_, index) => expandedBrands[index]) 
+              ? 'Zwiń wszystkie' 
+              : 'Rozwiń wszystkie'
+            }
+          </button>
+          <button
+            onClick={addBrand}
+            className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
+          >
+            <FontAwesomeIcon icon={faPlus} className="mr-2" />
+            Dodaj markę
+          </button>
+        </div>
       </div>
-      <div className="space-y-4">
-        {content.brands.map((brand, index) => (
-          <div key={index} className="border p-4 rounded-md space-y-4">
-            <div className="flex justify-between items-center">
-              <h4 className="font-medium">Marka {index + 1}</h4>
-              <button
-                onClick={() => removeBrand(index)}
-                className="text-red-600 hover:text-red-700"
-              >
-                <FontAwesomeIcon icon={faTrash} />
-              </button>
+
+      <DragDropContext onDragEnd={handleDragEndBrands}>
+        <Droppable droppableId="brands">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {content.brands.map((brand, index) => (
+                <Draggable key={index} draggableId={`brand-${index}`} index={index}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`border p-4 rounded-md ${snapshot.isDragging ? 'bg-gray-50' : ''}`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-gray-600">
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <h4 className="font-medium">Marka {index + 1}</h4>
+                          <button
+                            onClick={() => toggleBrand(index)}
+                            className="text-gray-500 hover:text-gray-700"
+                          >
+                            <FontAwesomeIcon 
+                              icon={expandedBrands[index] ? faChevronUp : faChevronDown}
+                              className="w-4 h-4"
+                            />
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => removeBrand(index)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+
+                      {expandedBrands[index] && (
+                        <div className="mt-4 space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">Nazwa</label>
+                            <input
+                              type="text"
+                              value={brand.name}
+                              onChange={(e) => updateBrand(index, 'name', e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">URL obrazu</label>
+                            <input
+                              type="text"
+                              value={brand.image}
+                              onChange={(e) => updateBrand(index, 'image', e.target.value)}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nazwa</label>
-              <input
-                type="text"
-                value={brand.name}
-                onChange={(e) => updateBrand(index, 'name', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">URL obrazu</label>
-              <input
-                type="text"
-                value={brand.image}
-                onChange={(e) => updateBrand(index, 'image', e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
