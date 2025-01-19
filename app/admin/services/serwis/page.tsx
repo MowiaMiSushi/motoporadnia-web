@@ -216,6 +216,13 @@ export default function ServiceAdmin() {
             const data = JSON.parse(responseText);
             console.log('Admin: Sparsowane dane:', JSON.stringify(data, null, 2));
             if (data && data.hero && data.services) {
+              // Inicjalizacja hoverImages dla każdej marki, jeśli nie istnieje
+              if (data.brands) {
+                data.brands = data.brands.map((brand: Brand) => ({
+                  ...brand,
+                  hoverImages: brand.hoverImages || []
+                }));
+              }
               console.log('Admin: Ustawiam otrzymane dane');
               setContent(data);
             } else {
