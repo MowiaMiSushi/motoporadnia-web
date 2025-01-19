@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faGripVertical, faImage } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ImageSelector from '@/app/components/ImageSelector';
 
 interface Platform {
   name: string;
@@ -127,6 +129,8 @@ export default function CommissionEditor() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -201,6 +205,47 @@ export default function CommissionEditor() {
     }
   };
 
+  const handleDragEndPlatforms = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(content.platforms);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({
+      ...content,
+      platforms: items
+    });
+  };
+
+  const handleDragEndSteps = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(content.steps);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({
+      ...content,
+      steps: items
+    });
+  };
+
+  const handleImageSelect = (imageUrl: string) => {
+    const newImages = [...content.hero.images];
+    newImages[currentImageIndex] = imageUrl;
+    
+    setContent({
+      ...content,
+      hero: {
+        ...content.hero,
+        images: newImages
+      }
+    });
+    
+    setShowImageSelector(false);
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -239,16 +284,80 @@ export default function CommissionEditor() {
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">Zdjęcia (po jednym URL w linii)</label>
-        <textarea
-          value={content.hero.images.join('\n')}
-          onChange={(e) => setContent({
-            ...content,
-            hero: { ...content.hero, images: e.target.value.split('\n').filter(url => url.trim()) }
-          })}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
+        <div className="grid grid-cols-2 gap-4">
+          {content.hero.images.map((image, index) => (
+            <div key={index} className="relative group">
+              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                {image ? (
+                  <img
+                    src={image}
+                    alt={`Zdjęcie ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    Brak zdjęcia
+                  </div>
+                )}
+              </div>
+              <div className="absolute top-2 right-2 flex gap-1">
+                <button
+                  onClick={() => {
+                    setCurrentImageIndex(index);
+                    setShowImageSelector(true);
+                  }}
+                  className="p-1.5 bg-white rounded-full shadow hover:bg-gray-100 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faImage} className="w-4 h-4 text-gray-600" />
+                </button>
+                <button
+                  onClick={() => {
+                    const newImages = content.hero.images.filter((_, i) => i !== index);
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  className="p-1.5 bg-white rounded-full shadow hover:bg-gray-100 transition-colors"
+                >
+                  <FontAwesomeIcon icon={faTrash} className="w-4 h-4 text-red-600" />
+                </button>
+              </div>
+              <input
+                type="text"
+                value={image}
+                onChange={(e) => {
+                  const newImages = [...content.hero.images];
+                  newImages[index] = e.target.value;
+                  setContent({
+                    ...content,
+                    hero: { ...content.hero, images: newImages }
+                  });
+                }}
+                placeholder="URL zdjęcia"
+                className="mt-2 block w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+          ))}
+          <button
+            onClick={() => {
+              setContent({
+                ...content,
+                hero: {
+                  ...content.hero,
+                  images: [...content.hero.images, '']
+                }
+              });
+            }}
+            className="aspect-video flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors group"
+          >
+            <div className="text-gray-400 group-hover:text-red-500 flex flex-col items-center gap-1">
+              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
+              <span className="text-sm">Dodaj zdjęcie</span>
+            </div>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -276,74 +385,96 @@ export default function CommissionEditor() {
           Dodaj platformę
         </button>
       </div>
-      {(Array.isArray(content.platforms) ? content.platforms : []).map((platform, index) => (
-        <div key={index} className="border p-4 rounded-md space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">Platforma {index + 1}</h4>
-            <button
-              onClick={() => {
-                const newPlatforms = content.platforms.filter((_, i) => i !== index);
-                setContent({ ...content, platforms: newPlatforms });
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nazwa</label>
-            <input
-              type="text"
-              value={platform.name}
-              onChange={(e) => {
-                const newPlatforms = [...content.platforms];
-                newPlatforms[index] = { ...platform, name: e.target.value };
-                setContent({ ...content, platforms: newPlatforms });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Opis</label>
-            <textarea
-              value={platform.description}
-              onChange={(e) => {
-                const newPlatforms = [...content.platforms];
-                newPlatforms[index] = { ...platform, description: e.target.value };
-                setContent({ ...content, platforms: newPlatforms });
-              }}
-              rows={2}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">URL</label>
-            <input
-              type="text"
-              value={platform.url}
-              onChange={(e) => {
-                const newPlatforms = [...content.platforms];
-                newPlatforms[index] = { ...platform, url: e.target.value };
-                setContent({ ...content, platforms: newPlatforms });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Ikona</label>
-            <input
-              type="text"
-              value={platform.icon}
-              onChange={(e) => {
-                const newPlatforms = [...content.platforms];
-                newPlatforms[index] = { ...platform, icon: e.target.value };
-                setContent({ ...content, platforms: newPlatforms });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-        </div>
-      ))}
+      <DragDropContext onDragEnd={handleDragEndPlatforms}>
+        <Droppable droppableId="platforms">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {(Array.isArray(content.platforms) ? content.platforms : []).map((platform, index) => (
+                <Draggable key={index} draggableId={`platform-${index}`} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="border p-4 rounded-md space-y-4 bg-white"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab">
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <h4 className="font-medium">Platforma {index + 1}</h4>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newPlatforms = content.platforms.filter((_, i) => i !== index);
+                            setContent({ ...content, platforms: newPlatforms });
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Nazwa</label>
+                        <input
+                          type="text"
+                          value={platform.name}
+                          onChange={(e) => {
+                            const newPlatforms = [...content.platforms];
+                            newPlatforms[index] = { ...platform, name: e.target.value };
+                            setContent({ ...content, platforms: newPlatforms });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Opis</label>
+                        <textarea
+                          value={platform.description}
+                          onChange={(e) => {
+                            const newPlatforms = [...content.platforms];
+                            newPlatforms[index] = { ...platform, description: e.target.value };
+                            setContent({ ...content, platforms: newPlatforms });
+                          }}
+                          rows={2}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">URL</label>
+                        <input
+                          type="text"
+                          value={platform.url}
+                          onChange={(e) => {
+                            const newPlatforms = [...content.platforms];
+                            newPlatforms[index] = { ...platform, url: e.target.value };
+                            setContent({ ...content, platforms: newPlatforms });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Ikona</label>
+                        <input
+                          type="text"
+                          value={platform.icon}
+                          onChange={(e) => {
+                            const newPlatforms = [...content.platforms];
+                            newPlatforms[index] = { ...platform, icon: e.target.value };
+                            setContent({ ...content, platforms: newPlatforms });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
@@ -369,61 +500,83 @@ export default function CommissionEditor() {
           Dodaj krok
         </button>
       </div>
-      {(Array.isArray(content.steps) ? content.steps : []).map((step, index) => (
-        <div key={index} className="border p-4 rounded-md space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">Krok {index + 1}</h4>
-            <button
-              onClick={() => {
-                const newSteps = content.steps.filter((_, i) => i !== index);
-                setContent({ ...content, steps: newSteps });
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tytuł</label>
-            <input
-              type="text"
-              value={step.title}
-              onChange={(e) => {
-                const newSteps = [...(content?.steps || [])];
-                newSteps[index] = { ...step, title: e.target.value };
-                setContent({ ...content, steps: newSteps });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Opis</label>
-            <textarea
-              value={step.description}
-              onChange={(e) => {
-                const newSteps = [...(content?.steps || [])];
-                newSteps[index] = { ...step, description: e.target.value };
-                setContent({ ...content, steps: newSteps });
-              }}
-              rows={2}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Ikona</label>
-            <input
-              type="text"
-              value={step.icon}
-              onChange={(e) => {
-                const newSteps = [...(content?.steps || [])];
-                newSteps[index] = { ...step, icon: e.target.value };
-                setContent({ ...content, steps: newSteps });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-        </div>
-      ))}
+      <DragDropContext onDragEnd={handleDragEndSteps}>
+        <Droppable droppableId="steps">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {(Array.isArray(content.steps) ? content.steps : []).map((step, index) => (
+                <Draggable key={index} draggableId={`step-${index}`} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="border p-4 rounded-md space-y-4 bg-white"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab">
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <h4 className="font-medium">Krok {index + 1}</h4>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newSteps = content.steps.filter((_, i) => i !== index);
+                            setContent({ ...content, steps: newSteps });
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+                        <input
+                          type="text"
+                          value={step.title}
+                          onChange={(e) => {
+                            const newSteps = [...content.steps];
+                            newSteps[index] = { ...step, title: e.target.value };
+                            setContent({ ...content, steps: newSteps });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Opis</label>
+                        <textarea
+                          value={step.description}
+                          onChange={(e) => {
+                            const newSteps = [...content.steps];
+                            newSteps[index] = { ...step, description: e.target.value };
+                            setContent({ ...content, steps: newSteps });
+                          }}
+                          rows={2}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Ikona</label>
+                        <input
+                          type="text"
+                          value={step.icon}
+                          onChange={(e) => {
+                            const newSteps = [...content.steps];
+                            newSteps[index] = { ...step, icon: e.target.value };
+                            setContent({ ...content, steps: newSteps });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
@@ -527,6 +680,12 @@ export default function CommissionEditor() {
           {activeSection === 'cta' && renderCTAEditor()}
         </div>
       </div>
+      {showImageSelector && (
+        <ImageSelector
+          onSelect={handleImageSelect}
+          onClose={() => setShowImageSelector(false)}
+        />
+      )}
     </div>
   );
 } 
