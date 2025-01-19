@@ -38,10 +38,10 @@ export async function getPages(): Promise<PageResponse[]> {
   }));
 }
 
-export async function getPage(pageId: string): Promise<Page | null> {
+export async function getPage(pageId: string): Promise<PageResponse | null> {
   console.log(`Pobieranie strony: ${pageId}`);
   const { db } = await connectToDatabase();
-  const page = await db.collection('pages').findOne({ pageId });
+  const page = await db.collection('pages').findOne({ pageId }) as Page | null;
   if (!page) return null;
   
   return {
@@ -51,12 +51,12 @@ export async function getPage(pageId: string): Promise<Page | null> {
     content: page.content,
     metaTitle: page.metaTitle,
     metaDescription: page.metaDescription,
-    createdAt: page.createdAt,
-    updatedAt: page.updatedAt
+    createdAt: page.createdAt.toISOString(),
+    updatedAt: page.updatedAt.toISOString()
   };
 }
 
-export async function updatePage(pageId: string, data: Partial<Page>): Promise<boolean> {
+export async function updatePage(pageId: string, data: Partial<Omit<Page, '_id'>>): Promise<boolean> {
   console.log(`Aktualizacja strony: ${pageId}`);
   console.log('Nowe dane:', data);
   
