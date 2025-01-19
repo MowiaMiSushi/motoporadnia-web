@@ -1,36 +1,50 @@
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/mongodb';
+import { revalidatePath } from 'next/cache';
 
 export async function GET() {
   try {
-    const { db } = await connectToDatabase();
-    const content = await db.collection('content').findOne({ type: 'pricing-transport' });
-    return NextResponse.json(content?.data || {});
+    const client = await connectToDatabase();
+    const db = client.db();
+
+    const content = await db.collection('content').findOne({ identifier: 'transport-pricing' });
+    console.log('Pobrane dane z bazy:', content);
+
+    return NextResponse.json(content || {});
   } catch (error) {
     console.error('Error fetching content:', error);
-    return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const data = await request.json();
-    const { db } = await connectToDatabase();
-    
-    await db.collection('content').updateOne(
-      { type: 'pricing-transport' },
+    const content = await request.json();
+    console.log('Otrzymane dane do zapisania:', content);
+
+    const client = await connectToDatabase();
+    const db = client.db();
+
+    const result = await db.collection('content').updateOne(
+      { identifier: 'transport-pricing' },
       { 
         $set: { 
-          data,
+          ...content,
+          identifier: 'transport-pricing',
           updatedAt: new Date()
-        }
+        } 
       },
       { upsert: true }
     );
 
-    return NextResponse.json({ message: 'Content updated successfully' });
+    console.log('Wynik operacji zapisu:', result);
+
+    // Odśwież stronę kliencką
+    revalidatePath('/uslugi/transport/cennik');
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error updating content:', error);
-    return NextResponse.json({ error: 'Failed to update content' }, { status: 500 });
+    console.error('Error saving content:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 } 
