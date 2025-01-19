@@ -8,12 +8,16 @@ export async function GET() {
   try {
     // Sprawdź uprawnienia
     const session = await getServerSession(authOptions);
+    console.log('Session status:', session ? 'active' : 'none');
+    
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      console.log('Unauthorized access attempt');
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
     // Ścieżka do katalogu z obrazami
     const imagesDirectory = path.join(process.cwd(), 'public', 'images');
+    console.log('Reading directory:', imagesDirectory);
     
     // Pobierz listę plików
     const files = readdirSync(imagesDirectory, { withFileTypes: true });
@@ -23,10 +27,21 @@ export async function GET() {
       .filter(file => file.isFile() && /\.(jpg|jpeg|png|webp)$/i.test(file.name))
       .map(file => `/images/${file.name}`);
 
+    console.log('Found images:', images);
+
     // Zwróć listę ścieżek do obrazów
-    return NextResponse.json({ images });
+    return NextResponse.json({ 
+      success: true,
+      images,
+      timestamp: new Date().toISOString()
+    });
   } catch (error) {
-    console.error('Error reading images directory:', error);
-    return NextResponse.json({ images: [] });
+    console.error('Error in /api/admin/images:', error);
+    return NextResponse.json({ 
+      success: false,
+      error: 'Internal server error',
+      timestamp: new Date().toISOString(),
+      images: [] 
+    }, { status: 500 });
   }
 } 
