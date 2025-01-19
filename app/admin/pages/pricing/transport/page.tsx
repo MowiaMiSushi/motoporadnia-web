@@ -127,6 +127,9 @@ export default function TransportPricingEditor() {
         body: JSON.stringify(content),
       });
 
+      const responseText = await response.text();
+      console.log('Admin: Odpowiedź z serwera:', responseText);
+
       if (response.ok) {
         console.log('Admin: Dane zostały zapisane pomyślnie');
         showNotification({
@@ -134,17 +137,26 @@ export default function TransportPricingEditor() {
           message: 'Zmiany zostały zapisane',
           type: 'success'
         });
-        router.refresh();
+
+        // Odśwież dane po zapisie
+        const refreshResponse = await fetch('/api/content/pricing/transport');
+        if (refreshResponse.ok) {
+          const refreshedData = await refreshResponse.json();
+          console.log('Admin: Odświeżone dane:', JSON.stringify(refreshedData, null, 2));
+          if (refreshedData.hero && refreshedData.pricingCategories) {
+            setContent(refreshedData);
+          }
+        }
       } else {
-        const errorText = await response.text();
-        console.error('Admin: Błąd podczas zapisywania:', errorText);
-        throw new Error(errorText);
+        console.error('Admin: Błąd podczas zapisywania. Status:', response.status);
+        console.error('Admin: Treść błędu:', responseText);
+        throw new Error(`Błąd podczas zapisywania: ${responseText}`);
       }
     } catch (error) {
       console.error('Admin: Error saving content:', error);
       showNotification({
         title: 'Błąd',
-        message: 'Błąd podczas zapisywania zmian',
+        message: error instanceof Error ? error.message : 'Błąd podczas zapisywania zmian',
         type: 'error'
       });
     } finally {
