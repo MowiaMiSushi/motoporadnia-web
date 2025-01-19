@@ -136,19 +136,36 @@ export default function TransportPricingEditor() {
     try {
       setIsSaving(true);
       console.log('Admin: Rozpoczynam zapisywanie danych');
-      console.log('Admin: Dane do zapisania:', JSON.stringify(content, null, 2));
+      
+      // Przygotuj dane do wysłania
+      const dataToSave = {
+        hero: content.hero,
+        pricingCategories: content.pricingCategories
+      };
+      
+      console.log('Admin: Dane do zapisania:', JSON.stringify(dataToSave, null, 2));
       
       const response = await fetch('/api/content/pricing/transport', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         },
-        body: JSON.stringify(content),
-        cache: 'no-store'
+        body: JSON.stringify(dataToSave)
       });
 
-      const responseData = await response.json();
-      console.log('Admin: Odpowiedź z serwera:', JSON.stringify(responseData, null, 2));
+      const responseText = await response.text();
+      console.log('Admin: Surowa odpowiedź z serwera:', responseText);
+
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+        console.log('Admin: Sparsowana odpowiedź z serwera:', JSON.stringify(responseData, null, 2));
+      } catch (e) {
+        console.error('Admin: Błąd parsowania odpowiedzi:', e);
+        throw new Error('Nieprawidłowa odpowiedź z serwera');
+      }
 
       if (response.ok) {
         console.log('Admin: Dane zostały zapisane pomyślnie');
@@ -160,21 +177,33 @@ export default function TransportPricingEditor() {
 
         // Odśwież dane po zapisie
         const refreshResponse = await fetch('/api/content/pricing/transport', {
-          cache: 'no-store',
-          next: { revalidate: 0 }
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
         });
         
+        const refreshedText = await refreshResponse.text();
+        console.log('Admin: Surowa odpowiedź z odświeżania:', refreshedText);
+        
         if (refreshResponse.ok) {
-          const refreshedData = await refreshResponse.json();
-          console.log('Admin: Odświeżone dane:', JSON.stringify(refreshedData, null, 2));
-          if (refreshedData.hero && refreshedData.pricingCategories) {
-            setContent(refreshedData);
+          try {
+            const refreshedData = JSON.parse(refreshedText);
+            console.log('Admin: Odświeżone dane:', JSON.stringify(refreshedData, null, 2));
+            if (refreshedData.hero && refreshedData.pricingCategories) {
+              setContent(refreshedData);
+            }
+          } catch (e) {
+            console.error('Admin: Błąd parsowania odświeżonych danych:', e);
           }
         }
+
+        // Wymuś odświeżenie strony klienckiej
+        router.refresh();
       } else {
         console.error('Admin: Błąd podczas zapisywania. Status:', response.status);
-        console.error('Admin: Treść błędu:', JSON.stringify(responseData, null, 2));
-        throw new Error(responseData.error || 'Błąd podczas zapisywania zmian');
+        console.error('Admin: Treść błędu:', responseText);
+        throw new Error(responseData?.error || 'Błąd podczas zapisywania zmian');
       }
     } catch (error) {
       console.error('Admin: Error saving content:', error);

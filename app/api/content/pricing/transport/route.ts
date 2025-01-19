@@ -93,13 +93,25 @@ export async function POST(request: Request) {
   try {
     console.log('POST: Rozpoczynam zapisywanie danych');
     let content;
+    
     try {
       const rawData = await request.text();
       console.log('POST: Otrzymane surowe dane:', rawData);
       content = JSON.parse(rawData);
     } catch (e) {
       console.error('POST: Błąd parsowania JSON:', e);
-      return NextResponse.json({ error: 'Invalid JSON data' }, { status: 400 });
+      return new NextResponse(
+        JSON.stringify({ error: 'Invalid JSON data' }), 
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }
+      );
     }
 
     console.log('POST: Otrzymane dane do zapisania:', JSON.stringify(content, null, 2));
@@ -107,7 +119,18 @@ export async function POST(request: Request) {
     // Sprawdź czy dane zawierają wymagane pola
     if (!content.hero || !content.pricingCategories) {
       console.error('POST: Brak wymaganych pól w danych');
-      return NextResponse.json({ error: 'Missing required fields: hero or pricingCategories' }, { status: 400 });
+      return new NextResponse(
+        JSON.stringify({ error: 'Missing required fields: hero or pricingCategories' }), 
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }
+      );
     }
 
     const client = await connectToDatabase();
@@ -115,36 +138,74 @@ export async function POST(request: Request) {
 
     try {
       // Najpierw usuń stary dokument
-      await db.collection('content').deleteOne({ identifier: 'transport-pricing' });
-      console.log('POST: Usunięto stary dokument');
+      const deleteResult = await db.collection('content').deleteOne({ identifier: 'transport-pricing' });
+      console.log('POST: Wynik usuwania starego dokumentu:', JSON.stringify(deleteResult, null, 2));
 
-      // Następnie zapisz nowy dokument
-      const result = await db.collection('content').insertOne({
+      // Przygotuj nowy dokument
+      const documentToSave = {
         ...content,
         identifier: 'transport-pricing',
         updatedAt: new Date()
-      });
+      };
 
-      console.log('POST: Wynik operacji zapisu:', JSON.stringify(result, null, 2));
+      // Zapisz nowy dokument
+      const insertResult = await db.collection('content').insertOne(documentToSave);
+      console.log('POST: Wynik operacji zapisu:', JSON.stringify(insertResult, null, 2));
+
+      // Pobierz zapisany dokument
+      const savedContent = await db.collection('content').findOne({ identifier: 'transport-pricing' });
+      console.log('POST: Zapisane dane:', JSON.stringify(savedContent, null, 2));
 
       // Odśwież stronę kliencką
       revalidatePath('/uslugi/transport/cennik');
       console.log('POST: Strona kliencka odświeżona');
 
-      // Pobierz i zwróć zapisane dane
-      const savedContent = await db.collection('content').findOne({ identifier: 'transport-pricing' });
-      console.log('POST: Zapisane dane:', JSON.stringify(savedContent, null, 2));
-
-      return NextResponse.json({ success: true, content: savedContent });
+      // Zwróć odpowiedź
+      return new NextResponse(
+        JSON.stringify({ 
+          success: true, 
+          content: savedContent 
+        }), 
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }
+      );
     } catch (dbError) {
       console.error('POST: Błąd bazy danych:', dbError);
-      return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
+      return new NextResponse(
+        JSON.stringify({ error: 'Database operation failed' }), 
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+          }
+        }
+      );
     }
   } catch (error) {
     console.error('POST: Error saving content:', error);
-    return NextResponse.json({ 
-      error: 'Internal Server Error',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    return new NextResponse(
+      JSON.stringify({ 
+        error: 'Internal Server Error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }), 
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        }
+      }
+    );
   }
 } 
