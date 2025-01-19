@@ -2,16 +2,16 @@ import { NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/lib/auth';
+import { authOptions } from '@/lib/auth';
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user?.role !== 'admin') {
-    return new NextResponse('Unauthorized', { status: 401 });
-  }
-
   try {
+    // Sprawdź uprawnienia
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     
@@ -19,32 +19,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Sprawdź typ pliku
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+    }
 
     // Generuj bezpieczną nazwę pliku
     const timestamp = Date.now();
-    const originalName = file.name.toLowerCase();
+    const originalName = file.name.toLowerCase().replace(/[^a-z0-9.]/g, '-');
     const extension = path.extname(originalName);
-    const baseName = path.basename(originalName, extension)
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-');
+    const baseName = path.basename(originalName, extension);
     const fileName = `${baseName}-${timestamp}${extension}`;
 
+    // Przygotuj ścieżkę do zapisu
+    const uploadDir = path.join(process.cwd(), 'public', 'images');
+    const filePath = path.join(uploadDir, fileName);
+
+    // Konwertuj File na Buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
     // Zapisz plik
-    const publicDir = path.join(process.cwd(), 'public', 'images');
-    const filePath = path.join(publicDir, fileName);
     await writeFile(filePath, buffer);
 
-    return NextResponse.json({ 
-      url: `/images/${fileName}`,
-      message: 'File uploaded successfully' 
-    });
+    // Zwróć URL do zapisanego pliku
+    return NextResponse.json({ url: `/images/${fileName}` });
   } catch (error) {
     console.error('Error uploading file:', error);
-    return NextResponse.json(
-      { error: 'Error uploading file' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Error uploading file' }, { status: 500 });
   }
 } 
