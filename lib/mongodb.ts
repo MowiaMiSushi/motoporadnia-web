@@ -8,22 +8,42 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-declare global {
-  var _mongoClientPromise: Promise<MongoClient> | undefined;
+interface MongoConnection {
+  conn: Promise<MongoClient> | null;
+  promise: Promise<MongoClient> | null;
 }
 
-const client = new MongoClient(uri, options);
+const globalForMongo = global as typeof globalThis & {
+  mongo: MongoConnection;
+};
 
-const clientPromise = global._mongoClientPromise || client.connect();
-
-if (process.env.NODE_ENV === 'development') {
-  global._mongoClientPromise = clientPromise;
+// Inicjalizacja połączenia
+if (!globalForMongo.mongo) {
+  globalForMongo.mongo = {
+    conn: null,
+    promise: null,
+  };
 }
 
 export async function connectToDatabase() {
   try {
-    const client = await clientPromise;
+    if (globalForMongo.mongo.conn) {
+      const client = await globalForMongo.mongo.conn;
+      return {
+        client,
+        db: client.db('motoporadnia'),
+      };
+    }
+
+    if (!globalForMongo.mongo.promise) {
+      const client = new MongoClient(uri, options);
+      globalForMongo.mongo.promise = client.connect();
+    }
+
+    globalForMongo.mongo.conn = globalForMongo.mongo.promise;
+    const client = await globalForMongo.mongo.conn;
     const db = client.db('motoporadnia');
+
     return { client, db };
   } catch (error) {
     console.error('Błąd połączenia z bazą danych:', error);
@@ -31,4 +51,4 @@ export async function connectToDatabase() {
   }
 }
 
-export default clientPromise; 
+export default connectToDatabase; 
