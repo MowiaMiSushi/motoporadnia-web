@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faSave, faGripVertical, faChevronDown, faChevronUp, faImage, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faSave, faGripVertical, faChevronDown, faChevronUp, faImage, faUpload, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { useSession } from 'next-auth/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -91,12 +91,16 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
         const response = await fetch('/api/admin/images');
         if (response.ok) {
           const data = await response.json();
-          console.log('ImageSelector: Pobrane zdjęcia:', data);
-          const processedImages = data.images.map((img: string) => 
-            img.startsWith('/') ? img : `/${img}`
-          );
-          console.log('ImageSelector: Przetworzone ścieżki zdjęć:', processedImages);
-          setImages(processedImages);
+          console.log('ImageSelector: Pobrane dane:', data);
+          if (data.success && Array.isArray(data.images)) {
+            const processedImages = data.images.map((img: string) => 
+              img.startsWith('/') ? img : `/${img}`
+            );
+            console.log('ImageSelector: Przetworzone zdjęcia:', processedImages);
+            setImages(processedImages);
+          } else {
+            console.error('ImageSelector: Nieprawidłowy format danych:', data);
+          }
         } else {
           console.error('ImageSelector: Błąd pobierania zdjęć:', response.status);
         }
@@ -110,35 +114,9 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
     fetchImages();
   }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setUploadStatus('uploading');
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Uploaded image URL:', data.url);
-        // Upewnij się, że ścieżka zaczyna się od /
-        const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
-        setImages(prev => [...prev, imageUrl]);
-        onImageSelect(imageUrl);
-        setUploadStatus('success');
-      } else {
-        setUploadStatus('error');
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setUploadStatus('error');
-    }
+  const handleImageSelect = (image: string) => {
+    console.log('ImageSelector: Wybrano zdjęcie:', image);
+    onImageSelect(image);
   };
 
   return (
@@ -147,27 +125,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Wybierz zdjęcie</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="mb-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            ref={fileInputRef}
-            className="hidden"
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadStatus === 'uploading'}
-            className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
-          >
-            <FontAwesomeIcon icon={faUpload} />
-            {uploadStatus === 'uploading' ? 'Uploadowanie...' : 'Upload nowego zdjęcia'}
+            <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
 
@@ -178,10 +136,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
             {images.map((image, index) => (
               <div
                 key={index}
-                onClick={() => {
-                  console.log('ImageSelector: Kliknięto zdjęcie:', image);
-                  onImageSelect(image);
-                }}
+                onClick={() => handleImageSelect(image)}
                 className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
                   currentImage === image ? 'border-red-500' : 'border-transparent'
                 }`}
@@ -715,7 +670,10 @@ export default function ServiceAdmin() {
                               </div>
                               <div className="flex gap-2">
                                 <button
-                                  onClick={() => setShowImageSelector(`brand-logo-${index}`)}
+                                  onClick={() => {
+                                    console.log('Wybieranie logo dla marki:', index);
+                                    setShowImageSelector(`brand-logo-${index}`);
+                                  }}
                                   className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
                                   title="Wybierz z galerii"
                                 >
@@ -727,7 +685,7 @@ export default function ServiceAdmin() {
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia po najechaniu</label>
                             <div className="space-y-4">
-                              {brand.hoverImages.map((image, imageIndex) => (
+                              {(brand.hoverImages || []).map((image, imageIndex) => (
                                 <div key={imageIndex} className="flex items-center gap-4 p-4 border rounded-md">
                                   <div className="w-24 h-24 relative">
                                     <img
@@ -742,7 +700,16 @@ export default function ServiceAdmin() {
                                       value={image}
                                       onChange={(e) => {
                                         const newBrands = [...content.brands];
+                                        if (!newBrands[index].hoverImages) {
+                                          newBrands[index].hoverImages = [];
+                                        }
                                         newBrands[index].hoverImages[imageIndex] = e.target.value;
+                                        console.log('Aktualizacja hover image przez input:', {
+                                          brandIndex: index,
+                                          imageIndex,
+                                          newValue: e.target.value,
+                                          newBrands
+                                        });
                                         setContent({
                                           ...content,
                                           brands: newBrands
@@ -753,7 +720,13 @@ export default function ServiceAdmin() {
                                   </div>
                                   <div className="flex gap-2">
                                     <button
-                                      onClick={() => setShowImageSelector(`brand-hover-${index}-${imageIndex}`)}
+                                      onClick={() => {
+                                        console.log('Wybieranie hover image:', {
+                                          brandIndex: index,
+                                          imageIndex
+                                        });
+                                        setShowImageSelector(`brand-hover-${index}-${imageIndex}`);
+                                      }}
                                       className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
                                       title="Wybierz z galerii"
                                     >
@@ -762,7 +735,7 @@ export default function ServiceAdmin() {
                                     <button
                                       onClick={() => {
                                         const newBrands = [...content.brands];
-                                        newBrands[index].hoverImages = newBrands[index].hoverImages.filter((_, i) => i !== imageIndex);
+                                        newBrands[index].hoverImages = (newBrands[index].hoverImages || []).filter((_, i) => i !== imageIndex);
                                         setContent({
                                           ...content,
                                           brands: newBrands
@@ -779,7 +752,14 @@ export default function ServiceAdmin() {
                               <button
                                 onClick={() => {
                                   const newBrands = [...content.brands];
-                                  newBrands[index].hoverImages = [...(newBrands[index].hoverImages || []), ''];
+                                  if (!newBrands[index].hoverImages) {
+                                    newBrands[index].hoverImages = [];
+                                  }
+                                  newBrands[index].hoverImages.push('');
+                                  console.log('Dodawanie nowego hover image:', {
+                                    brandIndex: index,
+                                    currentHoverImages: newBrands[index].hoverImages
+                                  });
                                   setContent({
                                     ...content,
                                     brands: newBrands
