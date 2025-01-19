@@ -134,9 +134,8 @@ export async function POST(request: Request) {
     }
 
     console.log('POST: Próba połączenia z bazą danych');
-    const client = await connectToDatabase();
+    const { client, db } = await connectToDatabase();
     console.log('POST: Połączenie z bazą danych ustanowione');
-    const db = client.db();
 
     try {
       // Najpierw usuń stary dokument
