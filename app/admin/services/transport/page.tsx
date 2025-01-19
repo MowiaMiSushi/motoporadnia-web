@@ -236,6 +236,8 @@ export default function TransportEditor() {
   const handleSave = async () => {
     try {
       setIsSaving(true);
+      console.log('TransportEditor: Zapisywanie contentu:', JSON.stringify(content, null, 2));
+
       const response = await fetch('/api/content/services/transport', {
         method: 'POST',
         headers: {
@@ -244,18 +246,33 @@ export default function TransportEditor() {
         body: JSON.stringify(content),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to save content');
+        throw new Error(result.error || 'Failed to save content');
       }
+
+      console.log('TransportEditor: Content zapisany pomyślnie:', result);
 
       showNotification({
         title: 'Sukces',
         message: 'Zmiany zostały zapisane',
         type: 'success'
       });
+
+      // Odśwież dane
+      const refreshResponse = await fetch('/api/content/services/transport');
+      if (refreshResponse.ok) {
+        const refreshedData = await refreshResponse.json();
+        if (Object.keys(refreshedData).length > 0) {
+          console.log('TransportEditor: Odświeżone dane:', refreshedData);
+          setContent(refreshedData);
+        }
+      }
+
       router.refresh();
     } catch (error) {
-      console.error('Error saving content:', error);
+      console.error('TransportEditor: Błąd podczas zapisywania:', error);
       showNotification({
         title: 'Błąd',
         message: 'Błąd podczas zapisywania zmian',
@@ -481,10 +498,16 @@ export default function TransportEditor() {
         <label className="block text-sm font-medium text-gray-700">Tytuł</label>
         <input
           type="text"
-          value={content.operatingArea.title}
+          value={content.operatingArea?.title || ''}
           onChange={(e) => setContent({
             ...content,
-            operatingArea: { ...content.operatingArea, title: e.target.value }
+            operatingArea: {
+              ...content.operatingArea,
+              title: e.target.value,
+              description: content.operatingArea?.description || '',
+              areas: content.operatingArea?.areas || [],
+              additionalInfo: content.operatingArea?.additionalInfo || ''
+            }
           })}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
         />
@@ -492,10 +515,13 @@ export default function TransportEditor() {
       <div>
         <label className="block text-sm font-medium text-gray-700">Opis</label>
         <textarea
-          value={content.operatingArea.description}
+          value={content.operatingArea?.description || ''}
           onChange={(e) => setContent({
             ...content,
-            operatingArea: { ...content.operatingArea, description: e.target.value }
+            operatingArea: {
+              ...content.operatingArea,
+              description: e.target.value
+            }
           })}
           rows={3}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
@@ -506,13 +532,20 @@ export default function TransportEditor() {
           <label className="block text-sm font-medium text-gray-700">Obszary</label>
           <button
             onClick={() => {
-              setContent({
-                ...content,
-                operatingArea: {
-                  ...content.operatingArea,
-                  areas: [...content.operatingArea.areas, { icon: '', text: '' }]
-                }
-              });
+              const newContent = { ...content };
+              if (!newContent.operatingArea) {
+                newContent.operatingArea = {
+                  title: '',
+                  description: '',
+                  areas: [],
+                  additionalInfo: ''
+                };
+              }
+              if (!newContent.operatingArea.areas) {
+                newContent.operatingArea.areas = [];
+              }
+              newContent.operatingArea.areas.push({ icon: '', text: '' });
+              setContent(newContent);
             }}
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
           >
@@ -520,18 +553,15 @@ export default function TransportEditor() {
             Dodaj obszar
           </button>
         </div>
-        {content.operatingArea.areas.map((area, index) => (
+        {(content.operatingArea?.areas || []).map((area, index) => (
           <div key={index} className="border p-4 rounded-md space-y-4 mb-4">
             <div className="flex justify-between items-center">
               <h4 className="font-medium">Obszar {index + 1}</h4>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const newAreas = content.operatingArea.areas.filter((_, i) => i !== index);
-                  setContent({
-                    ...content,
-                    operatingArea: { ...content.operatingArea, areas: newAreas }
-                  });
+                onClick={() => {
+                  const newContent = { ...content };
+                  newContent.operatingArea.areas = newContent.operatingArea.areas.filter((_, i) => i !== index);
+                  setContent(newContent);
                 }}
                 className="text-red-600 hover:text-red-700"
               >
@@ -544,12 +574,9 @@ export default function TransportEditor() {
                 type="text"
                 value={area.icon}
                 onChange={(e) => {
-                  const newAreas = [...content.operatingArea.areas];
-                  newAreas[index] = { ...area, icon: e.target.value };
-                  setContent({
-                    ...content,
-                    operatingArea: { ...content.operatingArea, areas: newAreas }
-                  });
+                  const newContent = { ...content };
+                  newContent.operatingArea.areas[index] = { ...area, icon: e.target.value };
+                  setContent(newContent);
                 }}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               />
@@ -560,12 +587,9 @@ export default function TransportEditor() {
                 type="text"
                 value={area.text}
                 onChange={(e) => {
-                  const newAreas = [...content.operatingArea.areas];
-                  newAreas[index] = { ...area, text: e.target.value };
-                  setContent({
-                    ...content,
-                    operatingArea: { ...content.operatingArea, areas: newAreas }
-                  });
+                  const newContent = { ...content };
+                  newContent.operatingArea.areas[index] = { ...area, text: e.target.value };
+                  setContent(newContent);
                 }}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
               />
@@ -576,10 +600,13 @@ export default function TransportEditor() {
       <div>
         <label className="block text-sm font-medium text-gray-700">Dodatkowe informacje</label>
         <textarea
-          value={content.operatingArea.additionalInfo}
+          value={content.operatingArea?.additionalInfo || ''}
           onChange={(e) => setContent({
             ...content,
-            operatingArea: { ...content.operatingArea, additionalInfo: e.target.value }
+            operatingArea: {
+              ...content.operatingArea,
+              additionalInfo: e.target.value
+            }
           })}
           rows={3}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
