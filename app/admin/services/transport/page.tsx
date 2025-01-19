@@ -233,7 +233,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
 };
 
 export default function TransportEditor() {
-  const [content, setContent] = useState<PageContent | null>(null);
+  const [content, setContent] = useState<PageContent>(initialContent);
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -243,16 +243,13 @@ export default function TransportEditor() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch('/api/content/services/transport');
         if (response.ok) {
           const data = await response.json();
           if (Object.keys(data).length > 0) {
             setContent(data);
-          } else {
-            setContent(initialContent);
           }
-        } else {
-          setContent(initialContent);
         }
       } catch (error) {
         console.error('Error fetching content:', error);
@@ -261,7 +258,6 @@ export default function TransportEditor() {
           message: 'Błąd podczas wczytywania treści',
           type: 'error'
         });
-        setContent(initialContent);
       } finally {
         setIsLoading(false);
       }
@@ -303,7 +299,7 @@ export default function TransportEditor() {
     }
   };
 
-  if (isLoading || !content) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center h-64">
