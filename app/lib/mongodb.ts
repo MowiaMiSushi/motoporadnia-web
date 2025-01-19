@@ -1,37 +1,37 @@
 import { MongoClient } from 'mongodb';
 
-if (!process.env.MONGODB_URI) {
-  throw new Error('Brak zmiennej środowiskowej MONGODB_URI');
+declare global {
+  var _mongoClientPromise: Promise<MongoClient>;
 }
 
-if (!process.env.MONGODB_DB) {
-  throw new Error('Brak zmiennej środowiskowej MONGODB_DB');
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please add your Mongo URI to .env.local')
 }
 
 const uri = process.env.MONGODB_URI;
-const dbName = process.env.MONGODB_DB;
+const options = {};
 
-let cachedClient: MongoClient | null = null;
-let cachedDb: any = null;
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
-export async function connectToDatabase() {
-  if (cachedClient && cachedDb) {
-    return {
-      client: cachedClient,
-      db: cachedDb,
-    };
+if (process.env.NODE_ENV === 'development') {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options);
+    global._mongoClientPromise = client.connect();
   }
-
-  const client = await MongoClient.connect(uri);
-  const db = client.db(dbName);
-
-  cachedClient = client;
-  cachedDb = db;
-
-  return {
-    client: cachedClient,
-    db: cachedDb,
-  };
+  clientPromise = global._mongoClientPromise;
+} else {
+  client = new MongoClient(uri, options);
+  clientPromise = client.connect();
 }
 
-export default cachedClient; 
+export async function connectToDatabase() {
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    return { client, db };
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    throw error;
+  }
+} 
