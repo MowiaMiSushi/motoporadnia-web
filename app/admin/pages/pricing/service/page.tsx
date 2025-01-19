@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faPlus, faTrash, faGripVertical } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface PriceListItem {
   service: string;
@@ -202,6 +203,16 @@ export default function ServicePricingEditor() {
     }
   };
 
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const items = Array.from(content?.priceList || []);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent(content ? { ...content, priceList: items } : null);
+  };
+
   const renderHeroEditor = () => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold mb-4">Sekcja Hero</h3>
@@ -260,116 +271,153 @@ export default function ServicePricingEditor() {
         </button>
       </div>
 
-      {content?.priceList.map((section, sectionIndex) => (
-        <div key={sectionIndex} className="bg-gray-50 p-4 rounded-lg space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex-1 mr-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa sekcji</label>
-              <input
-                type="text"
-                value={section.title}
-                onChange={(e) => {
-                  const newPriceList = [...(content?.priceList || [])];
-                  newPriceList[sectionIndex] = {
-                    ...section,
-                    title: e.target.value
-                  };
-                  setContent(content ? { ...content, priceList: newPriceList } : null);
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-              />
-            </div>
-            <button
-              onClick={() => {
-                const newPriceList = content?.priceList.filter((_, i) => i !== sectionIndex);
-                setContent(content ? { ...content, priceList: newPriceList } : null);
-              }}
-              className="bg-red-100 text-red-600 px-4 py-2 rounded-md hover:bg-red-200 transition-colors"
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="price-list-sections">
+          {(provided) => (
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              className="space-y-6"
             >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
+              {content?.priceList.map((section, sectionIndex) => (
+                <Draggable
+                  key={sectionIndex}
+                  draggableId={`section-${sectionIndex}`}
+                  index={sectionIndex}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className={`bg-gray-50 p-4 rounded-lg space-y-4 ${
+                        snapshot.isDragging ? 'shadow-lg' : ''
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4 flex-1">
+                          <div
+                            {...provided.dragHandleProps}
+                            className="cursor-move text-gray-400 hover:text-gray-600"
+                          >
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Nazwa sekcji
+                            </label>
+                            <input
+                              type="text"
+                              value={section.title}
+                              onChange={(e) => {
+                                const newPriceList = [...(content?.priceList || [])];
+                                newPriceList[sectionIndex] = {
+                                  ...section,
+                                  title: e.target.value
+                                };
+                                setContent(content ? { ...content, priceList: newPriceList } : null);
+                              }}
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newPriceList = content?.priceList.filter((_, i) => i !== sectionIndex);
+                            setContent(content ? { ...content, priceList: newPriceList } : null);
+                          }}
+                          className="bg-red-100 text-red-600 px-4 py-2 rounded-md hover:bg-red-200 transition-colors"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
 
-          <div className="space-y-4">
-            {section.items.map((item, itemIndex) => (
-              <div key={itemIndex} className="bg-white p-4 rounded-md shadow-sm space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa usługi</label>
-                    <input
-                      type="text"
-                      value={item.service}
-                      onChange={(e) => {
-                        const newPriceList = [...(content?.priceList || [])];
-                        const newItems = [...section.items];
-                        newItems[itemIndex] = { ...item, service: e.target.value };
-                        newPriceList[sectionIndex] = { ...section, items: newItems };
-                        setContent(content ? { ...content, priceList: newPriceList } : null);
-                      }}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cena</label>
-                    <input
-                      type="text"
-                      value={item.price}
-                      onChange={(e) => {
-                        const newPriceList = [...(content?.priceList || [])];
-                        const newItems = [...section.items];
-                        newItems[itemIndex] = { ...item, price: e.target.value };
-                        newPriceList[sectionIndex] = { ...section, items: newItems };
-                        setContent(content ? { ...content, priceList: newPriceList } : null);
-                      }}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Opis (opcjonalnie)</label>
-                  <input
-                    type="text"
-                    value={item.description || ''}
-                    onChange={(e) => {
-                      const newPriceList = [...(content?.priceList || [])];
-                      const newItems = [...section.items];
-                      newItems[itemIndex] = { ...item, description: e.target.value };
-                      newPriceList[sectionIndex] = { ...section, items: newItems };
-                      setContent(content ? { ...content, priceList: newPriceList } : null);
-                    }}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => {
-                      const newPriceList = [...(content?.priceList || [])];
-                      const newItems = section.items.filter((_, i) => i !== itemIndex);
-                      newPriceList[sectionIndex] = { ...section, items: newItems };
-                      setContent(content ? { ...content, priceList: newPriceList } : null);
-                    }}
-                    className="text-red-600 hover:text-red-700"
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </div>
-              </div>
-            ))}
-            <button
-              onClick={() => {
-                const newPriceList = [...(content?.priceList || [])];
-                const newItems = [...section.items, { service: '', price: '', description: '' }];
-                newPriceList[sectionIndex] = { ...section, items: newItems };
-                setContent(content ? { ...content, priceList: newPriceList } : null);
-              }}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
-            >
-              <FontAwesomeIcon icon={faPlus} />
-              Dodaj usługę
-            </button>
-          </div>
-        </div>
-      ))}
+                      <div className="space-y-4">
+                        {section.items.map((item, itemIndex) => (
+                          <div key={itemIndex} className="bg-white p-4 rounded-md shadow-sm space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa usługi</label>
+                                <input
+                                  type="text"
+                                  value={item.service}
+                                  onChange={(e) => {
+                                    const newPriceList = [...(content?.priceList || [])];
+                                    const newItems = [...section.items];
+                                    newItems[itemIndex] = { ...item, service: e.target.value };
+                                    newPriceList[sectionIndex] = { ...section, items: newItems };
+                                    setContent(content ? { ...content, priceList: newPriceList } : null);
+                                  }}
+                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Cena</label>
+                                <input
+                                  type="text"
+                                  value={item.price}
+                                  onChange={(e) => {
+                                    const newPriceList = [...(content?.priceList || [])];
+                                    const newItems = [...section.items];
+                                    newItems[itemIndex] = { ...item, price: e.target.value };
+                                    newPriceList[sectionIndex] = { ...section, items: newItems };
+                                    setContent(content ? { ...content, priceList: newPriceList } : null);
+                                  }}
+                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Opis (opcjonalnie)</label>
+                              <input
+                                type="text"
+                                value={item.description || ''}
+                                onChange={(e) => {
+                                  const newPriceList = [...(content?.priceList || [])];
+                                  const newItems = [...section.items];
+                                  newItems[itemIndex] = { ...item, description: e.target.value };
+                                  newPriceList[sectionIndex] = { ...section, items: newItems };
+                                  setContent(content ? { ...content, priceList: newPriceList } : null);
+                                }}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+                              />
+                            </div>
+                            <div className="flex justify-end">
+                              <button
+                                onClick={() => {
+                                  const newPriceList = [...(content?.priceList || [])];
+                                  const newItems = section.items.filter((_, i) => i !== itemIndex);
+                                  newPriceList[sectionIndex] = { ...section, items: newItems };
+                                  setContent(content ? { ...content, priceList: newPriceList } : null);
+                                }}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                        <button
+                          onClick={() => {
+                            const newPriceList = [...(content?.priceList || [])];
+                            const newItems = [...section.items, { service: '', price: '', description: '' }];
+                            newPriceList[sectionIndex] = { ...section, items: newItems };
+                            setContent(content ? { ...content, priceList: newPriceList } : null);
+                          }}
+                          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
+                        >
+                          <FontAwesomeIcon icon={faPlus} />
+                          Dodaj usługę
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
