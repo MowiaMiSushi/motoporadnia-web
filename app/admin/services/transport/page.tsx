@@ -475,17 +475,37 @@ export default function TransportEditor() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">URL Obrazu</label>
-            <input
-              type="text"
-              value={section.image}
-              onChange={(e) => {
-                const newSections = [...content.mainSections];
-                newSections[index] = { ...section, image: e.target.value };
-                setContent({ ...content, mainSections: newSections });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcie</label>
+            <div className="flex items-center gap-4 p-4 border rounded-md">
+              <div className="w-24 h-24 relative">
+                <img
+                  src={section.image || '/images/placeholder.webp'}
+                  alt={`Section image ${index + 1}`}
+                  className="w-full h-full object-cover rounded-md"
+                />
+              </div>
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={section.image}
+                  onChange={(e) => {
+                    const newSections = [...content.mainSections];
+                    newSections[index] = { ...section, image: e.target.value };
+                    setContent({ ...content, mainSections: newSections });
+                  }}
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowImageSelector(`main-section-${index}`)}
+                  className="bg-gray-100 text-gray-600 p-2 rounded-md hover:bg-gray-200 transition-colors"
+                  title="Wybierz z galerii"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       ))}
@@ -710,6 +730,8 @@ export default function TransportEditor() {
           currentImage={
             typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')
               ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))]
+              : typeof showImageSelector === 'string' && showImageSelector.startsWith('main-section-')
+              ? content.mainSections[parseInt(showImageSelector.replace('main-section-', ''))].image
               : ''
           }
           onImageSelect={(image) => {
@@ -720,9 +742,14 @@ export default function TransportEditor() {
             
             const newContent = { ...content };
             
-            if (typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')) {
-              const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
-              newContent.hero.images[imageIndex] = image;
+            if (typeof showImageSelector === 'string') {
+              if (showImageSelector.startsWith('hero-')) {
+                const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
+                newContent.hero.images[imageIndex] = image;
+              } else if (showImageSelector.startsWith('main-section-')) {
+                const sectionIndex = parseInt(showImageSelector.replace('main-section-', ''));
+                newContent.mainSections[sectionIndex].image = image;
+              }
             }
             
             setContent(newContent);
