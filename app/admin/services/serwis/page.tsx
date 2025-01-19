@@ -925,9 +925,7 @@ export default function ServiceAdmin() {
               : typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')
               ? (() => {
                   const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
-                  const currentImage = content.brands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)];
-                  console.log('Current hover image:', currentImage);
-                  return currentImage;
+                  return content.brands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)] || '';
                 })()
               : ''
           }
@@ -950,18 +948,12 @@ export default function ServiceAdmin() {
               const brandIndex = parseInt(showImageSelector.replace('brand-logo-', ''));
               const newBrands = [...content.brands];
               newBrands[brandIndex].image = image;
-              console.log('ServiceAdmin: Aktualizacja logo marki:', {
-                brandIndex,
-                image,
-                newBrands
-              });
               setContent({
                 ...content,
                 brands: newBrands
               });
             } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')) {
               const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
-              const newBrands = [...content.brands];
               const brandIdx = parseInt(brandIndex);
               const imgIdx = parseInt(imageIndex);
               
@@ -969,10 +961,11 @@ export default function ServiceAdmin() {
                 brandIndex: brandIdx,
                 imageIndex: imgIdx,
                 image,
-                currentBrand: newBrands[brandIdx],
-                hoverImages: newBrands[brandIdx].hoverImages
+                currentBrand: content.brands[brandIdx]
               });
 
+              const newBrands = [...content.brands];
+              
               // Upewnij się, że tablica hoverImages istnieje
               if (!newBrands[brandIdx].hoverImages) {
                 newBrands[brandIdx].hoverImages = [];
@@ -989,14 +982,16 @@ export default function ServiceAdmin() {
                 brandIndex: brandIdx,
                 imageIndex: imgIdx,
                 image,
-                updatedBrand: newBrands[brandIdx],
-                updatedHoverImages: newBrands[brandIdx].hoverImages
+                updatedBrand: newBrands[brandIdx]
               });
 
-              setContent({
+              const updatedContent = {
                 ...content,
                 brands: newBrands
-              });
+              };
+
+              console.log('ServiceAdmin: Nowy stan:', updatedContent);
+              setContent(updatedContent);
             }
             setShowImageSelector(null);
           }}
