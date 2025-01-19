@@ -422,10 +422,9 @@ export default function TransportEditor() {
         <h3 className="text-lg font-semibold">Sekcje główne</h3>
         <button
           onClick={() => {
-            setContent({
-              ...content,
-              mainSections: [...content.mainSections, { title: '', description: '', image: '' }]
-            });
+            const newContent = { ...content };
+            newContent.mainSections = [...newContent.mainSections, { title: '', description: '', image: '' }];
+            setContent(newContent);
           }}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
         >
@@ -438,10 +437,10 @@ export default function TransportEditor() {
           <div className="flex justify-between items-center">
             <h4 className="font-medium">Sekcja {index + 1}</h4>
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const newSections = content.mainSections.filter((_, i) => i !== index);
-                setContent({ ...content, mainSections: newSections });
+              onClick={() => {
+                const newContent = { ...content };
+                newContent.mainSections = newContent.mainSections.filter((_, i) => i !== index);
+                setContent(newContent);
               }}
               className="text-red-600 hover:text-red-700"
             >
@@ -454,9 +453,9 @@ export default function TransportEditor() {
               type="text"
               value={section.title}
               onChange={(e) => {
-                const newSections = [...content.mainSections];
-                newSections[index] = { ...section, title: e.target.value };
-                setContent({ ...content, mainSections: newSections });
+                const newContent = { ...content };
+                newContent.mainSections[index] = { ...section, title: e.target.value };
+                setContent(newContent);
               }}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
             />
@@ -466,9 +465,9 @@ export default function TransportEditor() {
             <textarea
               value={section.description}
               onChange={(e) => {
-                const newSections = [...content.mainSections];
-                newSections[index] = { ...section, description: e.target.value };
-                setContent({ ...content, mainSections: newSections });
+                const newContent = { ...content };
+                newContent.mainSections[index] = { ...section, description: e.target.value };
+                setContent(newContent);
               }}
               rows={3}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
@@ -489,9 +488,9 @@ export default function TransportEditor() {
                   type="text"
                   value={section.image}
                   onChange={(e) => {
-                    const newSections = [...content.mainSections];
-                    newSections[index] = { ...section, image: e.target.value };
-                    setContent({ ...content, mainSections: newSections });
+                    const newContent = { ...content };
+                    newContent.mainSections[index] = { ...section, image: e.target.value };
+                    setContent(newContent);
                   }}
                   className="w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                 />
