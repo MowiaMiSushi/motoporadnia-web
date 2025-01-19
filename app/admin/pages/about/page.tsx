@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faImage, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faImage, faUpload, faGripVertical, faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { showNotification } from '@/app/components/ui/Notification';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface HeroSection {
   title: string;
@@ -260,6 +261,7 @@ export default function AboutPageEditor() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showImageSelector, setShowImageSelector] = useState<number | string | null>(null);
+  const [expandedSocialMedia, setExpandedSocialMedia] = useState<{ [key: number]: boolean }>({});
   const router = useRouter();
 
   useEffect(() => {
@@ -323,6 +325,49 @@ export default function AboutPageEditor() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleDragEndSocialMedia = (result: any) => {
+    if (!result.destination || !content) return;
+
+    const items = Array.from(content.socialMedia.platforms);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({
+      ...content,
+      socialMedia: { ...content.socialMedia, platforms: items }
+    });
+  };
+
+  const toggleSocialMedia = (index: number) => {
+    setExpandedSocialMedia(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
+  const addSocialMedia = () => {
+    if (!content) return;
+    setContent({
+      ...content,
+      socialMedia: {
+        ...content.socialMedia,
+        platforms: [
+          ...content.socialMedia.platforms,
+          { name: '', icon: '', url: '', description: '' }
+        ]
+      }
+    });
+  };
+
+  const removeSocialMedia = (index: number) => {
+    if (!content) return;
+    const newPlatforms = content.socialMedia.platforms.filter((_, i) => i !== index);
+    setContent({
+      ...content,
+      socialMedia: { ...content.socialMedia, platforms: newPlatforms }
+    });
   };
 
   if (isLoading || !content) {
@@ -655,10 +700,39 @@ export default function AboutPageEditor() {
 
   const renderSocialMediaEditor = () => {
     if (!content?.socialMedia) return null;
-    
+
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Sekcja Social Media</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Media społecznościowe</h3>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const allExpanded = content.socialMedia.platforms.every((_, index) => expandedSocialMedia[index]);
+                setExpandedSocialMedia(
+                  content.socialMedia.platforms.reduce((acc, _, index) => ({
+                    ...acc,
+                    [index]: !allExpanded
+                  }), {})
+                );
+              }}
+              className="bg-gray-100 text-gray-600 px-3 py-1 rounded-md hover:bg-gray-200 transition-colors"
+            >
+              {content.socialMedia.platforms.every((_, index) => expandedSocialMedia[index]) 
+                ? 'Zwiń wszystkie' 
+                : 'Rozwiń wszystkie'
+              }
+            </button>
+            <button
+              onClick={addSocialMedia}
+              className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
+            >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              Dodaj medium
+            </button>
+          </div>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
           <input
@@ -671,75 +745,120 @@ export default function AboutPageEditor() {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
           />
         </div>
-        {content.socialMedia.platforms.map((platform, index) => (
-          <div key={index} className="border p-4 rounded-md space-y-4">
-            <h4 className="font-medium">Social Media {index + 1}</h4>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Platforma</label>
-              <input
-                type="text"
-                value={platform.name}
-                onChange={(e) => {
-                  const newPlatforms = [...content.socialMedia.platforms];
-                  newPlatforms[index] = { ...platform, name: e.target.value };
-                  setContent({
-                    ...content,
-                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
-                  });
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Ikona</label>
-              <input
-                type="text"
-                value={platform.icon}
-                onChange={(e) => {
-                  const newPlatforms = [...content.socialMedia.platforms];
-                  newPlatforms[index] = { ...platform, icon: e.target.value };
-                  setContent({
-                    ...content,
-                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
-                  });
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">URL</label>
-              <input
-                type="text"
-                value={platform.url}
-                onChange={(e) => {
-                  const newPlatforms = [...content.socialMedia.platforms];
-                  newPlatforms[index] = { ...platform, url: e.target.value };
-                  setContent({
-                    ...content,
-                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
-                  });
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Opis</label>
-              <input
-                type="text"
-                value={platform.description}
-                onChange={(e) => {
-                  const newPlatforms = [...content.socialMedia.platforms];
-                  newPlatforms[index] = { ...platform, description: e.target.value };
-                  setContent({
-                    ...content,
-                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
-                  });
-                }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
-            </div>
-          </div>
-        ))}
+
+        <DragDropContext onDragEnd={handleDragEndSocialMedia}>
+          <Droppable droppableId="social-media">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                {content.socialMedia.platforms.map((platform, index) => (
+                  <Draggable key={index} draggableId={`platform-${index}`} index={index}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        className={`border p-4 rounded-md ${snapshot.isDragging ? 'bg-gray-50' : ''}`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-4">
+                            <div {...provided.dragHandleProps} className="cursor-move text-gray-400 hover:text-gray-600">
+                              <FontAwesomeIcon icon={faGripVertical} />
+                            </div>
+                            <h4 className="font-medium">{platform.name || 'Nowe medium'}</h4>
+                            <button
+                              onClick={() => toggleSocialMedia(index)}
+                              className="text-gray-500 hover:text-gray-700"
+                            >
+                              <FontAwesomeIcon 
+                                icon={expandedSocialMedia[index] ? faChevronUp : faChevronDown}
+                                className="w-4 h-4"
+                              />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => removeSocialMedia(index)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+
+                        {expandedSocialMedia[index] && (
+                          <div className="mt-4 space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">Nazwa</label>
+                              <input
+                                type="text"
+                                value={platform.name}
+                                onChange={(e) => {
+                                  const newPlatforms = [...content.socialMedia.platforms];
+                                  newPlatforms[index] = { ...platform, name: e.target.value };
+                                  setContent({
+                                    ...content,
+                                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
+                                  });
+                                }}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">Ikona FontAwesome</label>
+                              <input
+                                type="text"
+                                value={platform.icon}
+                                onChange={(e) => {
+                                  const newPlatforms = [...content.socialMedia.platforms];
+                                  newPlatforms[index] = { ...platform, icon: e.target.value };
+                                  setContent({
+                                    ...content,
+                                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
+                                  });
+                                }}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">URL</label>
+                              <input
+                                type="text"
+                                value={platform.url}
+                                onChange={(e) => {
+                                  const newPlatforms = [...content.socialMedia.platforms];
+                                  newPlatforms[index] = { ...platform, url: e.target.value };
+                                  setContent({
+                                    ...content,
+                                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
+                                  });
+                                }}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">Opis</label>
+                              <textarea
+                                value={platform.description}
+                                onChange={(e) => {
+                                  const newPlatforms = [...content.socialMedia.platforms];
+                                  newPlatforms[index] = { ...platform, description: e.target.value };
+                                  setContent({
+                                    ...content,
+                                    socialMedia: { ...content.socialMedia, platforms: newPlatforms }
+                                  });
+                                }}
+                                rows={3}
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </div>
     );
   };
