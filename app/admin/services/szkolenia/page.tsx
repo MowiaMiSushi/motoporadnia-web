@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPlus, faGripVertical, faImage } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import ImageSelector from '@/app/components/ImageSelector';
 
 interface Training {
   id: string;
@@ -103,6 +105,8 @@ export default function TrainingEditor() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -174,6 +178,49 @@ export default function TrainingEditor() {
     }
   };
 
+  const handleDragEnd = (result: any) => {
+    if (!result.destination || !content) return;
+
+    const items = Array.from(content.trainings);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({
+      ...content,
+      trainings: items
+    });
+  };
+
+  const handleImageSelect = (imageUrl: string) => {
+    if (!content) return;
+    
+    const newImages = [...content.hero.images];
+    newImages[currentImageIndex] = imageUrl;
+    
+    setContent({
+      ...content,
+      hero: {
+        ...content.hero,
+        images: newImages
+      }
+    });
+    
+    setShowImageSelector(false);
+  };
+
+  const handleDragEndEvents = (result: any) => {
+    if (!result.destination || !content) return;
+
+    const items = Array.from(content.events);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setContent({
+      ...content,
+      events: items
+    });
+  };
+
   if (isLoading || !content) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -191,37 +238,83 @@ export default function TrainingEditor() {
         <label className="block text-sm font-medium text-gray-700">Tytuł</label>
         <input
           type="text"
-          value={content.hero.title}
-          onChange={(e) => setContent({
+          value={content?.hero.title || ''}
+          onChange={(e) => setContent(content ? {
             ...content,
             hero: { ...content.hero, title: e.target.value }
-          })}
+          } : null)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
         />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700">Opis</label>
         <textarea
-          value={content.hero.description}
-          onChange={(e) => setContent({
+          value={content?.hero.description || ''}
+          onChange={(e) => setContent(content ? {
             ...content,
             hero: { ...content.hero, description: e.target.value }
-          })}
+          } : null)}
           rows={3}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
         />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700">Zdjęcia (po jednym URL w linii)</label>
-        <textarea
-          value={content.hero.images.join('\n')}
-          onChange={(e) => setContent({
-            ...content,
-            hero: { ...content.hero, images: e.target.value.split('\n').filter(url => url.trim()) }
-          })}
-          rows={3}
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-        />
+        <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
+        <div className="space-y-2">
+          {content?.hero.images.map((image, index) => (
+            <div key={index} className="flex items-center gap-2">
+              <input
+                type="text"
+                value={image}
+                onChange={(e) => {
+                  const newImages = [...content.hero.images];
+                  newImages[index] = e.target.value;
+                  setContent({
+                    ...content,
+                    hero: { ...content.hero, images: newImages }
+                  });
+                }}
+                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+              <button
+                onClick={() => {
+                  setCurrentImageIndex(index);
+                  setShowImageSelector(true);
+                }}
+                className="p-2 text-gray-600 hover:text-red-600"
+              >
+                <FontAwesomeIcon icon={faImage} />
+              </button>
+              <button
+                onClick={() => {
+                  const newImages = content.hero.images.filter((_, i) => i !== index);
+                  setContent({
+                    ...content,
+                    hero: { ...content.hero, images: newImages }
+                  });
+                }}
+                className="p-2 text-gray-600 hover:text-red-600"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() => {
+              setContent({
+                ...content,
+                hero: {
+                  ...content.hero,
+                  images: [...content.hero.images, '']
+                }
+              });
+            }}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+            Dodaj zdjęcie
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -248,77 +341,99 @@ export default function TrainingEditor() {
           Dodaj szkolenie
         </button>
       </div>
-      {content.trainings.map((training, index) => (
-        <div key={training.id} className="border p-4 rounded-md space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">Szkolenie {index + 1}</h4>
-            <button
-              onClick={() => {
-                const newTrainings = content.trainings.filter((_, i) => i !== index);
-                setContent({ ...content, trainings: newTrainings });
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">ID</label>
-            <input
-              type="text"
-              value={training.id}
-              onChange={(e) => {
-                const newTrainings = [...content.trainings];
-                newTrainings[index] = { ...training, id: e.target.value };
-                setContent({ ...content, trainings: newTrainings });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Nazwa</label>
-            <input
-              type="text"
-              value={training.name}
-              onChange={(e) => {
-                const newTrainings = [...content.trainings];
-                newTrainings[index] = { ...training, name: e.target.value };
-                setContent({ ...content, trainings: newTrainings });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Opis</label>
-            <textarea
-              value={training.description}
-              onChange={(e) => {
-                const newTrainings = [...content.trainings];
-                newTrainings[index] = { ...training, description: e.target.value };
-                setContent({ ...content, trainings: newTrainings });
-              }}
-              rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Program szkolenia (po jednym w linii)</label>
-            <textarea
-              value={training.includes.join('\n')}
-              onChange={(e) => {
-                const newTrainings = [...content.trainings];
-                newTrainings[index] = {
-                  ...training,
-                  includes: e.target.value.split('\n').filter(item => item.trim())
-                };
-                setContent({ ...content, trainings: newTrainings });
-              }}
-              rows={5}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-        </div>
-      ))}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="trainings">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {content?.trainings.map((training, index) => (
+                <Draggable key={training.id} draggableId={training.id} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="border p-4 rounded-md space-y-4 bg-white"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab">
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <h4 className="font-medium">Szkolenie {index + 1}</h4>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newTrainings = content.trainings.filter((_, i) => i !== index);
+                            setContent({ ...content, trainings: newTrainings });
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">ID</label>
+                        <input
+                          type="text"
+                          value={training.id}
+                          onChange={(e) => {
+                            const newTrainings = [...content.trainings];
+                            newTrainings[index] = { ...training, id: e.target.value };
+                            setContent({ ...content, trainings: newTrainings });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Nazwa</label>
+                        <input
+                          type="text"
+                          value={training.name}
+                          onChange={(e) => {
+                            const newTrainings = [...content.trainings];
+                            newTrainings[index] = { ...training, name: e.target.value };
+                            setContent({ ...content, trainings: newTrainings });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Opis</label>
+                        <textarea
+                          value={training.description}
+                          onChange={(e) => {
+                            const newTrainings = [...content.trainings];
+                            newTrainings[index] = { ...training, description: e.target.value };
+                            setContent({ ...content, trainings: newTrainings });
+                          }}
+                          rows={3}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Program szkolenia (po jednym w linii)</label>
+                        <textarea
+                          value={training.includes.join('\n')}
+                          onChange={(e) => {
+                            const newTrainings = [...content.trainings];
+                            newTrainings[index] = {
+                              ...training,
+                              includes: e.target.value.split('\n').filter(item => item.trim())
+                            };
+                            setContent({ ...content, trainings: newTrainings });
+                          }}
+                          rows={5}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
@@ -354,11 +469,11 @@ export default function TrainingEditor() {
           <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
           <input
             type="text"
-            value={content.schedule.title}
-            onChange={(e) => setContent({
+            value={content?.schedule.title || ''}
+            onChange={(e) => setContent(content ? {
               ...content,
               schedule: { ...content.schedule, title: e.target.value }
-            })}
+            } : null)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
           />
         </div>
@@ -366,97 +481,119 @@ export default function TrainingEditor() {
           <label className="block text-sm font-medium text-gray-700">Podtytuł sekcji</label>
           <input
             type="text"
-            value={content.schedule.subtitle}
-            onChange={(e) => setContent({
+            value={content?.schedule.subtitle || ''}
+            onChange={(e) => setContent(content ? {
               ...content,
               schedule: { ...content.schedule, subtitle: e.target.value }
-            })}
+            } : null)}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
           />
         </div>
       </div>
 
-      {content.events.map((event, index) => (
-        <div key={event.id} className="border p-4 rounded-md space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">Wydarzenie {index + 1}</h4>
-            <button
-              onClick={() => {
-                const newEvents = content.events.filter((_, i) => i !== index);
-                setContent({ ...content, events: newEvents });
-              }}
-              className="text-red-600 hover:text-red-700"
-            >
-              <FontAwesomeIcon icon={faTrash} />
-            </button>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tytuł</label>
-            <input
-              type="text"
-              value={event.title}
-              onChange={(e) => {
-                const newEvents = [...content.events];
-                newEvents[index] = { ...event, title: e.target.value };
-                setContent({ ...content, events: newEvents });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Data</label>
-            <input
-              type="text"
-              value={event.date}
-              onChange={(e) => {
-                const newEvents = [...content.events];
-                newEvents[index] = { ...event, date: e.target.value };
-                setContent({ ...content, events: newEvents });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Lokalizacja</label>
-            <input
-              type="text"
-              value={event.location}
-              onChange={(e) => {
-                const newEvents = [...content.events];
-                newEvents[index] = { ...event, location: e.target.value };
-                setContent({ ...content, events: newEvents });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Link do wydarzenia na FB</label>
-            <input
-              type="text"
-              value={event.fbEvent}
-              onChange={(e) => {
-                const newEvents = [...content.events];
-                newEvents[index] = { ...event, fbEvent: e.target.value };
-                setContent({ ...content, events: newEvents });
-              }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Opis</label>
-            <textarea
-              value={event.description}
-              onChange={(e) => {
-                const newEvents = [...content.events];
-                newEvents[index] = { ...event, description: e.target.value };
-                setContent({ ...content, events: newEvents });
-              }}
-              rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-            />
-          </div>
-        </div>
-      ))}
+      <DragDropContext onDragEnd={handleDragEndEvents}>
+        <Droppable droppableId="events">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+              {content?.events.map((event, index) => (
+                <Draggable key={event.id.toString()} draggableId={event.id.toString()} index={index}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      className="border p-4 rounded-md space-y-4 bg-white"
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                          <div {...provided.dragHandleProps} className="text-gray-400 hover:text-gray-600 cursor-grab">
+                            <FontAwesomeIcon icon={faGripVertical} />
+                          </div>
+                          <h4 className="font-medium">Wydarzenie {index + 1}</h4>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newEvents = content.events.filter((_, i) => i !== index);
+                            setContent({ ...content, events: newEvents });
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+                        <input
+                          type="text"
+                          value={event.title}
+                          onChange={(e) => {
+                            const newEvents = [...content.events];
+                            newEvents[index] = { ...event, title: e.target.value };
+                            setContent({ ...content, events: newEvents });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Data</label>
+                        <input
+                          type="text"
+                          value={event.date}
+                          onChange={(e) => {
+                            const newEvents = [...content.events];
+                            newEvents[index] = { ...event, date: e.target.value };
+                            setContent({ ...content, events: newEvents });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Lokalizacja</label>
+                        <input
+                          type="text"
+                          value={event.location}
+                          onChange={(e) => {
+                            const newEvents = [...content.events];
+                            newEvents[index] = { ...event, location: e.target.value };
+                            setContent({ ...content, events: newEvents });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Link do wydarzenia na FB</label>
+                        <input
+                          type="text"
+                          value={event.fbEvent}
+                          onChange={(e) => {
+                            const newEvents = [...content.events];
+                            newEvents[index] = { ...event, fbEvent: e.target.value };
+                            setContent({ ...content, events: newEvents });
+                          }}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Opis</label>
+                        <textarea
+                          value={event.description}
+                          onChange={(e) => {
+                            const newEvents = [...content.events];
+                            newEvents[index] = { ...event, description: e.target.value };
+                            setContent({ ...content, events: newEvents });
+                          }}
+                          rows={3}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 
@@ -560,6 +697,12 @@ export default function TrainingEditor() {
           {activeSection === 'cta' && renderCTAEditor()}
         </div>
       </div>
+      {showImageSelector && (
+        <ImageSelector
+          onSelect={handleImageSelect}
+          onClose={() => setShowImageSelector(false)}
+        />
+      )}
     </div>
   );
 } 
