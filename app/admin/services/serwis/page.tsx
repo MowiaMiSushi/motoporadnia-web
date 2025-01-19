@@ -214,7 +214,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
 };
 
 export default function ServiceAdmin() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [content, setContent] = useState<PageContent>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
@@ -224,12 +224,6 @@ export default function ServiceAdmin() {
   const [showImageSelector, setShowImageSelector] = useState<string | null>(null);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      console.log('Admin: Brak autoryzacji, przekierowuję do strony logowania');
-      router.push('/admin/login');
-      return;
-    }
-
     const fetchContent = async () => {
       try {
         console.log('Admin: Rozpoczynam pobieranie danych');
@@ -256,28 +250,33 @@ export default function ServiceAdmin() {
                   hoverImages: brand.hoverImages || []
                 }));
               }
+              console.log('Admin: Ustawiam otrzymane dane');
               setContent(data);
+            } else {
+              console.log('Admin: Brak wymaganych pól w danych z API, używam domyślnej zawartości');
+              setContent(defaultContent);
             }
-          } catch (parseError) {
-            console.error('Admin: Błąd parsowania JSON:', parseError);
-            toast.error('Błąd podczas wczytywania danych');
+          } catch (e) {
+            console.error('Admin: Błąd parsowania JSON:', e);
+            setContent(defaultContent);
           }
         } else {
-          console.error('Admin: Błąd pobierania danych:', response.status);
-          toast.error('Błąd podczas wczytywania danych');
+          console.error('Admin: Failed to fetch content. Status:', response.status);
+          console.error('Admin: Error text:', responseText);
+          setContent(defaultContent);
         }
       } catch (error) {
-        console.error('Admin: Błąd podczas pobierania danych:', error);
-        toast.error('Błąd podczas wczytywania danych');
+        console.error('Admin: Error fetching content:', error);
+        setContent(defaultContent);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (status === 'authenticated') {
+    if (session) {
       fetchContent();
     }
-  }, [router, status]);
+  }, [session]);
 
   const handleSave = async () => {
     try {
@@ -894,16 +893,14 @@ export default function ServiceAdmin() {
     </div>
   );
 
-  if (status === 'loading') {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
         <div className="text-xl">Ładowanie...</div>
+        </div>
       </div>
     );
-  }
-
-  if (status === 'unauthenticated') {
-    return null;
   }
 
   return (

@@ -1,42 +1,90 @@
 import { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
+import { compare } from 'bcryptjs';
+import { connectToDatabase } from './mongodb';
+
+interface Credentials {
+  username?: string;
+  password?: string;
+}
 
 export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'credentials',
+      id: 'credentials',
+      name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
+        username: { label: 'Username', type: 'text' },
         password: { label: 'Password', type: 'password' }
       },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+      async authorize(credentials: Credentials | undefined) {
+        try {
+          if (!credentials?.username || !credentials?.password) {
+            throw new Error('Wprowadź login i hasło');
+          }
 
-        // Tutaj możesz dodać logikę weryfikacji użytkownika
-        // Na przykład, sprawdzenie czy email to admin@example.com i hasło to odpowiedni hash
-        const isValidEmail = credentials.email === 'admin@example.com';
-        const hashedPassword = '$2a$10$YourHashedPasswordHere'; // Zastąp prawdziwym hashem
-        const isValidPassword = await bcrypt.compare(credentials.password, hashedPassword);
+          const { db } = await connectToDatabase();
+          const user = await db.collection('users').findOne({
+            username: credentials.username,
+          });
 
-        if (isValidEmail && isValidPassword) {
+          if (!user) {
+            throw new Error('Nieprawidłowy login lub hasło');
+          }
+
+          const isValid = await compare(credentials.password, user.password);
+          if (!isValid) {
+            throw new Error('Nieprawidłowy login lub hasło');
+          }
+
           return {
-            id: '1',
-            email: credentials.email,
-            name: 'Admin'
+            id: user._id.toString(),
+            name: user.username,
+            email: user.email,
+            role: user.role,
           };
+        } catch (error) {
+          console.error('Błąd autoryzacji:', error);
+          throw error;
         }
-
-        return null;
-      }
-    })
+      },
+    }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 24 * 60 * 60,
   },
   pages: {
-    signIn: '/admin/login'
+    signIn: '/admin/login',
+    signOut: '/',
+    error: '/admin/login',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.id = token.sub as string;
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.includes('/admin/login')) {
+        return `${baseUrl}/admin/dashboard`;
+      }
+      
+      const callbackUrl = new URL(url, baseUrl).searchParams.get('callbackUrl');
+      if (callbackUrl && callbackUrl.startsWith(baseUrl)) {
+        return callbackUrl;
+      }
+      
+      return `${baseUrl}/admin/dashboard`;
+    }
   }
-}; 
+} 
