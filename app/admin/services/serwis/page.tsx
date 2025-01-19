@@ -180,7 +180,6 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
                 onClick={() => {
                   console.log('Wybrano zdjęcie:', image);
                   onImageSelect(image);
-                  setShowImageSelector(null);
                 }}
                 className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
                   currentImage === image ? 'border-red-500' : 'border-transparent'
