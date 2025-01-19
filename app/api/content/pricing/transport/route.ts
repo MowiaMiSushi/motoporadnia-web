@@ -101,7 +101,7 @@ export async function POST(request: Request) {
     } catch (e) {
       console.error('POST: Błąd parsowania JSON:', e);
       return new NextResponse(
-        JSON.stringify({ error: 'Invalid JSON data' }), 
+        JSON.stringify({ error: 'Invalid JSON data', details: e instanceof Error ? e.message : 'Unknown error' }), 
         { 
           status: 400,
           headers: {
@@ -133,11 +133,14 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log('POST: Próba połączenia z bazą danych');
     const client = await connectToDatabase();
+    console.log('POST: Połączenie z bazą danych ustanowione');
     const db = client.db();
 
     try {
       // Najpierw usuń stary dokument
+      console.log('POST: Usuwanie starego dokumentu...');
       const deleteResult = await db.collection('content').deleteOne({ identifier: 'transport-pricing' });
       console.log('POST: Wynik usuwania starego dokumentu:', JSON.stringify(deleteResult, null, 2));
 
@@ -147,18 +150,31 @@ export async function POST(request: Request) {
         identifier: 'transport-pricing',
         updatedAt: new Date()
       };
+      console.log('POST: Przygotowany dokument do zapisu:', JSON.stringify(documentToSave, null, 2));
 
       // Zapisz nowy dokument
+      console.log('POST: Zapisywanie nowego dokumentu...');
       const insertResult = await db.collection('content').insertOne(documentToSave);
       console.log('POST: Wynik operacji zapisu:', JSON.stringify(insertResult, null, 2));
 
-      // Pobierz zapisany dokument
+      if (!insertResult.acknowledged) {
+        throw new Error('Operacja zapisu nie została potwierdzona przez bazę danych');
+      }
+
+      // Pobierz zapisany dokument dla weryfikacji
+      console.log('POST: Pobieranie zapisanego dokumentu dla weryfikacji...');
       const savedContent = await db.collection('content').findOne({ identifier: 'transport-pricing' });
+      
+      if (!savedContent) {
+        throw new Error('Nie można potwierdzić zapisu - dokument nie został odnaleziony');
+      }
+      
       console.log('POST: Zapisane dane:', JSON.stringify(savedContent, null, 2));
 
       // Odśwież stronę kliencką
+      console.log('POST: Odświeżanie ścieżki /uslugi/transport/cennik');
       revalidatePath('/uslugi/transport/cennik');
-      console.log('POST: Strona kliencka odświeżona');
+      console.log('POST: Ścieżka odświeżona');
 
       // Zwróć odpowiedź
       return new NextResponse(
@@ -176,9 +192,12 @@ export async function POST(request: Request) {
         }
       );
     } catch (dbError) {
-      console.error('POST: Błąd bazy danych:', dbError);
+      console.error('POST: Błąd operacji bazodanowej:', dbError);
       return new NextResponse(
-        JSON.stringify({ error: 'Database operation failed' }), 
+        JSON.stringify({ 
+          error: 'Database operation failed', 
+          details: dbError instanceof Error ? dbError.message : 'Unknown database error' 
+        }), 
         { 
           status: 500,
           headers: {
@@ -189,9 +208,12 @@ export async function POST(request: Request) {
           }
         }
       );
+    } finally {
+      console.log('POST: Zamykanie połączenia z bazą danych');
+      await client.close();
     }
   } catch (error) {
-    console.error('POST: Error saving content:', error);
+    console.error('POST: Nieoczekiwany błąd:', error);
     return new NextResponse(
       JSON.stringify({ 
         error: 'Internal Server Error',
