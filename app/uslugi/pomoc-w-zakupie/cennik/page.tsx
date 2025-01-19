@@ -6,16 +6,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faClipboardCheck, faHandshake, faShieldAlt, faPhone, faEnvelope } from '@fortawesome/free-solid-svg-icons';
 import { priceListData } from './data';
 
-interface PricingItem {
+interface PriceListItem {
   name: string;
   price: string;
 }
 
-interface PricingCategory {
+interface PriceListSection {
   title: string;
   icon: string;
   description: string;
-  items: PricingItem[];
+  items: PriceListItem[];
 }
 
 interface PageContent {
@@ -24,7 +24,7 @@ interface PageContent {
     description: string;
     images: string[];
   };
-  pricingCategories: PricingCategory[];
+  pricingCategories: PriceListSection[];
 }
 
 const iconMap = {
@@ -37,6 +37,24 @@ const iconMap = {
 export default function PurchaseAssistancePricingPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [content, setContent] = useState<PageContent>(priceListData);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const response = await fetch('/api/content/pricing/purchase');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.hero && data.pricingCategories) {
+            setContent(data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching content:', error);
+      }
+    };
+
+    fetchContent();
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
