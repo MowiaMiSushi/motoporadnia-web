@@ -117,6 +117,7 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
   const handleImageSelect = (image: string) => {
     console.log('ImageSelector: Wybrano zdjęcie:', image);
     onImageSelect(image);
+    onClose();
   };
 
   return (
@@ -905,7 +906,13 @@ export default function ServiceAdmin() {
               : typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')
               ? (() => {
                   const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
-                  return content.brands[parseInt(brandIndex)].hoverImages[parseInt(imageIndex)] || '';
+                  const brand = content.brands[parseInt(brandIndex)];
+                  console.log('ServiceAdmin: Pobieranie aktualnego hover image:', {
+                    brandIndex,
+                    imageIndex,
+                    brand
+                  });
+                  return brand.hoverImages?.[parseInt(imageIndex)] || '';
                 })()
               : ''
           }
@@ -913,66 +920,47 @@ export default function ServiceAdmin() {
             console.log('ServiceAdmin: Wybrano zdjęcie:', {
               showImageSelector,
               image,
-              content: JSON.stringify(content, null, 2)
+              contentBefore: JSON.stringify(content, null, 2)
             });
             
-            if (typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')) {
-              const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
-              const newImages = [...content.hero.images];
-              newImages[imageIndex] = image;
-              setContent({
-                ...content,
-                hero: { ...content.hero, images: newImages }
-              });
-            } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-logo-')) {
-              const brandIndex = parseInt(showImageSelector.replace('brand-logo-', ''));
-              const newBrands = [...content.brands];
-              newBrands[brandIndex].image = image;
-              setContent({
-                ...content,
-                brands: newBrands
-              });
-            } else if (typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')) {
-              const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
-              const brandIdx = parseInt(brandIndex);
-              const imgIdx = parseInt(imageIndex);
-              
-              console.log('ServiceAdmin: Aktualizacja hover image przed:', {
-                brandIndex: brandIdx,
-                imageIndex: imgIdx,
-                image,
-                currentBrand: content.brands[brandIdx]
-              });
-
-              const newBrands = [...content.brands];
-              
-              // Upewnij się, że tablica hoverImages istnieje
-              if (!newBrands[brandIdx].hoverImages) {
-                newBrands[brandIdx].hoverImages = [];
+            const newContent = { ...content };
+            
+            if (typeof showImageSelector === 'string') {
+              if (showImageSelector.startsWith('hero-')) {
+                const imageIndex = parseInt(showImageSelector.replace('hero-', ''));
+                newContent.hero.images[imageIndex] = image;
+              } else if (showImageSelector.startsWith('brand-logo-')) {
+                const brandIndex = parseInt(showImageSelector.replace('brand-logo-', ''));
+                newContent.brands[brandIndex].image = image;
+              } else if (showImageSelector.startsWith('brand-hover-')) {
+                const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
+                const brandIdx = parseInt(brandIndex);
+                const imgIdx = parseInt(imageIndex);
+                
+                if (!newContent.brands[brandIdx].hoverImages) {
+                  newContent.brands[brandIdx].hoverImages = [];
+                }
+                
+                while (newContent.brands[brandIdx].hoverImages.length <= imgIdx) {
+                  newContent.brands[brandIdx].hoverImages.push('');
+                }
+                
+                newContent.brands[brandIdx].hoverImages[imgIdx] = image;
+                
+                console.log('ServiceAdmin: Zaktualizowano hover image:', {
+                  brandIdx,
+                  imgIdx,
+                  image,
+                  updatedBrand: newContent.brands[brandIdx]
+                });
               }
-
-              // Upewnij się, że indeks istnieje w tablicy
-              while (newBrands[brandIdx].hoverImages.length <= imgIdx) {
-                newBrands[brandIdx].hoverImages.push('');
-              }
-
-              newBrands[brandIdx].hoverImages[imgIdx] = image;
-
-              console.log('ServiceAdmin: Aktualizacja hover image po:', {
-                brandIndex: brandIdx,
-                imageIndex: imgIdx,
-                image,
-                updatedBrand: newBrands[brandIdx]
-              });
-
-              const updatedContent = {
-                ...content,
-                brands: newBrands
-              };
-
-              console.log('ServiceAdmin: Nowy stan:', updatedContent);
-              setContent(updatedContent);
             }
+            
+            console.log('ServiceAdmin: Aktualizacja stanu:', {
+              contentAfter: JSON.stringify(newContent, null, 2)
+            });
+            
+            setContent(newContent);
             setShowImageSelector(null);
           }}
           onClose={() => setShowImageSelector(null)}
