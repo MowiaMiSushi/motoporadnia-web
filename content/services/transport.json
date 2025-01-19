@@ -1,73 +1,52 @@
 {
   "hero": {
-    "title": "Transport motocykli",
-    "description": "Profesjonalny i bezpieczny transport motocykli na terenie całego kraju. Gwarantujemy bezpieczeństwo i terminowość.",
+    "title": "Transport motocykli Poznań i Europa",
+    "description": "Profesjonalny transport motocykli na terenie Poznania, całej Polski i Europy. Bezpieczny przewóz jednośladów z pełnym ubezpieczeniem.",
     "images": [
-      "/images/transport_1.jpg",
-      "/images/transport_2.jpg",
-      "/images/transport_3.jpg"
+      "/images/transport_1.webp",
+      "/images/transport_2.webp",
+      "/images/transport_3.webp"
     ]
   },
   "mainSections": [
     {
-      "title": "Bezpieczny transport",
-      "content": "Zapewniamy profesjonalny transport motocykli z wykorzystaniem specjalistycznej przyczepy i systemu mocowań. Każdy motocykl jest odpowiednio zabezpieczony na czas transportu.",
-      "image": "/images/transport_1.jpg"
+      "title": "Profesjonalny transport motocykli na terenie Poznania i Europy",
+      "description": "Transport motocykli wykonujemy w sposób w pełni profesjonalny, z najwyższą dbałością o bezpieczeństwo Twojego jednośladu. Specjalizujemy się w bezpiecznym i sprawnym transporcie motocykli zarówno lokalnie, jak i na długich dystansach międzynarodowych.",
+      "image": "/images/transport_3.webp"
     },
     {
-      "title": "Doświadczeni kierowcy",
-      "content": "Nasi kierowcy posiadają wieloletnie doświadczenie w transporcie motocykli i dbają o bezpieczeństwo powierzonych im pojazdów.",
-      "image": "/images/transport_2.jpg"
+      "title": "Największa gwarancja bezpieczeństwa",
+      "description": "Dla maksymalnego bezpieczeństwa podczas załadunku i rozładunku, korzystamy z wytrzymałego najazdu aluminiowego o udźwigu do 400kg. Transportowany motocykl jest zamocowany w specjalnym doku pod przednie koło, które uniemożliwia jego przechylenie na boki.",
+      "image": "/images/transport_1.webp"
+    },
+    {
+      "title": "Najlepsze zabezpieczenie motocykla",
+      "description": "Każdy motocykl zabezpieczamy profesjonalnymi pasami transportowymi w 2 lub 4 punktach, w zależności od typu i gabarytów jednośladu. Oferujemy możliwość przewozu do 2 motocykli jednocześnie, co pozwala zoptymalizować koszty transportu.",
+      "image": "/images/transport_2.webp"
     }
   ],
-  "services": [
-    {
-      "title": "Transport lokalny",
-      "description": "Transport na terenie miasta i okolic.",
-      "price": "od 150 zł"
-    },
-    {
-      "title": "Transport krajowy",
-      "description": "Transport na terenie całego kraju.",
-      "price": "od 2 zł/km"
-    },
-    {
-      "title": "Transport ekspresowy",
-      "description": "Pilny transport w trybie ekspresowym.",
-      "price": "wycena indywidualna"
-    }
-  ],
-  "features": {
-    "title": "Co wyróżnia nasz transport?",
-    "items": [
-      "Specjalistyczna przyczepa transportowa",
-      "System profesjonalnych mocowań",
-      "Doświadczeni kierowcy",
-      "Ubezpieczenie ładunku",
-      "Transport door-to-door",
-      "Możliwość transportu kilku motocykli jednocześnie"
-    ]
-  },
-  "additionalInfo": {
-    "title": "Informacje dodatkowe",
-    "description": "Przed transportem zawsze:",
-    "items": [
-      "Sprawdzamy stan techniczny motocykla",
-      "Dokumentujemy fotograficznie stan pojazdu",
-      "Zabezpieczamy wrażliwe elementy",
-      "Ustalamy dokładny termin odbioru i dostawy",
-      "Potwierdzamy trasę i koszty"
-    ]
-  },
-  "coverage": {
+  "operatingArea": {
     "title": "Obszar działania",
-    "description": "Świadczymy usługi transportowe na terenie całej Polski. Główne obszary działania to:",
-    "regions": [
-      "Warszawa i okolice",
-      "Cała Polska centralna",
-      "Województwo mazowieckie",
-      "Możliwość transportu w całym kraju",
-      "Transport międzywojewódzki"
-    ]
+    "description": "Świadczymy kompleksowe usługi transportowe na trzech poziomach:",
+    "areas": [
+      {
+        "icon": "faTruck",
+        "text": "Transport lokalny - Poznań i okolice (do 50 km)"
+      },
+      {
+        "icon": "faTruckArrowRight",
+        "text": "Transport krajowy - cała Polska"
+      },
+      {
+        "icon": "faRoadBarrier",
+        "text": "Transport międzynarodowy - kraje Unii Europejskiej"
+      }
+    ],
+    "additionalInfo": "Ceny ustalamy indywidualnie w zależności od odległości, ilości motocykli i specyfiki transportu. Zapewniamy konkurencyjne stawki i pełne ubezpieczenie podczas transportu."
+  },
+  "cta": {
+    "title": "Potrzebujesz transportu motocykla?",
+    "description": "Skontaktuj się z nami, aby ustalić szczegóły transportu i otrzymać wycenę.",
+    "phoneNumber": "789059578"
   }
 }
