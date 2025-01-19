@@ -152,31 +152,15 @@ export default function TransportPricingEditor() {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         },
-        body: JSON.stringify(dataToSave),
-        cache: 'no-store'
+        body: JSON.stringify(dataToSave)
       });
 
       const responseText = await response.text();
       console.log('Admin: Surowa odpowiedź z serwera:', responseText);
 
-      let responseData;
-      try {
-        responseData = JSON.parse(responseText);
-        console.log('Admin: Sparsowana odpowiedź z serwera:', JSON.stringify(responseData, null, 2));
-      } catch (e) {
-        console.error('Admin: Błąd parsowania odpowiedzi:', e);
-        throw new Error('Nieprawidłowa odpowiedź z serwera');
-      }
-
       if (response.ok) {
         console.log('Admin: Dane zostały zapisane pomyślnie');
         
-        // Aktualizuj stan lokalny
-        if (responseData.content) {
-          const { identifier, updatedAt, _id, ...contentData } = responseData.content;
-          setContent(contentData);
-        }
-
         showNotification({
           title: 'Sukces',
           message: 'Zmiany zostały zapisane',
@@ -196,14 +180,22 @@ export default function TransportPricingEditor() {
         });
         
         if (refreshResponse.ok) {
-          const refreshData = await refreshResponse.json();
-          console.log('Admin: Odświeżone dane:', JSON.stringify(refreshData, null, 2));
-          setContent(refreshData);
+          const refreshText = await refreshResponse.text();
+          console.log('Admin: Surowa odpowiedź z odświeżania:', refreshText);
+          try {
+            const refreshData = JSON.parse(refreshText);
+            console.log('Admin: Odświeżone dane:', JSON.stringify(refreshData, null, 2));
+            if (refreshData && refreshData.hero && refreshData.pricingCategories) {
+              setContent(refreshData);
+            }
+          } catch (e) {
+            console.error('Admin: Błąd parsowania odpowiedzi z odświeżania:', e);
+          }
         }
       } else {
         console.error('Admin: Błąd podczas zapisywania. Status:', response.status);
         console.error('Admin: Treść błędu:', responseText);
-        throw new Error(responseData?.error || 'Błąd podczas zapisywania zmian');
+        throw new Error('Błąd podczas zapisywania zmian');
       }
     } catch (error) {
       console.error('Admin: Error saving content:', error);

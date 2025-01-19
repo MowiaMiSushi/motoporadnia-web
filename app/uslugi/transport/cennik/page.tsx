@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTruck, faRoute, faMapMarkedAlt, faHandshake, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
-import { priceListData } from './data';
+import Image from 'next/image';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 const iconMap: { [key: string]: IconDefinition } = {
@@ -16,16 +16,16 @@ const iconMap: { [key: string]: IconDefinition } = {
   faPhone
 };
 
-interface PricingItem {
+interface PriceListItem {
   name: string;
   price: string;
 }
 
-interface PricingCategory {
+interface PriceListSection {
   title: string;
   icon: string;
   description: string;
-  items: PricingItem[];
+  items: PriceListItem[];
 }
 
 interface PageContent {
@@ -34,12 +34,52 @@ interface PageContent {
     description: string;
     images: string[];
   };
-  pricingCategories: PricingCategory[];
+  pricingCategories: PriceListSection[];
 }
+
+const defaultContent: PageContent = {
+  hero: {
+    title: "Cennik transportu motocykli",
+    description: "Oferujemy profesjonalny transport motocykli. Ceny są orientacyjne i mogą się różnić w zależności od odległości i specyfiki zlecenia.",
+    images: ['/images/transport_1.jpg', '/images/transport_2.jpg']
+  },
+  pricingCategories: [
+    {
+      title: "Transport lokalny",
+      icon: "faTruck",
+      description: "Transport motocykli w obrębie miasta i okolic",
+      items: [
+        { name: "Transport w granicach miasta", price: "od 100 zł" },
+        { name: "Transport do 50 km", price: "od 200 zł" },
+        { name: "Transport powyżej 50 km", price: "2 zł/km" }
+      ]
+    },
+    {
+      title: "Transport krajowy",
+      icon: "faRoute",
+      description: "Transport motocykli na terenie całej Polski",
+      items: [
+        { name: "Transport do 100 km", price: "od 350 zł" },
+        { name: "Transport do 200 km", price: "od 500 zł" },
+        { name: "Transport powyżej 200 km", price: "2,5 zł/km" }
+      ]
+    },
+    {
+      title: "Usługi dodatkowe",
+      icon: "faHandshake",
+      description: "Dodatkowe usługi związane z transportem",
+      items: [
+        { name: "Załadunek/rozładunek", price: "w cenie" },
+        { name: "Zabezpieczenie motocykla", price: "w cenie" },
+        { name: "Transport ekspresowy", price: "wycena indywidualna" }
+      ]
+    }
+  ]
+};
 
 export default function TransportPricingPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [content, setContent] = useState<PageContent>(priceListData);
+  const [content, setContent] = useState<PageContent>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -54,25 +94,32 @@ export default function TransportPricingPage() {
           }
         });
         
+        const responseText = await response.text();
+        console.log('Client: Surowa odpowiedź z API:', responseText);
+
         if (response.ok) {
-          const data = await response.json();
-          console.log('Client: Otrzymane dane z API:', JSON.stringify(data, null, 2));
-          if (data && data.hero && data.pricingCategories && data.pricingCategories.length > 0) {
-            console.log('Client: Ustawiam otrzymane dane');
-            setContent(data);
-          } else {
-            console.log('Client: Brak wymaganych pól w danych z API, używam domyślnej zawartości');
-            setContent(priceListData);
+          try {
+            const data = JSON.parse(responseText);
+            console.log('Client: Sparsowane dane:', JSON.stringify(data, null, 2));
+            if (data && data.hero && data.pricingCategories && data.pricingCategories.length > 0) {
+              console.log('Client: Ustawiam otrzymane dane');
+              setContent(data);
+            } else {
+              console.log('Client: Brak wymaganych pól w danych z API, używam domyślnej zawartości');
+              setContent(defaultContent);
+            }
+          } catch (e) {
+            console.error('Client: Błąd parsowania JSON:', e);
+            setContent(defaultContent);
           }
         } else {
-          const errorText = await response.text();
           console.error('Client: Failed to fetch content. Status:', response.status);
-          console.error('Client: Error text:', errorText);
-          setContent(priceListData);
+          console.error('Client: Error text:', responseText);
+          setContent(defaultContent);
         }
       } catch (error) {
         console.error('Client: Error fetching content:', error);
-        setContent(priceListData);
+        setContent(defaultContent);
       } finally {
         setIsLoading(false);
       }
