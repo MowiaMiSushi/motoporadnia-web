@@ -260,10 +260,23 @@ export default function TrainingEditor() {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
-        <div className="space-y-4">
-          {content?.hero.images.map((image, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center gap-2">
+        <div className="space-y-2">
+          {content.hero.images.map((image, index) => (
+            <div key={index} className="flex items-center gap-4 p-4 bg-white border rounded-lg">
+              <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                {image ? (
+                  <img
+                    src={image}
+                    alt={`Zdjęcie ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    Brak zdjęcia
+                  </div>
+                )}
+              </div>
+              <div className="flex-grow">
                 <input
                   type="text"
                   value={image}
@@ -275,16 +288,19 @@ export default function TrainingEditor() {
                       hero: { ...content.hero, images: newImages }
                     });
                   }}
-                  className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                  placeholder="URL zdjęcia"
+                  className="block w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
                 />
+              </div>
+              <div className="flex gap-2">
                 <button
                   onClick={() => {
                     setCurrentImageIndex(index);
                     setShowImageSelector(true);
                   }}
-                  className="p-2 text-gray-600 hover:text-red-600"
+                  className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  <FontAwesomeIcon icon={faImage} />
+                  <FontAwesomeIcon icon={faImage} className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => {
@@ -294,20 +310,11 @@ export default function TrainingEditor() {
                       hero: { ...content.hero, images: newImages }
                     });
                   }}
-                  className="p-2 text-gray-600 hover:text-red-600"
+                  className="p-2 text-red-600 hover:text-red-700 transition-colors"
                 >
-                  <FontAwesomeIcon icon={faTrash} />
+                  <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
                 </button>
               </div>
-              {image && (
-                <div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                  <img
-                    src={image}
-                    alt={`Podgląd ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
             </div>
           ))}
           <button
@@ -320,10 +327,10 @@ export default function TrainingEditor() {
                 }
               });
             }}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+            className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors group flex items-center justify-center gap-2"
           >
-            <FontAwesomeIcon icon={faPlus} />
-            Dodaj zdjęcie
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
+            <span className="text-gray-400 group-hover:text-red-500">Dodaj zdjęcie</span>
           </button>
         </div>
       </div>

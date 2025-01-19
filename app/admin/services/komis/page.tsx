@@ -285,10 +285,10 @@ export default function CommissionEditor() {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Zdjęcia</label>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
           {content.hero.images.map((image, index) => (
-            <div key={index} className="relative group">
-              <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+            <div key={index} className="flex items-center gap-4 p-4 bg-white border rounded-lg">
+              <div className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                 {image ? (
                   <img
                     src={image}
@@ -301,15 +301,31 @@ export default function CommissionEditor() {
                   </div>
                 )}
               </div>
-              <div className="absolute top-2 right-2 flex gap-1">
+              <div className="flex-grow">
+                <input
+                  type="text"
+                  value={image}
+                  onChange={(e) => {
+                    const newImages = [...content.hero.images];
+                    newImages[index] = e.target.value;
+                    setContent({
+                      ...content,
+                      hero: { ...content.hero, images: newImages }
+                    });
+                  }}
+                  placeholder="URL zdjęcia"
+                  className="block w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+              </div>
+              <div className="flex gap-2">
                 <button
                   onClick={() => {
                     setCurrentImageIndex(index);
                     setShowImageSelector(true);
                   }}
-                  className="p-1.5 bg-white rounded-full shadow hover:bg-gray-100 transition-colors"
+                  className="p-2 text-gray-600 hover:text-gray-900 transition-colors"
                 >
-                  <FontAwesomeIcon icon={faImage} className="w-4 h-4 text-gray-600" />
+                  <FontAwesomeIcon icon={faImage} className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => {
@@ -319,25 +335,11 @@ export default function CommissionEditor() {
                       hero: { ...content.hero, images: newImages }
                     });
                   }}
-                  className="p-1.5 bg-white rounded-full shadow hover:bg-gray-100 transition-colors"
+                  className="p-2 text-red-600 hover:text-red-700 transition-colors"
                 >
-                  <FontAwesomeIcon icon={faTrash} className="w-4 h-4 text-red-600" />
+                  <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
                 </button>
               </div>
-              <input
-                type="text"
-                value={image}
-                onChange={(e) => {
-                  const newImages = [...content.hero.images];
-                  newImages[index] = e.target.value;
-                  setContent({
-                    ...content,
-                    hero: { ...content.hero, images: newImages }
-                  });
-                }}
-                placeholder="URL zdjęcia"
-                className="mt-2 block w-full text-sm rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
             </div>
           ))}
           <button
@@ -350,12 +352,10 @@ export default function CommissionEditor() {
                 }
               });
             }}
-            className="aspect-video flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors group"
+            className="w-full py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-red-500 transition-colors group flex items-center justify-center gap-2"
           >
-            <div className="text-gray-400 group-hover:text-red-500 flex flex-col items-center gap-1">
-              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
-              <span className="text-sm">Dodaj zdjęcie</span>
-            </div>
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4 text-gray-400 group-hover:text-red-500" />
+            <span className="text-gray-400 group-hover:text-red-500">Dodaj zdjęcie</span>
           </button>
         </div>
       </div>
