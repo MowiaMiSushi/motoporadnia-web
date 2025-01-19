@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhone, faTruck, faMoneyBill, faTruckArrowRight, faRoadBarrier } from '@fortawesome/free-solid-svg-icons';
 import { useState, useEffect } from 'react';
-import { Metadata } from 'next';
 
 interface MainSection {
     title: string;
@@ -90,13 +89,6 @@ const defaultContent: PageContent = {
         phoneNumber: "789059578"
     }
 };
-
-export async function generateMetadata(): Promise<Metadata> {
-  return {
-    title: 'Transport motocykli - MotoPoradnia',
-    description: 'Profesjonalny transport motocykli na terenie Poznania i całej Polski. Bezpieczny przewóz jednośladów z pełnym ubezpieczeniem.',
-  };
-}
 
 export default function TransportPage() {
   const [content, setContent] = useState<PageContent>(defaultContent);
