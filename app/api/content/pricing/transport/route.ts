@@ -2,6 +2,46 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/app/lib/mongodb';
 import { revalidatePath } from 'next/cache';
 
+const defaultContent = {
+  hero: {
+    title: "Cennik transportu motocykli",
+    description: "Oferujemy profesjonalny transport motocykli. Ceny są orientacyjne i mogą się różnić w zależności od odległości i specyfiki zlecenia.",
+    images: ['/images/transport_1.jpg', '/images/transport_2.jpg']
+  },
+  pricingCategories: [
+    {
+      title: "Transport lokalny",
+      icon: "faTruck",
+      description: "Transport motocykli w obrębie miasta i okolic",
+      items: [
+        { name: "Transport w granicach miasta", price: "od 100 zł" },
+        { name: "Transport do 50 km", price: "od 200 zł" },
+        { name: "Transport powyżej 50 km", price: "2 zł/km" }
+      ]
+    },
+    {
+      title: "Transport krajowy",
+      icon: "faRoute",
+      description: "Transport motocykli na terenie całej Polski",
+      items: [
+        { name: "Transport do 100 km", price: "od 350 zł" },
+        { name: "Transport do 200 km", price: "od 500 zł" },
+        { name: "Transport powyżej 200 km", price: "2,5 zł/km" }
+      ]
+    },
+    {
+      title: "Usługi dodatkowe",
+      icon: "faHandshake",
+      description: "Dodatkowe usługi związane z transportem",
+      items: [
+        { name: "Załadunek/rozładunek", price: "w cenie" },
+        { name: "Zabezpieczenie motocykla", price: "w cenie" },
+        { name: "Transport ekspresowy", price: "wycena indywidualna" }
+      ]
+    }
+  ]
+};
+
 export async function GET() {
   try {
     console.log('GET: Rozpoczynam pobieranie danych');
@@ -11,10 +51,10 @@ export async function GET() {
     const content = await db.collection('content').findOne({ identifier: 'transport-pricing' });
     console.log('GET: Pobrane dane z bazy:', JSON.stringify(content, null, 2));
 
-    // Jeśli nie ma danych w bazie, zwróć pusty obiekt
+    // Jeśli nie ma danych w bazie, zwróć domyślną zawartość
     if (!content) {
-      console.log('GET: Brak danych w bazie, zwracam pusty obiekt');
-      return NextResponse.json({});
+      console.log('GET: Brak danych w bazie, zwracam domyślną zawartość');
+      return NextResponse.json(defaultContent);
     }
 
     // Usuń pole identifier i updatedAt z odpowiedzi
@@ -23,7 +63,7 @@ export async function GET() {
     return NextResponse.json(rest);
   } catch (error) {
     console.error('GET: Error fetching content:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(defaultContent);
   }
 }
 

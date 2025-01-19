@@ -70,9 +70,18 @@ export default function TransportPricingEditor() {
     const fetchContent = async () => {
       try {
         console.log('Admin: Rozpoczynam pobieranie danych');
-        const response = await fetch('/api/content/pricing/transport');
+        const response = await fetch('/api/content/pricing/transport', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
+
+        const responseText = await response.text();
+        console.log('Admin: Surowa odpowiedź z API:', responseText);
+
         if (response.ok) {
-          const data = await response.json();
+          const data = JSON.parse(responseText);
           console.log('Admin: Otrzymane dane z API:', JSON.stringify(data, null, 2));
           if (!data.hero || !data.pricingCategories) {
             console.log('Admin: Brak wymaganych pól, używam domyślnej zawartości');
@@ -87,7 +96,7 @@ export default function TransportPricingEditor() {
             setContent(data);
           }
         } else {
-          console.error('Admin: Failed to fetch content:', await response.text());
+          console.error('Admin: Failed to fetch content:', responseText);
           setContent(defaultContent);
           showNotification({
             title: 'Informacja',
