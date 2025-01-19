@@ -16,6 +16,7 @@ interface Service {
 interface Brand {
   name: string;
   image: string;
+  hoverImages?: string[];
 }
 
 interface PageContent {
@@ -103,6 +104,63 @@ export default function Serwis() {
         </div>
     );
 
+    const BrandCard = ({ brand }: { brand: Brand }) => {
+        const [isHovered, setIsHovered] = useState(false);
+        const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+        useEffect(() => {
+            let interval: NodeJS.Timeout;
+            if (isHovered && brand.hoverImages && brand.hoverImages.length > 0) {
+                interval = setInterval(() => {
+                    setCurrentImageIndex((prev) => 
+                        prev === brand.hoverImages!.length - 1 ? 0 : prev + 1
+                    );
+                }, 5000);
+            }
+            return () => {
+                if (interval) {
+                    clearInterval(interval);
+                }
+            };
+        }, [isHovered, brand.hoverImages]);
+
+        return (
+            <motion.div
+                className="relative aspect-square"
+                onHoverStart={() => setIsHovered(true)}
+                onHoverEnd={() => {
+                    setIsHovered(false);
+                    setCurrentImageIndex(0);
+                }}
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.3 }}
+            >
+                <AnimatePresence>
+                    {isHovered && brand.hoverImages && brand.hoverImages.length > 0 ? (
+                        <motion.img
+                            key={currentImageIndex}
+                            src={brand.hoverImages[currentImageIndex]}
+                            alt={`${brand.name} service`}
+                            className="absolute inset-0 w-full h-full object-cover rounded-lg"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                        />
+                    ) : (
+                        <motion.img
+                            src={brand.image}
+                            alt={brand.name}
+                            className="w-full h-full object-contain"
+                            initial={{ opacity: 1 }}
+                            animate={{ opacity: 1 }}
+                        />
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        );
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* Hero section */}
@@ -158,23 +216,10 @@ export default function Serwis() {
             {/* Marki jakie obsługujemy */}
             <section className="py-16 bg-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-3xl font-bold text-center mb-12">Marki jakie obsługujemy</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
-                        {content?.brands.map((brand) => (
-                            <div 
-                                key={brand.name}
-                                className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                            >
-                                <h3 className="text-lg font-semibold p-3 text-center border-b truncate">{brand.name}</h3>
-                                <div className="relative h-32 w-full">
-                                    <Image
-                                        src={brand.image}
-                                        alt={`Logo ${brand.name}`}
-                                        fill
-                                        className="object-contain p-4"
-                                    />
-                                </div>
-                            </div>
+                    <h2 className="text-3xl font-bold text-center mb-12">Obsługiwane marki</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                        {content.brands.map((brand) => (
+                            <BrandCard key={brand.name} brand={brand} />
                         ))}
                     </div>
                 </div>
