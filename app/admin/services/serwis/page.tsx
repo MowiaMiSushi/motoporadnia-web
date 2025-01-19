@@ -87,10 +87,17 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
   useEffect(() => {
     const fetchImages = async () => {
       try {
+        console.log('Rozpoczynam pobieranie listy zdjęć');
         const response = await fetch('/api/admin/images');
         if (response.ok) {
           const data = await response.json();
-          setImages(data.images);
+          console.log('Pobrane zdjęcia:', data.images);
+          // Upewnij się, że ścieżki zaczynają się od /
+          const processedImages = data.images.map((img: string) => 
+            img.startsWith('/') ? img : `/${img}`
+          );
+          console.log('Przetworzone ścieżki zdjęć:', processedImages);
+          setImages(processedImages);
         }
       } catch (error) {
         console.error('Error fetching images:', error);
@@ -118,8 +125,11 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
 
       if (response.ok) {
         const data = await response.json();
-        setImages(prev => [...prev, data.url]);
-        onImageSelect(data.url);
+        console.log('Uploaded image URL:', data.url);
+        // Upewnij się, że ścieżka zaczyna się od /
+        const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
+        setImages(prev => [...prev, imageUrl]);
+        onImageSelect(imageUrl);
         setUploadStatus('success');
       } else {
         setUploadStatus('error');
@@ -167,7 +177,10 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
             {images.map((image, index) => (
               <div
                 key={index}
-                onClick={() => onImageSelect(image)}
+                onClick={() => {
+                  console.log('Wybrano zdjęcie:', image);
+                  onImageSelect(image);
+                }}
                 className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
                   currentImage === image ? 'border-red-500' : 'border-transparent'
                 }`}
@@ -175,7 +188,11 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
                 <img
                   src={image}
                   alt={`Gallery image ${index + 1}`}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    console.error('Błąd ładowania zdjęcia:', image);
+                    e.currentTarget.src = '/images/placeholder.webp';
+                  }}
                 />
               </div>
             ))}
