@@ -69,12 +69,13 @@ export default function TransportPricingEditor() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        console.log('Admin: Rozpoczynam pobieranie danych');
         const response = await fetch('/api/content/pricing/transport');
         if (response.ok) {
           const data = await response.json();
-          console.log('Otrzymane dane z API:', data);
+          console.log('Admin: Otrzymane dane z API:', JSON.stringify(data, null, 2));
           if (!data.hero || !data.pricingCategories) {
-            console.log('Brak wymaganych pól, używam domyślnej zawartości');
+            console.log('Admin: Brak wymaganych pól, używam domyślnej zawartości');
             setContent(defaultContent);
             showNotification({
               title: 'Informacja',
@@ -82,10 +83,11 @@ export default function TransportPricingEditor() {
               type: 'info'
             });
           } else {
+            console.log('Admin: Ustawiam otrzymane dane');
             setContent(data);
           }
         } else {
-          console.error('Failed to fetch content:', await response.text());
+          console.error('Admin: Failed to fetch content:', await response.text());
           setContent(defaultContent);
           showNotification({
             title: 'Informacja',
@@ -94,7 +96,7 @@ export default function TransportPricingEditor() {
           });
         }
       } catch (error) {
-        console.error('Error fetching content:', error);
+        console.error('Admin: Error fetching content:', error);
         setContent(defaultContent);
         showNotification({
           title: 'Informacja',
@@ -114,6 +116,9 @@ export default function TransportPricingEditor() {
 
     try {
       setIsSaving(true);
+      console.log('Admin: Rozpoczynam zapisywanie danych');
+      console.log('Admin: Dane do zapisania:', JSON.stringify(content, null, 2));
+      
       const response = await fetch('/api/content/pricing/transport', {
         method: 'POST',
         headers: {
@@ -123,6 +128,7 @@ export default function TransportPricingEditor() {
       });
 
       if (response.ok) {
+        console.log('Admin: Dane zostały zapisane pomyślnie');
         showNotification({
           title: 'Sukces',
           message: 'Zmiany zostały zapisane',
@@ -130,10 +136,12 @@ export default function TransportPricingEditor() {
         });
         router.refresh();
       } else {
-        throw new Error(await response.text());
+        const errorText = await response.text();
+        console.error('Admin: Błąd podczas zapisywania:', errorText);
+        throw new Error(errorText);
       }
     } catch (error) {
-      console.error('Error saving content:', error);
+      console.error('Admin: Error saving content:', error);
       showNotification({
         title: 'Błąd',
         message: 'Błąd podczas zapisywania zmian',

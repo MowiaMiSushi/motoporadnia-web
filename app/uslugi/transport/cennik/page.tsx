@@ -45,22 +45,24 @@ export default function TransportPricingPage() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        console.log('Client: Rozpoczynam pobieranie danych');
         const response = await fetch('/api/content/pricing/transport');
         if (response.ok) {
           const data = await response.json();
-          console.log('Otrzymane dane z API:', data);
+          console.log('Client: Otrzymane dane z API:', JSON.stringify(data, null, 2));
           if (data && data.hero && data.pricingCategories) {
+            console.log('Client: Ustawiam otrzymane dane');
             setContent(data);
           } else {
-            console.log('Brak wymaganych pól w danych z API, używam domyślnej zawartości');
+            console.log('Client: Brak wymaganych pól w danych z API, używam domyślnej zawartości');
             setContent(priceListData);
           }
         } else {
-          console.error('Failed to fetch content:', await response.text());
+          console.error('Client: Failed to fetch content:', await response.text());
           setContent(priceListData);
         }
       } catch (error) {
-        console.error('Error fetching content:', error);
+        console.error('Client: Error fetching content:', error);
         setContent(priceListData);
       } finally {
         setIsLoading(false);
