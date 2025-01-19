@@ -48,8 +48,15 @@ export default function TransportPricingPage() {
         const response = await fetch('/api/content/pricing/transport');
         if (response.ok) {
           const data = await response.json();
-          setContent(data || priceListData);
+          console.log('Otrzymane dane z API:', data);
+          if (data && data.hero && data.pricingCategories) {
+            setContent(data);
+          } else {
+            console.log('Brak wymaganych pól w danych z API, używam domyślnej zawartości');
+            setContent(priceListData);
+          }
         } else {
+          console.error('Failed to fetch content:', await response.text());
           setContent(priceListData);
         }
       } catch (error) {

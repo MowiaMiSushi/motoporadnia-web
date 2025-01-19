@@ -10,7 +10,14 @@ export async function GET() {
     const content = await db.collection('content').findOne({ identifier: 'transport-pricing' });
     console.log('Pobrane dane z bazy:', content);
 
-    return NextResponse.json(content || {});
+    // Jeśli nie ma danych w bazie, zwróć pusty obiekt
+    if (!content) {
+      return NextResponse.json({});
+    }
+
+    // Usuń pole identifier i updatedAt z odpowiedzi
+    const { identifier, updatedAt, _id, ...rest } = content;
+    return NextResponse.json(rest);
   } catch (error) {
     console.error('Error fetching content:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
