@@ -125,10 +125,11 @@ export default function TransportPricingEditor() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(content),
+        cache: 'no-store'
       });
 
-      const responseText = await response.text();
-      console.log('Admin: Odpowiedź z serwera:', responseText);
+      const responseData = await response.json();
+      console.log('Admin: Odpowiedź z serwera:', JSON.stringify(responseData, null, 2));
 
       if (response.ok) {
         console.log('Admin: Dane zostały zapisane pomyślnie');
@@ -139,7 +140,11 @@ export default function TransportPricingEditor() {
         });
 
         // Odśwież dane po zapisie
-        const refreshResponse = await fetch('/api/content/pricing/transport');
+        const refreshResponse = await fetch('/api/content/pricing/transport', {
+          cache: 'no-store',
+          next: { revalidate: 0 }
+        });
+        
         if (refreshResponse.ok) {
           const refreshedData = await refreshResponse.json();
           console.log('Admin: Odświeżone dane:', JSON.stringify(refreshedData, null, 2));
@@ -149,8 +154,8 @@ export default function TransportPricingEditor() {
         }
       } else {
         console.error('Admin: Błąd podczas zapisywania. Status:', response.status);
-        console.error('Admin: Treść błędu:', responseText);
-        throw new Error(`Błąd podczas zapisywania: ${responseText}`);
+        console.error('Admin: Treść błędu:', JSON.stringify(responseData, null, 2));
+        throw new Error(responseData.error || 'Błąd podczas zapisywania zmian');
       }
     } catch (error) {
       console.error('Admin: Error saving content:', error);

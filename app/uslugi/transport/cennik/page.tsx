@@ -46,11 +46,15 @@ export default function TransportPricingPage() {
     const fetchContent = async () => {
       try {
         console.log('Client: Rozpoczynam pobieranie danych');
-        const response = await fetch('/api/content/pricing/transport');
+        const response = await fetch('/api/content/pricing/transport', {
+          cache: 'no-store',
+          next: { revalidate: 0 }
+        });
+        
         if (response.ok) {
           const data = await response.json();
           console.log('Client: Otrzymane dane z API:', JSON.stringify(data, null, 2));
-          if (data && data.hero && data.pricingCategories) {
+          if (data && data.hero && data.pricingCategories && data.pricingCategories.length > 0) {
             console.log('Client: Ustawiam otrzymane dane');
             setContent(data);
           } else {

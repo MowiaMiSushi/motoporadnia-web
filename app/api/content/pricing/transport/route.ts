@@ -11,7 +11,7 @@ export async function GET() {
     const content = await db.collection('content').findOne({ identifier: 'transport-pricing' });
     console.log('GET: Pobrane dane z bazy:', JSON.stringify(content, null, 2));
 
-    // Jeśli nie ma danych w bazie, zwróć domyślną zawartość
+    // Jeśli nie ma danych w bazie, zwróć pusty obiekt
     if (!content) {
       console.log('GET: Brak danych w bazie, zwracam pusty obiekt');
       return NextResponse.json({});
@@ -32,7 +32,9 @@ export async function POST(request: Request) {
     console.log('POST: Rozpoczynam zapisywanie danych');
     let content;
     try {
-      content = await request.json();
+      const rawData = await request.text();
+      console.log('POST: Otrzymane surowe dane:', rawData);
+      content = JSON.parse(rawData);
     } catch (e) {
       console.error('POST: Błąd parsowania JSON:', e);
       return NextResponse.json({ error: 'Invalid JSON data' }, { status: 400 });
@@ -50,17 +52,16 @@ export async function POST(request: Request) {
     const db = client.db();
 
     try {
-      const result = await db.collection('content').updateOne(
-        { identifier: 'transport-pricing' },
-        { 
-          $set: { 
-            ...content,
-            identifier: 'transport-pricing',
-            updatedAt: new Date()
-          } 
-        },
-        { upsert: true }
-      );
+      // Najpierw usuń stary dokument
+      await db.collection('content').deleteOne({ identifier: 'transport-pricing' });
+      console.log('POST: Usunięto stary dokument');
+
+      // Następnie zapisz nowy dokument
+      const result = await db.collection('content').insertOne({
+        ...content,
+        identifier: 'transport-pricing',
+        updatedAt: new Date()
+      });
 
       console.log('POST: Wynik operacji zapisu:', JSON.stringify(result, null, 2));
 
@@ -68,7 +69,11 @@ export async function POST(request: Request) {
       revalidatePath('/uslugi/transport/cennik');
       console.log('POST: Strona kliencka odświeżona');
 
-      return NextResponse.json({ success: true, result });
+      // Pobierz i zwróć zapisane dane
+      const savedContent = await db.collection('content').findOne({ identifier: 'transport-pricing' });
+      console.log('POST: Zapisane dane:', JSON.stringify(savedContent, null, 2));
+
+      return NextResponse.json({ success: true, content: savedContent });
     } catch (dbError) {
       console.error('POST: Błąd bazy danych:', dbError);
       return NextResponse.json({ error: 'Database operation failed' }, { status: 500 });
