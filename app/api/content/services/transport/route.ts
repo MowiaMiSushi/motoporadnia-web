@@ -1,62 +1,110 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { readFile, writeFile } from 'fs/promises';
-import path from 'path';
+import { authOptions } from '@/app/lib/auth';
+import { connectToDatabase } from '@/app/lib/mongodb';
 
-const contentPath = path.join(process.cwd(), 'content', 'services', 'transport.json');
-
-export async function GET(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    console.log('GET Session:', session);
-
-    if (!session?.user?.email) {
-      return new NextResponse('Unauthorized', { status: 401 });
+const defaultContent = {
+  hero: {
+    title: "Transport motocykli Poznań i Europa",
+    description: "Profesjonalny transport motocykli na terenie Poznania, całej Polski i Europy. Bezpieczny przewóz jednośladów z pełnym ubezpieczeniem.",
+    images: ['/images/transport_1.webp', '/images/transport_2.webp', '/images/transport_3.webp']
+  },
+  mainSections: [
+    {
+      title: "Obszar działania",
+      content: [
+        "Świadczymy usługi transportu motocykli na terenie całej Polski i Europy. Nasz zespół posiada wieloletnie doświadczenie w bezpiecznym przewozie jednośladów.",
+        "Dysponujemy profesjonalnym sprzętem i lawetą przystosowaną do transportu motocykli."
+      ]
     }
+  ],
+  services: [
+    {
+      icon: "faTruck",
+      title: "Transport lokalny",
+      description: "Transport motocykli w obrębie miasta i okolic"
+    },
+    {
+      icon: "faRoute",
+      title: "Transport krajowy",
+      description: "Transport motocykli na terenie całej Polski"
+    },
+    {
+      icon: "faGlobe",
+      title: "Transport międzynarodowy",
+      description: "Transport motocykli na terenie Europy"
+    }
+  ],
+  features: [
+    {
+      icon: "faShieldAlt",
+      text: "Pełne ubezpieczenie transportu"
+    },
+    {
+      icon: "faTools",
+      text: "Profesjonalny sprzęt do załadunku"
+    },
+    {
+      icon: "faClock",
+      text: "Elastyczne terminy"
+    },
+    {
+      icon: "faHandshake",
+      text: "Bezpieczny załadunek i rozładunek"
+    }
+  ],
+  additionalInfo: {
+    title: "Dlaczego warto wybrać nasz transport?",
+    items: [
+      "Wieloletnie doświadczenie w transporcie motocykli",
+      "Pełne ubezpieczenie podczas transportu",
+      "Profesjonalny sprzęt i zabezpieczenia",
+      "Konkurencyjne ceny",
+      "Elastyczne terminy realizacji"
+    ]
+  },
+  cta: {
+    title: "Zamów transport",
+    description: "Skontaktuj się z nami, aby ustalić szczegóły transportu",
+    phoneNumber: "789059578"
+  }
+};
 
-    const content = await readFile(contentPath, 'utf-8')
-      .then(data => JSON.parse(data))
-      .catch(() => {
-        console.log('No content file found, returning empty object');
-        return {};
-      });
-
-    return NextResponse.json(content, {
-      headers: {
-        'Cache-Control': 'no-store, must-revalidate',
-        'Content-Type': 'application/json',
-      },
-    });
+export async function GET() {
+  try {
+    const { db } = await connectToDatabase();
+    const content = await db.collection('content').findOne({ type: 'services-transport' });
+    return NextResponse.json(content?.data || defaultContent);
   } catch (error) {
-    console.error('Error reading transport content:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Error reading content:', error);
+    return NextResponse.json(defaultContent);
   }
 }
 
 export async function POST(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    console.log('POST Session:', session);
+  const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
-      return new NextResponse('Unauthorized', { status: 401 });
+  if (!session || session.user?.role !== 'admin') {
+    return new NextResponse('Unauthorized', { status: 401 });
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const data = await request.json();
+
+    if (!data) {
+      return new NextResponse('Invalid content', { status: 400 });
     }
 
-    const content = await request.json();
-    console.log('Saving content:', content);
+    await db.collection('content').updateOne(
+      { type: 'services-transport' },
+      { $set: { type: 'services-transport', data } },
+      { upsert: true }
+    );
 
-    await writeFile(contentPath, JSON.stringify(content, null, 2));
-    console.log('Content saved successfully');
-
-    return NextResponse.json({ success: true }, {
-      headers: {
-        'Cache-Control': 'no-store, must-revalidate',
-        'Content-Type': 'application/json',
-      },
-    });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error saving transport content:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    console.error('Error saving content:', error);
+    return NextResponse.json({ success: false }, { status: 500 });
   }
 } 
