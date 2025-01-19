@@ -7,25 +7,16 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+declare global {
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
+}
+
+const client = new MongoClient(uri, options);
+
+const clientPromise = global._mongoClientPromise || client.connect();
 
 if (process.env.NODE_ENV === 'development') {
-  // W trybie development używamy globalnej zmiennej, aby zachować połączenie
-  // podczas hot-reloading
-  const globalWithMongo = global as typeof globalThis & {
-    _mongoClientPromise?: Promise<MongoClient>;
-  };
-
-  if (!globalWithMongo._mongoClientPromise) {
-    client = new MongoClient(uri, options);
-    globalWithMongo._mongoClientPromise = client.connect();
-  }
-  clientPromise = globalWithMongo._mongoClientPromise;
-} else {
-  // W produkcji najlepiej używać nowego połączenia
-  client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+  global._mongoClientPromise = clientPromise;
 }
 
 export async function connectToDatabase() {
