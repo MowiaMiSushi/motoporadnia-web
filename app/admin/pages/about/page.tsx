@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faTrash, faImage, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { showNotification } from '@/app/components/ui/Notification';
 
 interface HeroSection {
@@ -43,6 +45,133 @@ interface AboutContent {
   team: TeamSection;
   socialMedia: SocialMediaSection;
 }
+
+interface ImageSelectorProps {
+  currentImage: string;
+  onImageSelect: (image: string) => void;
+  onClose: () => void;
+}
+
+const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorProps) => {
+  const [images, setImages] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch('/api/admin/images');
+        if (response.ok) {
+          const data = await response.json();
+          setImages(data.images);
+        }
+      } catch (error) {
+        console.error('Error fetching images:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchImages();
+  }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        onImageSelect(data.url);
+        onClose();
+        showNotification({
+          title: 'Sukces',
+          message: 'Zdjęcie zostało przesłane',
+          type: 'success'
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      showNotification({
+        title: 'Błąd',
+        message: 'Nie udało się przesłać zdjęcia',
+        type: 'error'
+      });
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-lg font-semibold">Wybierz zdjęcie</h3>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <input
+              type="text"
+              value={currentImage}
+              onChange={(e) => onImageSelect(e.target.value)}
+              placeholder="Wpisz URL zdjęcia"
+              className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="image/*"
+              className="hidden"
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+            >
+              <FontAwesomeIcon icon={faUpload} />
+              Prześlij nowe
+            </button>
+          </div>
+
+          {isLoading ? (
+            <div className="text-center py-8">Ładowanie galerii...</div>
+          ) : (
+            <div className="grid grid-cols-3 gap-4">
+              {images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    onImageSelect(image);
+                    onClose();
+                  }}
+                  className={`relative aspect-square rounded-lg overflow-hidden hover:ring-2 hover:ring-red-500 transition-all ${
+                    currentImage === image ? 'ring-2 ring-red-500' : ''
+                  }`}
+                >
+                  <img
+                    src={image}
+                    alt={`Galeria ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const initialContent: AboutContent = {
   hero: {
@@ -130,6 +259,7 @@ export default function AboutPageEditor() {
   const [activeSection, setActiveSection] = useState<string>('hero');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showImageSelector, setShowImageSelector] = useState<number | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -256,7 +386,7 @@ export default function AboutPageEditor() {
     
     return (
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Sekcja Historia</h3>
+        <h3 className="text-lg font-semibold">Historia</h3>
         <div>
           <label className="block text-sm font-medium text-gray-700">Tytuł sekcji</label>
           <input
@@ -271,47 +401,131 @@ export default function AboutPageEditor() {
         </div>
         {content.history.sections.map((section, index) => (
           <div key={index} className="border p-4 rounded-md space-y-4">
-            <h4 className="font-medium">Sekcja {index + 1}</h4>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Tekst</label>
-              <textarea
-                value={section.content.join('\n\n')}
-                onChange={(e) => {
-                  const newSections = [...content.history.sections];
-                  newSections[index] = {
-                    ...section,
-                    content: e.target.value.split('\n\n').filter(t => t.trim())
-                  };
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Sekcja {index + 1}</h4>
+              <button
+                onClick={() => {
+                  if (!content) return;
+                  const newSections = content.history.sections.filter((_, i) => i !== index);
                   setContent({
                     ...content,
                     history: { ...content.history, sections: newSections }
                   });
                 }}
-                rows={6}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
+                className="text-red-600 hover:text-red-700"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">URL Zdjęcia</label>
-              <input
-                type="text"
-                value={section.image}
-                onChange={(e) => {
+              <label className="block text-sm font-medium text-gray-700">Treść</label>
+              {section.content.map((text, textIndex) => (
+                <div key={textIndex} className="mt-2">
+                  <textarea
+                    value={text}
+                    onChange={(e) => {
+                      if (!content) return;
+                      const newSections = [...content.history.sections];
+                      const newContent = [...section.content];
+                      newContent[textIndex] = e.target.value;
+                      newSections[index] = { ...section, content: newContent };
+                      setContent({
+                        ...content,
+                        history: { ...content.history, sections: newSections }
+                      });
+                    }}
+                    rows={3}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                  />
+                  <button
+                    onClick={() => {
+                      if (!content) return;
+                      const newSections = [...content.history.sections];
+                      const newContent = section.content.filter((_, i) => i !== textIndex);
+                      newSections[index] = { ...section, content: newContent };
+                      setContent({
+                        ...content,
+                        history: { ...content.history, sections: newSections }
+                      });
+                    }}
+                    className="mt-1 text-red-600 hover:text-red-700"
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="mr-1" />
+                    Usuń paragraf
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  if (!content) return;
                   const newSections = [...content.history.sections];
-                  newSections[index] = {
-                    ...section,
-                    image: e.target.value
-                  };
+                  const newContent = [...section.content, ''];
+                  newSections[index] = { ...section, content: newContent };
                   setContent({
                     ...content,
                     history: { ...content.history, sections: newSections }
                   });
                 }}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
-              />
+                className="mt-2 text-red-600 hover:text-red-700"
+              >
+                <FontAwesomeIcon icon={faPlus} className="mr-1" />
+                Dodaj paragraf
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Zdjęcie</label>
+              <div className="mt-1 flex items-center gap-4">
+                <input
+                  type="text"
+                  value={section.image}
+                  onChange={(e) => {
+                    if (!content) return;
+                    const newSections = [...content.history.sections];
+                    newSections[index] = { ...section, image: e.target.value };
+                    setContent({
+                      ...content,
+                      history: { ...content.history, sections: newSections }
+                    });
+                  }}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+                />
+                <button
+                  onClick={() => setShowImageSelector(index)}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors flex items-center gap-2"
+                >
+                  <FontAwesomeIcon icon={faImage} />
+                  Wybierz zdjęcie
+                </button>
+              </div>
+              {section.image && (
+                <div className="mt-2">
+                  <img
+                    src={section.image}
+                    alt={`Zdjęcie sekcji ${index + 1}`}
+                    className="max-w-xs rounded-md"
+                  />
+                </div>
+              )}
             </div>
           </div>
         ))}
+        <button
+          onClick={() => {
+            if (!content) return;
+            const newSections = [
+              ...content.history.sections,
+              { content: [''], image: '' }
+            ];
+            setContent({
+              ...content,
+              history: { ...content.history, sections: newSections }
+            });
+          }}
+          className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors"
+        >
+          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+          Dodaj nową sekcję
+        </button>
       </div>
     );
   };
@@ -571,6 +785,24 @@ export default function AboutPageEditor() {
           {activeSection === 'socialMedia' && renderSocialMediaEditor()}
         </div>
       </div>
+
+      {showImageSelector !== null && content && (
+        <ImageSelector
+          currentImage={content.history.sections[showImageSelector].image}
+          onImageSelect={(image) => {
+            const newSections = [...content.history.sections];
+            newSections[showImageSelector] = {
+              ...newSections[showImageSelector],
+              image
+            };
+            setContent({
+              ...content,
+              history: { ...content.history, sections: newSections }
+            });
+          }}
+          onClose={() => setShowImageSelector(null)}
+        />
+      )}
     </div>
   );
 } 
