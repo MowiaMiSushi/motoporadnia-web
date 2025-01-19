@@ -48,7 +48,13 @@ export default function TransportPricingPage() {
         console.log('Client: Rozpoczynam pobieranie danych');
         const response = await fetch('/api/content/pricing/transport', {
           cache: 'no-store',
-          next: { revalidate: 0 }
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          },
+          next: {
+            revalidate: 0
+          }
         });
         
         if (response.ok) {
@@ -62,7 +68,9 @@ export default function TransportPricingPage() {
             setContent(priceListData);
           }
         } else {
-          console.error('Client: Failed to fetch content:', await response.text());
+          const errorText = await response.text();
+          console.error('Client: Failed to fetch content. Status:', response.status);
+          console.error('Client: Error text:', errorText);
           setContent(priceListData);
         }
       } catch (error) {

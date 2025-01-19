@@ -46,8 +46,18 @@ const defaultContent: PageContent = {
       ]
     },
     {
+      title: "Transport krajowy",
+      icon: "faRoute",
+      description: "Transport motocykli na terenie całej Polski",
+      items: [
+        { name: "Transport do 100 km", price: "od 350 zł" },
+        { name: "Transport do 200 km", price: "od 500 zł" },
+        { name: "Transport powyżej 200 km", price: "2,5 zł/km" }
+      ]
+    },
+    {
       title: "Usługi dodatkowe",
-      icon: "faPlus",
+      icon: "faHandshake",
       description: "Dodatkowe usługi związane z transportem",
       items: [
         { name: "Załadunek/rozładunek", price: "w cenie" },

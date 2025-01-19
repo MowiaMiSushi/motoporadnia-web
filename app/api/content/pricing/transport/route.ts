@@ -54,16 +54,38 @@ export async function GET() {
     // Jeśli nie ma danych w bazie, zwróć domyślną zawartość
     if (!content) {
       console.log('GET: Brak danych w bazie, zwracam domyślną zawartość');
-      return NextResponse.json(defaultContent);
+      return new NextResponse(JSON.stringify(defaultContent), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        }
+      });
     }
 
     // Usuń pole identifier i updatedAt z odpowiedzi
     const { identifier, updatedAt, _id, ...rest } = content;
     console.log('GET: Zwracam dane:', JSON.stringify(rest, null, 2));
-    return NextResponse.json(rest);
+    
+    return new NextResponse(JSON.stringify(rest), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
   } catch (error) {
     console.error('GET: Error fetching content:', error);
-    return NextResponse.json(defaultContent);
+    return new NextResponse(JSON.stringify(defaultContent), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      }
+    });
   }
 }
 
