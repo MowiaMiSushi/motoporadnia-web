@@ -74,7 +74,18 @@ export default function PurchasePricingEditor() {
         const response = await fetch('/api/content/pricing/purchase');
         if (response.ok) {
           const data = await response.json();
-          setContent(data);
+          console.log('Otrzymane dane z API:', data);
+          if (!data.hero || !data.priceList || !data.disclaimer) {
+            console.log('Brak wymaganych pól, używam domyślnej zawartości');
+            setContent(defaultContent);
+            showNotification({
+              title: 'Informacja',
+              message: 'Załadowano domyślną zawartość',
+              type: 'info'
+            });
+          } else {
+            setContent(data);
+          }
         } else {
           console.error('Failed to fetch content:', await response.text());
           setContent(defaultContent);
