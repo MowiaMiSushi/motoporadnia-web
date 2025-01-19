@@ -140,12 +140,12 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('POST: Próba połączenia z bazą danych');
-    const { client, db } = await connectToDatabase();
-    mongoClient = client;
-    console.log('POST: Połączenie z bazą danych ustanowione');
-
     try {
+      console.log('POST: Próba połączenia z bazą danych');
+      const { client, db } = await connectToDatabase();
+      mongoClient = client;
+      console.log('POST: Połączenie z bazą danych ustanowione');
+
       // Najpierw usuń stary dokument
       console.log('POST: Usuwanie starego dokumentu...');
       const deleteResult = await db.collection('content').deleteOne({ identifier: 'transport-pricing' });
@@ -180,16 +180,22 @@ export async function POST(request: Request) {
 
       // Odśwież stronę kliencką
       console.log('POST: Odświeżanie ścieżki /uslugi/transport/cennik');
-      revalidatePath('/uslugi/transport/cennik');
-      console.log('POST: Ścieżka odświeżona');
+      try {
+        await revalidatePath('/uslugi/transport/cennik');
+        console.log('POST: Ścieżka odświeżona pomyślnie');
+      } catch (revalidateError) {
+        console.error('POST: Błąd podczas odświeżania ścieżki:', revalidateError);
+        // Kontynuuj mimo błędu odświeżania
+      }
 
       // Zwróć odpowiedź
-      return new NextResponse(
+      const response = new NextResponse(
         JSON.stringify({ 
           success: true, 
           content: savedContent 
         }), 
         {
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -198,12 +204,21 @@ export async function POST(request: Request) {
           }
         }
       );
+
+      console.log('POST: Zwracam odpowiedź:', {
+        status: response.status,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: await response.clone().text()
+      });
+
+      return response;
     } catch (dbError) {
       console.error('POST: Błąd operacji bazodanowej:', dbError);
       return new NextResponse(
         JSON.stringify({ 
           error: 'Database operation failed', 
-          details: dbError instanceof Error ? dbError.message : 'Unknown database error' 
+          details: dbError instanceof Error ? dbError.message : 'Unknown database error',
+          stack: dbError instanceof Error ? dbError.stack : undefined
         }), 
         { 
           status: 500,
@@ -215,13 +230,24 @@ export async function POST(request: Request) {
           }
         }
       );
+    } finally {
+      if (mongoClient) {
+        console.log('POST: Zamykanie połączenia z bazą danych');
+        try {
+          await mongoClient.close();
+          console.log('POST: Połączenie z bazą danych zamknięte pomyślnie');
+        } catch (closeError) {
+          console.error('POST: Błąd podczas zamykania połączenia:', closeError);
+        }
+      }
     }
   } catch (error) {
     console.error('POST: Nieoczekiwany błąd:', error);
     return new NextResponse(
       JSON.stringify({ 
         error: 'Internal Server Error',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
       }), 
       { 
         status: 500,
@@ -233,10 +259,5 @@ export async function POST(request: Request) {
         }
       }
     );
-  } finally {
-    if (mongoClient) {
-      console.log('POST: Zamykanie połączenia z bazą danych');
-      await mongoClient.close();
-    }
   }
 } 
