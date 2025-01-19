@@ -1,6 +1,8 @@
 import { MongoClient } from 'mongodb';
 
+// eslint-disable-next-line no-var
 declare global {
+  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient>;
 }
 
