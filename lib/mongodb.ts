@@ -8,43 +8,45 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-interface MongoConnection {
-  conn: Promise<MongoClient> | null;
-  promise: Promise<MongoClient> | null;
-}
+class MongoConnection {
+  private static instance: MongoConnection;
+  private client: MongoClient | null = null;
+  private clientPromise: Promise<MongoClient> | null = null;
 
-const globalForMongo = global as typeof globalThis & {
-  mongo: MongoConnection;
-};
+  private constructor() {}
 
-// Inicjalizacja połączenia
-if (!globalForMongo.mongo) {
-  globalForMongo.mongo = {
-    conn: null,
-    promise: null,
-  };
+  public static getInstance(): MongoConnection {
+    if (!MongoConnection.instance) {
+      MongoConnection.instance = new MongoConnection();
+    }
+    return MongoConnection.instance;
+  }
+
+  public async connect() {
+    if (this.client) {
+      return {
+        client: this.client,
+        db: this.client.db('motoporadnia'),
+      };
+    }
+
+    if (!this.clientPromise) {
+      const client = new MongoClient(uri, options);
+      this.clientPromise = client.connect();
+    }
+
+    this.client = await this.clientPromise;
+    return {
+      client: this.client,
+      db: this.client.db('motoporadnia'),
+    };
+  }
 }
 
 export async function connectToDatabase() {
   try {
-    if (globalForMongo.mongo.conn) {
-      const client = await globalForMongo.mongo.conn;
-      return {
-        client,
-        db: client.db('motoporadnia'),
-      };
-    }
-
-    if (!globalForMongo.mongo.promise) {
-      const client = new MongoClient(uri, options);
-      globalForMongo.mongo.promise = client.connect();
-    }
-
-    globalForMongo.mongo.conn = globalForMongo.mongo.promise;
-    const client = await globalForMongo.mongo.conn;
-    const db = client.db('motoporadnia');
-
-    return { client, db };
+    const connection = MongoConnection.getInstance();
+    return await connection.connect();
   } catch (error) {
     console.error('Błąd połączenia z bazą danych:', error);
     throw error;
