@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrash, faSave, faGripVertical, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { useSession } from 'next-auth/react';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface Service {
   icon: string;
@@ -73,6 +74,8 @@ export default function ServiceAdmin() {
   const router = useRouter();
   const [content, setContent] = useState<PageContent>(defaultContent);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<string>('hero');
+  const [expandedSections, setExpandedSections] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -220,219 +223,261 @@ export default function ServiceAdmin() {
     }));
   };
 
+  const renderHeroEditor = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Sekcja Hero</h3>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+        <input
+          type="text"
+          value={content.hero.title}
+          onChange={(e) => setContent({
+            ...content,
+            hero: { ...content.hero, title: e.target.value }
+          })}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Opis</label>
+        <textarea
+          value={content.hero.description}
+          onChange={(e) => setContent({
+            ...content,
+            hero: { ...content.hero, description: e.target.value }
+          })}
+          rows={3}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Zdjęcia (po jednym URL w linii)</label>
+        <textarea
+          value={content.hero.images.join('\n')}
+          onChange={(e) => setContent({
+            ...content,
+            hero: { ...content.hero, images: e.target.value.split('\n').filter(url => url.trim()) }
+          })}
+          rows={3}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+    </div>
+  );
+
+  const renderServicesEditor = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Usługi</h3>
+        <button
+          onClick={addService}
+          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
+        >
+          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+          Dodaj usługę
+        </button>
+      </div>
+      <div className="space-y-4">
+        {content.services.map((service, index) => (
+          <div key={index} className="border p-4 rounded-md space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Usługa {index + 1}</h4>
+              <button
+                onClick={() => removeService(index)}
+                className="text-red-600 hover:text-red-700"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Ikona</label>
+              <input
+                type="text"
+                value={service.icon}
+                onChange={(e) => updateService(index, 'icon', e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+              <input
+                type="text"
+                value={service.title}
+                onChange={(e) => updateService(index, 'title', e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Opis</label>
+              <textarea
+                value={service.description}
+                onChange={(e) => updateService(index, 'description', e.target.value)}
+                rows={3}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderBrandsEditor = () => (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Marki</h3>
+        <button
+          onClick={addBrand}
+          className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors flex items-center"
+        >
+          <FontAwesomeIcon icon={faPlus} className="mr-2" />
+          Dodaj markę
+        </button>
+      </div>
+      <div className="space-y-4">
+        {content.brands.map((brand, index) => (
+          <div key={index} className="border p-4 rounded-md space-y-4">
+            <div className="flex justify-between items-center">
+              <h4 className="font-medium">Marka {index + 1}</h4>
+              <button
+                onClick={() => removeBrand(index)}
+                className="text-red-600 hover:text-red-700"
+              >
+                <FontAwesomeIcon icon={faTrash} />
+              </button>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Nazwa</label>
+              <input
+                type="text"
+                value={brand.name}
+                onChange={(e) => updateBrand(index, 'name', e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">URL obrazu</label>
+              <input
+                type="text"
+                value={brand.image}
+                onChange={(e) => updateBrand(index, 'image', e.target.value)}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCTAEditor = () => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Sekcja CTA</h3>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Tytuł</label>
+        <input
+          type="text"
+          value={content.cta.title}
+          onChange={(e) => setContent({
+            ...content,
+            cta: { ...content.cta, title: e.target.value }
+          })}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Opis</label>
+        <textarea
+          value={content.cta.description}
+          onChange={(e) => setContent({
+            ...content,
+            cta: { ...content.cta, description: e.target.value }
+          })}
+          rows={3}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Numer telefonu</label>
+        <input
+          type="text"
+          value={content.cta.phoneNumber}
+          onChange={(e) => setContent({
+            ...content,
+            cta: { ...content.cta, phoneNumber: e.target.value }
+          })}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"
+        />
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Ładowanie...</div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-xl">Ładowanie...</div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold mb-4">Edycja strony serwisu</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold">Edycja strony serwisu</h2>
         <button
           onClick={handleSave}
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center"
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors flex items-center"
         >
           <FontAwesomeIcon icon={faSave} className="mr-2" />
           Zapisz zmiany
         </button>
       </div>
 
-      {/* Hero Section */}
-      <section className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Sekcja Hero</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Tytuł</label>
-            <input
-              type="text"
-              value={content.hero.title}
-              onChange={(e) => setContent(prev => ({
-                ...prev,
-                hero: { ...prev.hero, title: e.target.value }
-              }))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Opis</label>
-            <textarea
-              value={content.hero.description}
-              onChange={(e) => setContent(prev => ({
-                ...prev,
-                hero: { ...prev.hero, description: e.target.value }
-              }))}
-              className="w-full p-2 border rounded"
-              rows={3}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Zdjęcia (po przecinku)</label>
-            <input
-              type="text"
-              value={content.hero.images.join(', ')}
-              onChange={(e) => setContent(prev => ({
-                ...prev,
-                hero: { ...prev.hero, images: e.target.value.split(',').map(s => s.trim()) }
-              }))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Usługi</h2>
+      <div className="grid grid-cols-4 gap-8">
+        <div className="col-span-1 space-y-2">
           <button
-            onClick={addService}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center"
+            onClick={() => setActiveSection('hero')}
+            className={`w-full text-left px-4 py-2 rounded ${
+              activeSection === 'hero' ? 'bg-red-100 text-red-700' : 'hover:bg-gray-100'
+            }`}
           >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            Dodaj usługę
+            Sekcja Hero
+          </button>
+          <button
+            onClick={() => setActiveSection('services')}
+            className={`w-full text-left px-4 py-2 rounded ${
+              activeSection === 'services' ? 'bg-red-100 text-red-700' : 'hover:bg-gray-100'
+            }`}
+          >
+            Usługi
+          </button>
+          <button
+            onClick={() => setActiveSection('brands')}
+            className={`w-full text-left px-4 py-2 rounded ${
+              activeSection === 'brands' ? 'bg-red-100 text-red-700' : 'hover:bg-gray-100'
+            }`}
+          >
+            Marki
+          </button>
+          <button
+            onClick={() => setActiveSection('cta')}
+            className={`w-full text-left px-4 py-2 rounded ${
+              activeSection === 'cta' ? 'bg-red-100 text-red-700' : 'hover:bg-gray-100'
+            }`}
+          >
+            Sekcja CTA
           </button>
         </div>
-        <div className="space-y-4">
-          {content.services.map((service, index) => (
-            <div key={index} className="border p-4 rounded-lg">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold">Usługa {index + 1}</h3>
-                <button
-                  onClick={() => removeService(index)}
-                  className="text-red-500 hover:text-red-600"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Ikona</label>
-                  <input
-                    type="text"
-                    value={service.icon}
-                    onChange={(e) => updateService(index, 'icon', e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Tytuł</label>
-                  <input
-                    type="text"
-                    value={service.title}
-                    onChange={(e) => updateService(index, 'title', e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Opis</label>
-                  <textarea
-                    value={service.description}
-                    onChange={(e) => updateService(index, 'description', e.target.value)}
-                    className="w-full p-2 border rounded"
-                    rows={2}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Brands Section */}
-      <section className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Marki</h2>
-          <button
-            onClick={addBrand}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center"
-          >
-            <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            Dodaj markę
-          </button>
+        <div className="col-span-3 bg-white p-6 rounded-lg shadow">
+          {activeSection === 'hero' && renderHeroEditor()}
+          {activeSection === 'services' && renderServicesEditor()}
+          {activeSection === 'brands' && renderBrandsEditor()}
+          {activeSection === 'cta' && renderCTAEditor()}
         </div>
-        <div className="space-y-4">
-          {content.brands.map((brand, index) => (
-            <div key={index} className="border p-4 rounded-lg">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-lg font-semibold">Marka {index + 1}</h3>
-                <button
-                  onClick={() => removeBrand(index)}
-                  className="text-red-500 hover:text-red-600"
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </div>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Nazwa</label>
-                  <input
-                    type="text"
-                    value={brand.name}
-                    onChange={(e) => updateBrand(index, 'name', e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">URL obrazu</label>
-                  <input
-                    type="text"
-                    value={brand.image}
-                    onChange={(e) => updateBrand(index, 'image', e.target.value)}
-                    className="w-full p-2 border rounded"
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Sekcja CTA</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Tytuł</label>
-            <input
-              type="text"
-              value={content.cta.title}
-              onChange={(e) => setContent(prev => ({
-                ...prev,
-                cta: { ...prev.cta, title: e.target.value }
-              }))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Opis</label>
-            <textarea
-              value={content.cta.description}
-              onChange={(e) => setContent(prev => ({
-                ...prev,
-                cta: { ...prev.cta, description: e.target.value }
-              }))}
-              className="w-full p-2 border rounded"
-              rows={2}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Numer telefonu</label>
-            <input
-              type="text"
-              value={content.cta.phoneNumber}
-              onChange={(e) => setContent(prev => ({
-                ...prev,
-                cta: { ...prev.cta, phoneNumber: e.target.value }
-              }))}
-              className="w-full p-2 border rounded"
-            />
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 } 
