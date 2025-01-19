@@ -4,18 +4,20 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faPlus, faTrash, faGripVertical, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-interface PricingItem {
-  name: string;
+interface PriceListItem {
+  service: string;
   price: string;
+  description?: string;
 }
 
-interface PricingCategory {
+interface PriceListSection {
   title: string;
-  icon: string;
-  description: string;
-  items: PricingItem[];
+  items: PriceListItem[];
+  icon?: string;
+  description?: string;
 }
 
 interface PageContent {
@@ -24,53 +26,39 @@ interface PageContent {
     description: string;
     images: string[];
   };
-  pricingCategories: PricingCategory[];
+  priceList: PriceListSection[];
+  disclaimer: {
+    top: string[];
+    bottom: string[];
+  };
 }
 
 const defaultContent: PageContent = {
   hero: {
     title: "Cennik transportu motocykli",
-    description: "Oferujemy profesjonalny transport motocykli w konkurencyjnych cenach. Wszystkie ceny są orientacyjne i mogą się różnić w zależności od specyfiki zlecenia.",
-    images: [
-      '/images/transport_1.jpg',
-      '/images/transport_2.jpg',
-      '/images/transport_3.jpg',
-      '/images/transport_4.jpg',
-      '/images/transport_5.jpg'
-    ]
+    description: "Oferujemy profesjonalny transport motocykli. Ceny są orientacyjne i mogą się różnić w zależności od odległości i specyfiki zlecenia.",
+    images: ['/images/transport_1.jpg', '/images/transport_2.jpg']
   },
-  pricingCategories: [
+  priceList: [
     {
-      title: 'Transport lokalny',
-      icon: 'faTruck',
-      description: 'Transport na terenie Poznania i okolic',
+      title: "Transport lokalny",
       items: [
-        { name: 'Transport w granicach miasta Poznań', price: 'od 150 zł' },
-        { name: 'Transport do 30 km od Poznania', price: 'od 200 zł' },
-        { name: 'Transport do 50 km od Poznania', price: 'od 250 zł' },
+        { service: "Transport w granicach miasta", price: "od 100 zł" },
+        { service: "Transport do 50 km", price: "od 200 zł" }
       ]
     },
-    {
-      title: 'Transport krajowy',
-      icon: 'faRoute',
-      description: 'Transport na terenie całej Polski',
-      items: [
-        { name: 'Transport do 100 km', price: 'od 350 zł' },
-        { name: 'Transport do 200 km', price: 'od 500 zł' },
-        { name: 'Transport powyżej 200 km', price: '2,5 zł/km' },
-      ]
-    },
-    {
-      title: 'Usługi dodatkowe',
-      icon: 'faHandshake',
-      description: 'Dodatkowe usługi transportowe',
-      items: [
-        { name: 'Pomoc przy załadunku/rozładunku', price: 'od 50 zł' },
-        { name: 'Zabezpieczenie motocykla', price: 'w cenie' },
-        { name: 'Ubezpieczenie transportu', price: 'w cenie' },
-      ]
-    }
-  ]
+    // ... inne sekcje
+  ],
+  disclaimer: {
+    top: [
+      "Podane ceny są orientacyjne i mogą ulec zmianie.",
+      "Ostateczna cena zależy od odległości i specyfiki transportu."
+    ],
+    bottom: [
+      "Zapewniamy pełne ubezpieczenie podczas transportu.",
+      "Posiadamy specjalistyczny sprzęt do bezpiecznego transportu motocykli."
+    ]
+  }
 };
 
 export default function TransportPricingEditor() {
@@ -196,10 +184,8 @@ export default function TransportPricingEditor() {
         <button
           onClick={() => setContent(content ? {
             ...content,
-            pricingCategories: [...content.pricingCategories, {
+            priceList: [...content.priceList, {
               title: 'Nowa kategoria',
-              icon: 'faTruck',
-              description: 'Opis kategorii',
               items: []
             }]
           } : null)}
@@ -210,60 +196,37 @@ export default function TransportPricingEditor() {
         </button>
       </div>
 
-      {content?.pricingCategories.map((category, categoryIndex) => (
-        <div key={categoryIndex} className="bg-gray-50 p-4 rounded-lg space-y-4">
+      {content?.priceList.map((section, sectionIndex) => (
+        <div key={sectionIndex} className="bg-gray-50 p-4 rounded-lg space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa kategorii</label>
               <input
                 type="text"
-                value={category.title}
+                value={section.title}
                 onChange={(e) => {
-                  const newCategories = [...content.pricingCategories];
-                  newCategories[categoryIndex] = {
-                    ...category,
+                  const newSections = [...content.priceList];
+                  newSections[sectionIndex] = {
+                    ...section,
                     title: e.target.value
                   };
-                  setContent({ ...content, pricingCategories: newCategories });
+                  setContent({ ...content, priceList: newSections });
                 }}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ikona FontAwesome
-                <span className="text-xs text-gray-500 ml-1">(np. faTruck, faRoute, faHandshake)</span>
-              </label>
-              <input
-                type="text"
-                value={category.icon}
-                onChange={(e) => {
-                  const newCategories = [...content.pricingCategories];
-                  newCategories[categoryIndex] = {
-                    ...category,
-                    icon: e.target.value
-                  };
-                  setContent({ ...content, pricingCategories: newCategories });
-                }}
-                placeholder="Wpisz nazwę ikony z FontAwesome"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Możesz użyć dowolnej ikony z FontAwesome. Wpisz nazwę ikony bez przedrostka "fa", np. "faTruck" dla ikony ciężarówki.
-              </p>
             </div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Opis kategorii</label>
             <textarea
-              value={category.description}
+              value={section.description}
               onChange={(e) => {
-                const newCategories = [...content.pricingCategories];
-                newCategories[categoryIndex] = {
-                  ...category,
+                const newSections = [...content.priceList];
+                newSections[sectionIndex] = {
+                  ...section,
                   description: e.target.value
                 };
-                setContent({ ...content, pricingCategories: newCategories });
+                setContent({ ...content, priceList: newSections });
               }}
               rows={2}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
@@ -271,20 +234,20 @@ export default function TransportPricingEditor() {
           </div>
 
           <div className="space-y-4">
-            {category.items.map((item, itemIndex) => (
+            {section.items.map((item, itemIndex) => (
               <div key={itemIndex} className="bg-white p-4 rounded-md shadow-sm space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa usługi</label>
                     <input
                       type="text"
-                      value={item.name}
+                      value={item.service}
                       onChange={(e) => {
-                        const newCategories = [...content.pricingCategories];
-                        const newItems = [...category.items];
-                        newItems[itemIndex] = { ...item, name: e.target.value };
-                        newCategories[categoryIndex] = { ...category, items: newItems };
-                        setContent({ ...content, pricingCategories: newCategories });
+                        const newSections = [...content.priceList];
+                        const newItems = [...section.items];
+                        newItems[itemIndex] = { ...item, service: e.target.value };
+                        newSections[sectionIndex] = { ...section, items: newItems };
+                        setContent({ ...content, priceList: newSections });
                       }}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                     />
@@ -295,11 +258,11 @@ export default function TransportPricingEditor() {
                       type="text"
                       value={item.price}
                       onChange={(e) => {
-                        const newCategories = [...content.pricingCategories];
-                        const newItems = [...category.items];
+                        const newSections = [...content.priceList];
+                        const newItems = [...section.items];
                         newItems[itemIndex] = { ...item, price: e.target.value };
-                        newCategories[categoryIndex] = { ...category, items: newItems };
-                        setContent({ ...content, pricingCategories: newCategories });
+                        newSections[sectionIndex] = { ...section, items: newItems };
+                        setContent({ ...content, priceList: newSections });
                       }}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                     />
@@ -308,10 +271,10 @@ export default function TransportPricingEditor() {
                 <div className="flex justify-end">
                   <button
                     onClick={() => {
-                      const newCategories = [...content.pricingCategories];
-                      const newItems = category.items.filter((_, i) => i !== itemIndex);
-                      newCategories[categoryIndex] = { ...category, items: newItems };
-                      setContent({ ...content, pricingCategories: newCategories });
+                      const newSections = [...content.priceList];
+                      const newItems = section.items.filter((_, i) => i !== itemIndex);
+                      newSections[sectionIndex] = { ...section, items: newItems };
+                      setContent({ ...content, priceList: newSections });
                     }}
                     className="text-red-600 hover:text-red-700"
                   >
@@ -322,10 +285,10 @@ export default function TransportPricingEditor() {
             ))}
             <button
               onClick={() => {
-                const newCategories = [...content.pricingCategories];
-                const newItems = [...category.items, { name: '', price: '' }];
-                newCategories[categoryIndex] = { ...category, items: newItems };
-                setContent({ ...content, pricingCategories: newCategories });
+                const newSections = [...content.priceList];
+                const newItems = [...section.items, { service: '', price: '' }];
+                newSections[sectionIndex] = { ...section, items: newItems };
+                setContent({ ...content, priceList: newSections });
               }}
               className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
             >
@@ -337,8 +300,8 @@ export default function TransportPricingEditor() {
           <div className="flex justify-end pt-4">
             <button
               onClick={() => {
-                const newCategories = content.pricingCategories.filter((_, i) => i !== categoryIndex);
-                setContent({ ...content, pricingCategories: newCategories });
+                const newSections = content.priceList.filter((_, i) => i !== sectionIndex);
+                setContent({ ...content, priceList: newSections });
               }}
               className="text-red-600 hover:text-red-700"
             >

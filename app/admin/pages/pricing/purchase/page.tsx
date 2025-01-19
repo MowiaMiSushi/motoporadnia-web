@@ -4,18 +4,20 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faPlus, faTrash, faGripVertical, faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-interface PricingItem {
-  name: string;
+interface PriceListItem {
+  service: string;
   price: string;
+  description?: string;
 }
 
-interface PricingCategory {
+interface PriceListSection {
   title: string;
-  icon: string;
-  description: string;
-  items: PricingItem[];
+  items: PriceListItem[];
+  icon?: string;
+  description?: string;
 }
 
 interface PageContent {
@@ -24,51 +26,39 @@ interface PageContent {
     description: string;
     images: string[];
   };
-  pricingCategories: PricingCategory[];
+  priceList: PriceListSection[];
+  disclaimer: {
+    top: string[];
+    bottom: string[];
+  };
 }
 
 const defaultContent: PageContent = {
   hero: {
     title: "Cennik pomocy w zakupie motocykla",
-    description: "Profesjonalne wsparcie przy zakupie motocykla. Ceny mogą się różnić w zależności od lokalizacji i zakresu usług.",
-    images: [
-      '/images/usluga_sprawdzanie_1.jpg',
-      '/images/hero-bg_1.jpg',
-      '/images/hero-bg_2.jpg'
-    ]
+    description: "Oferujemy profesjonalne wsparcie przy zakupie motocykla. Ceny są orientacyjne i zależą od zakresu usług oraz lokalizacji.",
+    images: ['/images/purchase_1.jpg', '/images/purchase_2.jpg']
   },
-  pricingCategories: [
+  priceList: [
     {
-      title: 'Oględziny motocykla',
-      icon: 'faSearch',
-      description: 'Sprawdzenie stanu technicznego motocykla',
+      title: "Oględziny motocykla",
       items: [
-        { name: 'Oględziny w Poznaniu', price: 'od 200 zł' },
-        { name: 'Oględziny do 50 km od Poznania', price: 'od 300 zł' },
-        { name: 'Oględziny powyżej 50 km', price: 'indywidualnie' },
+        { service: "Podstawowe oględziny", price: "od 200 zł" },
+        { service: "Szczegółowa weryfikacja", price: "od 300 zł" }
       ]
     },
-    {
-      title: 'Kompleksowa pomoc',
-      icon: 'faHandshake',
-      description: 'Pełne wsparcie przy zakupie',
-      items: [
-        { name: 'Wyszukiwanie ofert', price: 'od 300 zł' },
-        { name: 'Negocjacje z sprzedającym', price: 'w cenie' },
-        { name: 'Pomoc w formalnościach', price: 'w cenie' },
-      ]
-    },
-    {
-      title: 'Usługi dodatkowe',
-      icon: 'faClipboardCheck',
-      description: 'Dodatkowe wsparcie przy zakupie',
-      items: [
-        { name: 'Sprawdzenie historii pojazdu', price: 'od 50 zł' },
-        { name: 'Weryfikacja dokumentów', price: 'od 100 zł' },
-        { name: 'Doradztwo techniczne', price: 'od 150 zł' },
-      ]
-    }
-  ]
+    // ... inne sekcje
+  ],
+  disclaimer: {
+    top: [
+      "Ceny mogą ulec zmianie w zależności od lokalizacji motocykla.",
+      "W cenę nie są wliczone koszty dojazdu powyżej 50 km."
+    ],
+    bottom: [
+      "Oferujemy pełne wsparcie w procesie zakupu.",
+      "Pomagamy w negocjacjach i weryfikacji dokumentów."
+    ]
+  }
 };
 
 export default function PurchasePricingEditor() {
@@ -194,10 +184,8 @@ export default function PurchasePricingEditor() {
         <button
           onClick={() => setContent(content ? {
             ...content,
-            pricingCategories: [...content.pricingCategories, {
+            priceList: [...content.priceList, {
               title: 'Nowa kategoria',
-              icon: 'faSearch',
-              description: 'Opis kategorii',
               items: []
             }]
           } : null)}
@@ -208,21 +196,21 @@ export default function PurchasePricingEditor() {
         </button>
       </div>
 
-      {content?.pricingCategories.map((category, categoryIndex) => (
-        <div key={categoryIndex} className="bg-gray-50 p-4 rounded-lg space-y-4">
+      {content?.priceList.map((section, sectionIndex) => (
+        <div key={sectionIndex} className="bg-gray-50 p-4 rounded-lg space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa kategorii</label>
               <input
                 type="text"
-                value={category.title}
+                value={section.title}
                 onChange={(e) => {
-                  const newCategories = [...content.pricingCategories];
-                  newCategories[categoryIndex] = {
-                    ...category,
+                  const newSections = [...content.priceList];
+                  newSections[sectionIndex] = {
+                    ...section,
                     title: e.target.value
                   };
-                  setContent({ ...content, pricingCategories: newCategories });
+                  setContent({ ...content, priceList: newSections });
                 }}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
               />
@@ -234,14 +222,14 @@ export default function PurchasePricingEditor() {
               </label>
               <input
                 type="text"
-                value={category.icon}
+                value={section.icon}
                 onChange={(e) => {
-                  const newCategories = [...content.pricingCategories];
-                  newCategories[categoryIndex] = {
-                    ...category,
+                  const newSections = [...content.priceList];
+                  newSections[sectionIndex] = {
+                    ...section,
                     icon: e.target.value
                   };
-                  setContent({ ...content, pricingCategories: newCategories });
+                  setContent({ ...content, priceList: newSections });
                 }}
                 placeholder="Wpisz nazwę ikony z FontAwesome"
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
@@ -254,14 +242,14 @@ export default function PurchasePricingEditor() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Opis kategorii</label>
             <textarea
-              value={category.description}
+              value={section.description}
               onChange={(e) => {
-                const newCategories = [...content.pricingCategories];
-                newCategories[categoryIndex] = {
-                  ...category,
+                const newSections = [...content.priceList];
+                newSections[sectionIndex] = {
+                  ...section,
                   description: e.target.value
                 };
-                setContent({ ...content, pricingCategories: newCategories });
+                setContent({ ...content, priceList: newSections });
               }}
               rows={2}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
@@ -269,20 +257,20 @@ export default function PurchasePricingEditor() {
           </div>
 
           <div className="space-y-4">
-            {category.items.map((item, itemIndex) => (
+            {section.items.map((item, itemIndex) => (
               <div key={itemIndex} className="bg-white p-4 rounded-md shadow-sm space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa usługi</label>
                     <input
                       type="text"
-                      value={item.name}
+                      value={item.service}
                       onChange={(e) => {
-                        const newCategories = [...content.pricingCategories];
-                        const newItems = [...category.items];
-                        newItems[itemIndex] = { ...item, name: e.target.value };
-                        newCategories[categoryIndex] = { ...category, items: newItems };
-                        setContent({ ...content, pricingCategories: newCategories });
+                        const newSections = [...content.priceList];
+                        const newItems = [...section.items];
+                        newItems[itemIndex] = { ...item, service: e.target.value };
+                        newSections[sectionIndex] = { ...section, items: newItems };
+                        setContent({ ...content, priceList: newSections });
                       }}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                     />
@@ -293,11 +281,11 @@ export default function PurchasePricingEditor() {
                       type="text"
                       value={item.price}
                       onChange={(e) => {
-                        const newCategories = [...content.pricingCategories];
-                        const newItems = [...category.items];
+                        const newSections = [...content.priceList];
+                        const newItems = [...section.items];
                         newItems[itemIndex] = { ...item, price: e.target.value };
-                        newCategories[categoryIndex] = { ...category, items: newItems };
-                        setContent({ ...content, pricingCategories: newCategories });
+                        newSections[sectionIndex] = { ...section, items: newItems };
+                        setContent({ ...content, priceList: newSections });
                       }}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
                     />
@@ -306,10 +294,10 @@ export default function PurchasePricingEditor() {
                 <div className="flex justify-end">
                   <button
                     onClick={() => {
-                      const newCategories = [...content.pricingCategories];
-                      const newItems = category.items.filter((_, i) => i !== itemIndex);
-                      newCategories[categoryIndex] = { ...category, items: newItems };
-                      setContent({ ...content, pricingCategories: newCategories });
+                      const newSections = [...content.priceList];
+                      const newItems = section.items.filter((_, i) => i !== itemIndex);
+                      newSections[sectionIndex] = { ...section, items: newItems };
+                      setContent({ ...content, priceList: newSections });
                     }}
                     className="text-red-600 hover:text-red-700"
                   >
@@ -320,10 +308,10 @@ export default function PurchasePricingEditor() {
             ))}
             <button
               onClick={() => {
-                const newCategories = [...content.pricingCategories];
-                const newItems = [...category.items, { name: '', price: '' }];
-                newCategories[categoryIndex] = { ...category, items: newItems };
-                setContent({ ...content, pricingCategories: newCategories });
+                const newSections = [...content.priceList];
+                const newItems = [...section.items, { service: '', price: '' }];
+                newSections[sectionIndex] = { ...section, items: newItems };
+                setContent({ ...content, priceList: newSections });
               }}
               className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
             >
@@ -335,8 +323,8 @@ export default function PurchasePricingEditor() {
           <div className="flex justify-end pt-4">
             <button
               onClick={() => {
-                const newCategories = content.pricingCategories.filter((_, i) => i !== categoryIndex);
-                setContent({ ...content, pricingCategories: newCategories });
+                const newSections = content.priceList.filter((_, i) => i !== sectionIndex);
+                setContent({ ...content, priceList: newSections });
               }}
               className="text-red-600 hover:text-red-700"
             >
