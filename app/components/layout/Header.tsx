@@ -41,10 +41,10 @@ export default function Header() {
   return (
     <>
       {/* Top Bar */}
-      <div className="bg-white fixed top-0 left-0 right-0 z-50 border-b border-gray-100" style={{ height: '40px' }}>
+      <div className="bg-white fixed top-0 left-0 right-0 z-50 border-b border-gray-100">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-center items-center h-auto sm:h-10 py-1 sm:py-0">
-            <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-1 sm:space-y-0 items-center">
+          <div className="flex flex-col sm:flex-row justify-center items-center h-auto sm:h-12 py-2 sm:py-0">
+            <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-2 sm:space-y-0 items-center">
               <a 
                 href="mailto:kontakt@motoporadnia.pl" 
                 className="text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
@@ -67,9 +67,9 @@ export default function Header() {
       {/* Main Header */}
       <header className="bg-white shadow-sm fixed top-10 left-0 right-0 z-40 font-Roboto Condensed">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-start lg:items-center h-32 sm:h-32 lg:h-32 border-b-0">
+          <div className="flex justify-between items-start lg:items-center h-36 sm:h-36 lg:h-36 border-b-0">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-4 lg:pt-4">
+            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-2 lg:pt-2">
               <div className="w-[180px] sm:w-[200px] lg:w-[220px]">
                 <Image
                   src="/images/logo.webp"
