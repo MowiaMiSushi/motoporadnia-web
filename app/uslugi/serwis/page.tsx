@@ -223,13 +223,13 @@ export default function Serwis() {
                                 key={brand.name}
                                 className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative z-10"
                             >
-                                <h3 className="text-lg font-semibold p-3 text-center border-b truncate">{brand.name}</h3>
-                                <div className="relative h-32 w-full group-hover:scale-[2] transition-transform duration-300 origin-center">
+                                <h3 className="text-lg font-semibold p-2 text-center border-b truncate bg-gray-50">{brand.name}</h3>
+                                <div className="relative h-24 w-full group-hover:scale-[1.5] transition-transform duration-300 origin-center">
                                     <Image
                                         src={brand.image}
                                         alt={`Logo ${brand.name}`}
                                         fill
-                                        className="object-contain p-4"
+                                        className="object-contain p-3"
                                     />
                                 </div>
                             </div>
