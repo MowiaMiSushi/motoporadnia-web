@@ -67,7 +67,7 @@ export default function Header() {
       {/* Main Header */}
       <header className="bg-white shadow-sm fixed top-[60px] left-0 right-0 z-40 font-Roboto Condensed">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-start lg:items-center h-24 sm:h-36 lg:h-36 border-b-0">
+          <div className="flex justify-between items-center h-24 sm:h-36 lg:h-36 border-b-0">
             {/* Logo */}
             <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300">
               <div className="w-[130px] sm:w-[200px] lg:w-[220px] mt-2 sm:mt-2 lg:mt-2">
@@ -89,7 +89,7 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className="sr-only">Otwórz menu</span>
-              <FontAwesomeIcon icon={faBars} className="h-6 w-6" />
+              <FontAwesomeIcon icon={mobileMenuOpen ? faXmark : faBars} className="h-6 w-6" />
             </button>
 
             {/* Desktop Navigation */}
@@ -98,24 +98,24 @@ export default function Header() {
                 <div key={item.name} className="relative group">
                   <Link
                     href={item.href || '#'}
-                    className={`text-lg font-medium hover:text-[#C62400] transition-colors duration-200 ${
+                    className={`text-xl font-medium hover:text-[#C62400] transition-colors duration-200 ${
                       pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
                     }`}
                   >
                     {item.name}
                   </Link>
                   {item.items && (
-                    <div className="absolute left-0 top-full mt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out z-50">
-                      <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden transform origin-top scale-95 group-hover:scale-100 transition-all duration-200">
+                    <div className="absolute left-0 top-[80%] mt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:top-full transition-all duration-300 ease-in-out z-50">
+                      <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden transform origin-top-left scale-95 opacity-0 -translate-y-2 group-hover:scale-100 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
                         <div className="relative grid gap-4 bg-white px-5 py-6">
                           {item.items.map((subItem, index) => (
                             <Link
                               key={subItem.name}
                               href={subItem.href || '#'}
-                              className={`text-base hover:text-[#C62400] transition-colors duration-200 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${
+                              className={`text-base hover:text-[#C62400] transition-all duration-200 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${
                                 pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-700'
                               }`}
-                              style={{ transitionDelay: `${index * 50}ms` }}
+                              style={{ transitionDelay: `${index * 75}ms` }}
                             >
                               {subItem.name}
                             </Link>
@@ -127,6 +127,14 @@ export default function Header() {
                 </div>
               ))}
             </nav>
+
+            {/* Mobile Navigation Overlay */}
+            {mobileMenuOpen && (
+              <div 
+                className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+            )}
 
             {/* Mobile Navigation */}
             <div
