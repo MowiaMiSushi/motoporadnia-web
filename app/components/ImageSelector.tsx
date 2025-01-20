@@ -28,7 +28,10 @@ export default function ImageSelector({ onSelect, onClose }: ImageSelectorProps)
       }
       const data = await response.json();
       if (data.success && Array.isArray(data.images)) {
-        setImages(data.images);
+        const processedImages = data.images.map((img: string) => 
+          img.startsWith('/') ? img : `/${img}`
+        );
+        setImages(processedImages);
       } else {
         throw new Error('Nieprawidłowy format danych');
       }
@@ -44,7 +47,6 @@ export default function ImageSelector({ onSelect, onClose }: ImageSelectorProps)
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Sprawdź rozmiar pliku (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Plik jest zbyt duży. Maksymalny rozmiar to 5MB');
       return;
@@ -66,7 +68,10 @@ export default function ImageSelector({ onSelect, onClose }: ImageSelectorProps)
 
       const data = await response.json();
       if (data.url) {
-        await fetchImages(); // Odśwież listę zdjęć
+        const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
+        setImages(prev => [...prev, imageUrl]);
+        onSelect(imageUrl);
+        onClose();
         toast.success('Zdjęcie zostało dodane');
       } else {
         throw new Error('Brak URL-a w odpowiedzi');
@@ -80,6 +85,12 @@ export default function ImageSelector({ onSelect, onClose }: ImageSelectorProps)
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const handleImageSelect = (image: string) => {
+    console.log('Wybrano zdjęcie:', image);
+    onSelect(image);
+    onClose();
   };
 
   return (
@@ -122,7 +133,7 @@ export default function ImageSelector({ onSelect, onClose }: ImageSelectorProps)
             {images.map((image, index) => (
               <div
                 key={index}
-                onClick={() => onSelect(image)}
+                onClick={() => handleImageSelect(image)}
                 className="aspect-square relative group cursor-pointer hover:opacity-90 transition-opacity bg-gray-100 rounded-lg overflow-hidden"
               >
                 <Image
