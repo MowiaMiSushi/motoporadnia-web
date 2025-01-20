@@ -98,21 +98,21 @@ export default function Header() {
                 <div key={item.name} className="relative group">
                   <Link
                     href={item.href || '#'}
-                    className={`text-base font-medium hover:text-[#C62400] transition-colors duration-200 ${
+                    className={`text-lg font-medium hover:text-[#C62400] transition-colors duration-200 ${
                       pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
                     }`}
                   >
                     {item.name}
                   </Link>
                   {item.items && (
-                    <div className="absolute left-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
+                    <div className="absolute left-0 top-full mt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 z-50">
                       <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
-                        <div className="relative grid gap-6 bg-white px-5 py-6">
+                        <div className="relative grid gap-4 bg-white px-5 py-6">
                           {item.items.map((subItem) => (
                             <Link
                               key={subItem.name}
                               href={subItem.href || '#'}
-                              className={`text-sm hover:text-[#C62400] transition-colors duration-200 ${
+                              className={`text-base hover:text-[#C62400] transition-colors duration-200 ${
                                 pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-700'
                               }`}
                             >
