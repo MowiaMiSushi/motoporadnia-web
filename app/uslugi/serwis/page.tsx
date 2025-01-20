@@ -224,7 +224,7 @@ export default function Serwis() {
                                 className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-150 hover:z-50 relative"
                             >
                                 <h3 className="text-lg font-semibold p-2 text-center bg-gray-50">{brand.name}</h3>
-                                <div className="relative h-40 w-full">
+                                <div className="relative h-36 w-full">
                                     <Image
                                         src={brand.image}
                                         alt={`Logo ${brand.name}`}
