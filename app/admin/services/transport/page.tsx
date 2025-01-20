@@ -104,8 +104,8 @@ export default function TransportEditor() {
         const response = await fetch('/api/content/services/transport');
         if (response.ok) {
           const data = await response.json();
-          if (Object.keys(data).length > 0) {
-            setContent(data);
+          if (data.content && Object.keys(data.content).length > 0) {
+            setContent(data.content);
           } else {
             setContent(initialContent);
           }

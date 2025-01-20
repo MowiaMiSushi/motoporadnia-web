@@ -60,10 +60,10 @@ export async function GET() {
     try {
         const { db } = await connectToDatabase();
         const content = await db.collection('content').findOne({ type: 'services-transport' });
-        return NextResponse.json({ content: content?.data || defaultContent });
+        return NextResponse.json(content?.data || defaultContent);
     } catch (error) {
         console.error('Error reading content:', error);
-        return NextResponse.json({ content: defaultContent });
+        return NextResponse.json(defaultContent);
     }
 }
 
@@ -91,6 +91,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error('Error saving content:', error);
-        return NextResponse.json({ success: false }, { status: 500 });
+        return NextResponse.json({ error: 'Failed to save content' }, { status: 500 });
     }
 } 
