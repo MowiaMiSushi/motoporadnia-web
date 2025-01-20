@@ -18,7 +18,7 @@ function getAllImages(dir: string, baseDir: string): string[] {
       images = images.concat(getAllImages(filePath, baseDir));
     } else if (/\.(jpg|jpeg|png|webp)$/i.test(file)) {
       // Twórz względną ścieżkę od katalogu bazowego
-      const relativePath = path.relative(baseDir, filePath);
+      const relativePath = path.relative(path.join(baseDir, 'images'), filePath);
       images.push(`/images/${relativePath.replace(/\\/g, '/')}`);
     }
   }
