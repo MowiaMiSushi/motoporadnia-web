@@ -42,8 +42,8 @@ export default function Header() {
     <>
       {/* Top Bar */}
       <div className="bg-white fixed top-0 left-0 right-0 z-50 border-b border-gray-100" style={{ height: '60px' }}>
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-center items-center h-full py-1">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          <div className="flex items-center justify-center h-full">
             <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-1 sm:space-y-0 items-center">
               <a 
                 href="mailto:kontakt@motoporadnia.pl" 
