@@ -217,14 +217,14 @@ export default function Serwis() {
             <section className="py-16 bg-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-center mb-12">Marki jakie obsługujemy</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
                         {content.brands.map((brand) => (
                             <div 
                                 key={brand.name}
-                                className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative"
+                                className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-150 hover:z-50 relative"
                             >
                                 <h3 className="text-lg font-semibold p-2 text-center bg-gray-50">{brand.name}</h3>
-                                <div className="relative h-28 w-full group-hover:scale-[1.5] transition-transform duration-300 origin-center">
+                                <div className="relative h-28 w-full">
                                     <Image
                                         src={brand.image}
                                         alt={`Logo ${brand.name}`}
@@ -232,6 +232,19 @@ export default function Serwis() {
                                         className="object-contain p-2"
                                     />
                                 </div>
+                                {brand.hoverImages && brand.hoverImages.length > 0 && (
+                                    <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col">
+                                        <h3 className="text-lg font-semibold p-2 text-center bg-gray-50">{brand.name}</h3>
+                                        <div className="flex-1 relative">
+                                            <Image
+                                                src={brand.hoverImages[0]}
+                                                alt={`${brand.name} serwis`}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
