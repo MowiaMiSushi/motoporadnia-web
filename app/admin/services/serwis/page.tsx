@@ -7,6 +7,7 @@ import { faPlus, faTrash, faSave, faGripVertical, faChevronDown, faChevronUp, fa
 import { toast } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Image from 'next/image';
 
 interface Service {
   icon: string;
@@ -73,15 +74,14 @@ const defaultContent: PageContent = {
 };
 
 interface ImageSelectorProps {
-  currentImage: string;
-  onImageSelect: (image: string) => void;
+  onSelect: (imageUrl: string) => void;
   onClose: () => void;
 }
 
-const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorProps) => {
+const ImageSelector = ({ onSelect, onClose }: ImageSelectorProps) => {
   const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -121,14 +121,12 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Sprawdź rozmiar pliku (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Plik jest zbyt duży. Maksymalny rozmiar to 5MB');
       return;
     }
 
-    console.log('ImageSelector: Rozpoczynam upload pliku:', file.name);
-    setUploadStatus('uploading');
+    setIsUploading(true);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -140,42 +138,31 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
 
       if (response.ok) {
         const data = await response.json();
-        console.log('ImageSelector: Upload zakończony sukcesem:', data);
         if (data.url) {
           const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
           setImages(prev => [...prev, imageUrl]);
-          handleImageSelect(imageUrl);
-          setUploadStatus('success');
+          onSelect(imageUrl);
           toast.success('Zdjęcie zostało dodane');
         } else {
           throw new Error('Brak URL-a w odpowiedzi');
         }
       } else {
-        console.error('ImageSelector: Błąd podczas uploadu:', response.status);
-        setUploadStatus('error');
-        toast.error('Błąd podczas dodawania zdjęcia');
+        throw new Error('Błąd podczas uploadowania pliku');
       }
     } catch (error) {
-      console.error('ImageSelector: Błąd podczas uploadu:', error);
-      setUploadStatus('error');
+      console.error('Błąd podczas uploadowania:', error);
       toast.error('Nie udało się dodać zdjęcia');
     } finally {
-      setUploadStatus('idle');
+      setIsUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
     }
   };
 
-  const handleImageSelect = (image: string) => {
-    console.log('ImageSelector: Wybrano zdjęcie:', image);
-    onImageSelect(image);
-    onClose();
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">Wybierz zdjęcie</h3>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -193,11 +180,11 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            disabled={uploadStatus === 'uploading'}
+            disabled={isUploading}
             className="w-full py-2 border-2 border-dashed border-gray-300 rounded-md text-gray-500 hover:border-red-500 hover:text-red-500 transition-colors flex items-center justify-center gap-2"
           >
             <FontAwesomeIcon icon={faUpload} />
-            {uploadStatus === 'uploading' ? 'Uploadowanie...' : 'Upload nowego zdjęcia'}
+            {isUploading ? 'Uploadowanie...' : 'Upload nowego zdjęcia'}
           </button>
         </div>
 
@@ -208,20 +195,21 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
             {images.map((image, index) => (
               <div
                 key={index}
-                onClick={() => handleImageSelect(image)}
-                className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 hover:border-red-500 transition-colors ${
-                  currentImage === image ? 'border-red-500' : 'border-transparent'
-                }`}
+                onClick={() => onSelect(image)}
+                className="aspect-square relative group cursor-pointer hover:opacity-90 transition-opacity bg-gray-100 rounded-lg overflow-hidden"
               >
-                <img
+                <Image
                   src={image}
-                  alt={`Gallery image ${index + 1}`}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    console.error('ImageSelector: Błąd ładowania zdjęcia:', image);
-                    e.currentTarget.src = '/images/placeholder.webp';
-                  }}
+                  alt={`Zdjęcie ${index + 1}`}
+                  fill
+                  className="object-contain p-2"
+                  sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                 />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+                  <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                    Wybierz
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -980,8 +968,7 @@ export default function ServiceAdmin() {
 
       {showImageSelector && (
         <ImageSelector
-          currentImage=""
-          onImageSelect={(image) => {
+          onSelect={(image) => {
             console.log('ServiceAdmin: Wybrano zdjęcie:', {
               showImageSelector,
               image,
