@@ -105,16 +105,17 @@ export default function Header() {
                     {item.name}
                   </Link>
                   {item.items && (
-                    <div className="absolute left-0 top-full mt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0 z-50">
-                      <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
+                    <div className="absolute left-0 top-full mt-4 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-in-out z-50">
+                      <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden transform origin-top scale-95 group-hover:scale-100 transition-all duration-200">
                         <div className="relative grid gap-4 bg-white px-5 py-6">
-                          {item.items.map((subItem) => (
+                          {item.items.map((subItem, index) => (
                             <Link
                               key={subItem.name}
                               href={subItem.href || '#'}
-                              className={`text-base hover:text-[#C62400] transition-colors duration-200 ${
+                              className={`text-base hover:text-[#C62400] transition-colors duration-200 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${
                                 pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-700'
                               }`}
+                              style={{ transitionDelay: `${index * 50}ms` }}
                             >
                               {subItem.name}
                             </Link>
@@ -129,30 +130,18 @@ export default function Header() {
 
             {/* Mobile Navigation */}
             <div
-              className={`lg:hidden fixed inset-0 transform ${
-                mobileMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+              className={`lg:hidden fixed left-0 right-0 top-[84px] transform ${
+                mobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
               } transition-all duration-300 ease-in-out z-50`}
             >
-              <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)} />
-              <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl">
-                <div className="flex items-center justify-between h-16 px-6 border-b">
-                  <span className="text-xl font-medium">Menu</span>
-                  <button
-                    type="button"
-                    className="rounded-md p-2 text-gray-700 hover:text-[#C62400] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#C62400] transition-all duration-200"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <span className="sr-only">Zamknij menu</span>
-                    <FontAwesomeIcon icon={faXmark} className="h-6 w-6" />
-                  </button>
-                </div>
-                <nav className="px-4 py-6">
+              <div className="bg-white shadow-xl">
+                <nav className="container mx-auto px-4 py-4">
                   <div className="flex flex-col space-y-4">
                     {navigation.map((item) => (
                       <div key={item.name}>
                         <Link
                           href={item.href || '#'}
-                          className={`block text-base font-medium hover:text-[#C62400] transition-colors duration-200 ${
+                          className={`block text-lg font-medium hover:text-[#C62400] transition-colors duration-200 ${
                             pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
                           }`}
                           onClick={() => setMobileMenuOpen(false)}
@@ -160,12 +149,12 @@ export default function Header() {
                           {item.name}
                         </Link>
                         {item.items && (
-                          <div className="ml-4 mt-2 space-y-2">
+                          <div className="ml-4 mt-2 space-y-3">
                             {item.items.map((subItem) => (
                               <Link
                                 key={subItem.name}
                                 href={subItem.href || '#'}
-                                className={`block text-sm hover:text-[#C62400] transition-colors duration-200 ${
+                                className={`block text-base hover:text-[#C62400] transition-colors duration-200 ${
                                   pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-600'
                                 }`}
                                 onClick={() => setMobileMenuOpen(false)}
