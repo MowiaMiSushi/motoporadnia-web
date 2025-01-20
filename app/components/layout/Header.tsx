@@ -67,10 +67,10 @@ export default function Header() {
       {/* Main Header */}
       <header className="bg-white shadow-sm fixed top-10 left-0 right-0 z-40 font-Roboto Condensed">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-start lg:items-center h-36 sm:h-36 lg:h-36 border-b-0">
+          <div className="flex justify-between items-start lg:items-center h-24 sm:h-36 lg:h-36 border-b-0">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-2 lg:pt-2">
-              <div className="w-[180px] sm:w-[200px] lg:w-[220px]">
+            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-1 sm:pt-2 lg:pt-2">
+              <div className="w-[140px] sm:w-[200px] lg:w-[220px]">
                 <Image
                   src="/images/logo.webp"
                   alt="Motoporadnia"
