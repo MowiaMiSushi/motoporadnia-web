@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
+import { faEnvelope, faPhone, faBars, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSession } from 'next-auth/react';
 
 const navigation = [
@@ -83,109 +83,105 @@ export default function Header() {
             </Link>
 
             {/* Mobile Menu Button */}
-            <div className="flex items-center h-full lg:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-700 hover:text-[#C62400] p-2"
-              >
-                {mobileMenuOpen ? (
-                  <XMarkIcon className="h-6 w-6" />
-                ) : (
-                  <Bars3Icon className="h-6 w-6" />
-                )}
-              </button>
-            </div>
+            <button
+              type="button"
+              className="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-[#C62400] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#C62400] transition-all duration-200"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <span className="sr-only">Otwórz menu</span>
+              <FontAwesomeIcon icon={faBars} className="h-6 w-6" />
+            </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex">
-              <ul className="flex space-x-12">
-                {navigation.map((item) => (
-                  item.items ? (
-                    <li key={item.name} className="relative group">
-                      <button
-                        className={`text-xl transition-all duration-300 font-serif transform hover:scale-105
-                          ${pathname.startsWith('/' + item.name.toLowerCase())
-                            ? 'text-[#C62400]'
-                            : 'text-gray-700 hover:text-[#C62400]'
-                          }`}
-                      >
-                        {item.name}
-                      </button>
-                      <ul className="absolute left-0 mt-2 w-64 bg-white rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                        {item.items.map((subItem) => (
-                          <li key={subItem.name}>
+            <nav className="hidden lg:flex space-x-8">
+              {navigation.map((item) => (
+                <div key={item.name} className="relative group">
+                  <Link
+                    href={item.href || '#'}
+                    className={`text-base font-medium hover:text-[#C62400] transition-colors duration-200 ${
+                      pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
+                    }`}
+                  >
+                    {item.name}
+                  </Link>
+                  {item.items && (
+                    <div className="absolute left-0 mt-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-1 group-hover:translate-y-0">
+                      <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
+                        <div className="relative grid gap-6 bg-white px-5 py-6">
+                          {item.items.map((subItem) => (
                             <Link
-                              href={subItem.href}
-                              className="block px-4 py-2 text-base text-gray-700 hover:bg-gray-50 hover:text-[#C62400] transform hover:scale-105 transition-all duration-300"
+                              key={subItem.name}
+                              href={subItem.href || '#'}
+                              className={`text-sm hover:text-[#C62400] transition-colors duration-200 ${
+                                pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-700'
+                              }`}
                             >
                               {subItem.name}
                             </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  ) : (
-                    <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        className={`text-xl transition-all duration-300 font-serif transform hover:scale-105 inline-block
-                          ${pathname === item.href
-                            ? 'text-[#C62400]'
-                            : 'text-gray-700 hover:text-[#C62400]'
-                          }`}
-                      >
-                        {item.name}
-                      </Link>
-                    </li>
-                  )
-                ))}
-              </ul>
-            </nav>
-          </div>
-
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-gray-100">
-              <ul className="space-y-4">
-                {navigation.map((item) => (
-                  <li key={item.name}>
-                    {item.items ? (
-                      <div className="space-y-2">
-                        <div className="font-serif text-lg text-gray-700 px-2">
-                          {item.name}
+                          ))}
                         </div>
-                        <ul className="pl-4 space-y-2">
-                          {item.items.map((subItem) => (
-                            <li key={subItem.name}>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
+
+            {/* Mobile Navigation */}
+            <div
+              className={`lg:hidden fixed inset-0 transform ${
+                mobileMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+              } transition-all duration-300 ease-in-out z-50`}
+            >
+              <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)} />
+              <div className="absolute inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl">
+                <div className="flex items-center justify-between h-16 px-6 border-b">
+                  <span className="text-xl font-medium">Menu</span>
+                  <button
+                    type="button"
+                    className="rounded-md p-2 text-gray-700 hover:text-[#C62400] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#C62400] transition-all duration-200"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span className="sr-only">Zamknij menu</span>
+                    <FontAwesomeIcon icon={faXmark} className="h-6 w-6" />
+                  </button>
+                </div>
+                <nav className="px-4 py-6">
+                  <div className="flex flex-col space-y-4">
+                    {navigation.map((item) => (
+                      <div key={item.name}>
+                        <Link
+                          href={item.href || '#'}
+                          className={`block text-base font-medium hover:text-[#C62400] transition-colors duration-200 ${
+                            pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
+                          }`}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {item.name}
+                        </Link>
+                        {item.items && (
+                          <div className="ml-4 mt-2 space-y-2">
+                            {item.items.map((subItem) => (
                               <Link
-                                href={subItem.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`block text-base text-gray-600 hover:text-[#C62400] ${
-                                  pathname === subItem.href ? 'text-[#C62400]' : ''
+                                key={subItem.name}
+                                href={subItem.href || '#'}
+                                className={`block text-sm hover:text-[#C62400] transition-colors duration-200 ${
+                                  pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-600'
                                 }`}
+                                onClick={() => setMobileMenuOpen(false)}
                               >
                                 {subItem.name}
                               </Link>
-                            </li>
-                          ))}
-                        </ul>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    ) : (
-                      <Link
-                        href={item.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`block font-serif text-lg hover:text-[#C62400] ${
-                          pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
-                        }`}
-                      >
-                        {item.name}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                    ))}
+                  </div>
+                </nav>
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </header>
     </>
