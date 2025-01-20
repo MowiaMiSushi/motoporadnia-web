@@ -99,7 +99,7 @@ export default function Header() {
                   <Link
                     href={item.href || '#'}
                     className={`text-xl font-medium hover:text-[#C62400] transition-colors duration-200 ${
-                      pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
+                      pathname === item.href ? 'text-[#C62400] drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]' : 'text-gray-700 hover:drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]'
                     }`}
                   >
                     {item.name}
@@ -113,7 +113,7 @@ export default function Header() {
                               key={subItem.name}
                               href={subItem.href || '#'}
                               className={`text-base hover:text-[#C62400] transition-all duration-200 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 ${
-                                pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-700'
+                                pathname === subItem.href ? 'text-[#C62400] drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]' : 'text-gray-700 hover:drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]'
                               }`}
                               style={{ transitionDelay: `${index * 75}ms` }}
                             >
@@ -150,7 +150,7 @@ export default function Header() {
                         <Link
                           href={item.href || '#'}
                           className={`block text-lg font-medium hover:text-[#C62400] transition-colors duration-200 ${
-                            pathname === item.href ? 'text-[#C62400]' : 'text-gray-700'
+                            pathname === item.href ? 'text-[#C62400] drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]' : 'text-gray-700 hover:drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]'
                           }`}
                           onClick={() => setMobileMenuOpen(false)}
                         >
@@ -163,7 +163,7 @@ export default function Header() {
                                 key={subItem.name}
                                 href={subItem.href || '#'}
                                 className={`block text-base hover:text-[#C62400] transition-colors duration-200 ${
-                                  pathname === subItem.href ? 'text-[#C62400]' : 'text-gray-600'
+                                  pathname === subItem.href ? 'text-[#C62400] drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]' : 'text-gray-600 hover:drop-shadow-[0_0_1px_rgba(198,36,0,0.3)]'
                                 }`}
                                 onClick={() => setMobileMenuOpen(false)}
                               >
