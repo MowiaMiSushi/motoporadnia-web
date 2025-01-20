@@ -224,7 +224,7 @@ export default function Serwis() {
                                 className="group bg-white rounded-lg shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-150 hover:z-50 relative"
                             >
                                 <h3 className="text-lg font-semibold p-2 text-center bg-gray-50">{brand.name}</h3>
-                                <div className="relative h-28 w-full">
+                                <div className="relative h-40 w-full">
                                     <Image
                                         src={brand.image}
                                         alt={`Logo ${brand.name}`}
@@ -235,7 +235,7 @@ export default function Serwis() {
                                 {brand.hoverImages && brand.hoverImages.length > 0 && (
                                     <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col">
                                         <h3 className="text-lg font-semibold p-2 text-center bg-gray-50">{brand.name}</h3>
-                                        <div className="flex-1 relative">
+                                        <div className="flex-1 relative min-h-[160px]">
                                             <Image
                                                 src={brand.hoverImages[0]}
                                                 alt={`${brand.name} serwis`}

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faSave, faGripVertical, faChevronDown, faChevronUp, faImage, faUpload, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { toast } from 'react-toastify';
+import { toast } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -100,12 +100,15 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
             setImages(processedImages);
           } else {
             console.error('ImageSelector: Nieprawidłowy format danych:', data);
+            toast.error('Błąd podczas ładowania zdjęć');
           }
         } else {
           console.error('ImageSelector: Błąd pobierania zdjęć:', response.status);
+          toast.error('Nie udało się załadować zdjęć');
         }
       } catch (error) {
         console.error('ImageSelector: Error fetching images:', error);
+        toast.error('Wystąpił błąd podczas ładowania zdjęć');
       } finally {
         setIsLoading(false);
       }
@@ -117,6 +120,12 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // Sprawdź rozmiar pliku (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Plik jest zbyt duży. Maksymalny rozmiar to 5MB');
+      return;
+    }
 
     console.log('ImageSelector: Rozpoczynam upload pliku:', file.name);
     setUploadStatus('uploading');
@@ -132,11 +141,15 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
       if (response.ok) {
         const data = await response.json();
         console.log('ImageSelector: Upload zakończony sukcesem:', data);
-        const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
-        setImages(prev => [...prev, imageUrl]);
-        handleImageSelect(imageUrl);
-        setUploadStatus('success');
-        toast.success('Zdjęcie zostało dodane');
+        if (data.url) {
+          const imageUrl = data.url.startsWith('/') ? data.url : `/${data.url}`;
+          setImages(prev => [...prev, imageUrl]);
+          handleImageSelect(imageUrl);
+          setUploadStatus('success');
+          toast.success('Zdjęcie zostało dodane');
+        } else {
+          throw new Error('Brak URL-a w odpowiedzi');
+        }
       } else {
         console.error('ImageSelector: Błąd podczas uploadu:', response.status);
         setUploadStatus('error');
@@ -145,7 +158,12 @@ const ImageSelector = ({ currentImage, onImageSelect, onClose }: ImageSelectorPr
     } catch (error) {
       console.error('ImageSelector: Błąd podczas uploadu:', error);
       setUploadStatus('error');
-      toast.error('Błąd podczas dodawania zdjęcia');
+      toast.error('Nie udało się dodać zdjęcia');
+    } finally {
+      setUploadStatus('idle');
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -960,26 +978,9 @@ export default function ServiceAdmin() {
           </div>
       </div>
 
-      {(showImageSelector !== null && content) && (
+      {showImageSelector && (
         <ImageSelector
-          currentImage={
-            typeof showImageSelector === 'string' && showImageSelector.startsWith('hero-')
-              ? content.hero.images[parseInt(showImageSelector.replace('hero-', ''))]
-              : typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-logo-')
-              ? content.brands[parseInt(showImageSelector.replace('brand-logo-', ''))].image
-              : typeof showImageSelector === 'string' && showImageSelector.startsWith('brand-hover-')
-              ? (() => {
-                  const [_, brandIndex, imageIndex] = showImageSelector.match(/brand-hover-(\d+)-(\d+)/)!.slice(1);
-                  const brand = content.brands[parseInt(brandIndex)];
-                  console.log('ServiceAdmin: Pobieranie aktualnego hover image:', {
-                    brandIndex,
-                    imageIndex,
-                    brand
-                  });
-                  return brand.hoverImages?.[parseInt(imageIndex)] || '';
-                })()
-              : ''
-          }
+          currentImage=""
           onImageSelect={(image) => {
             console.log('ServiceAdmin: Wybrano zdjęcie:', {
               showImageSelector,
@@ -1020,12 +1021,8 @@ export default function ServiceAdmin() {
               }
             }
             
-            console.log('ServiceAdmin: Aktualizacja stanu:', {
-              contentAfter: JSON.stringify(newContent, null, 2)
-            });
-            
             setContent(newContent);
-            setShowImageSelector(null);
+            console.log('ServiceAdmin: Zaktualizowano content:', JSON.stringify(newContent, null, 2));
           }}
           onClose={() => setShowImageSelector(null)}
         />
