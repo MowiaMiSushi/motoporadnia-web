@@ -47,16 +47,16 @@ export default function Header() {
             <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-1 sm:space-y-0 items-center">
               <a 
                 href="mailto:kontakt@motoporadnia.pl" 
-                className="text-sm text-gray-600 hover:text-[#C62400] flex items-center gap-2"
+                className="text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
               >
-                <FontAwesomeIcon icon={faEnvelope} className="text-[#C62400] text-base" />
+                <FontAwesomeIcon icon={faEnvelope} className="text-[#C62400] text-lg" />
                 kontakt@motoporadnia.pl
               </a>
               <a 
                 href="tel:789059578" 
-                className="text-sm text-gray-600 hover:text-[#C62400] flex items-center gap-2"
+                className="text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
               >
-                <FontAwesomeIcon icon={faPhone} className="text-[#C62400] text-base" />
+                <FontAwesomeIcon icon={faPhone} className="text-[#C62400] text-lg" />
                 789 059 578
               </a>
             </div>
@@ -69,7 +69,7 @@ export default function Header() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-start lg:items-center h-32 sm:h-32 lg:h-32 border-b-0">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-2 lg:pt-0">
+            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-4 lg:pt-4">
               <div className="w-[180px] sm:w-[200px] lg:w-[220px]">
                 <Image
                   src="/images/logo.webp"
