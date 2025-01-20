@@ -1,8 +1,30 @@
 import { NextResponse } from 'next/server';
-import { readdirSync } from 'fs';
+import { readdirSync, statSync } from 'fs';
 import path from 'path';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+
+// Funkcja rekurencyjnie przeszukująca katalogi
+function getAllImages(dir: string, baseDir: string): string[] {
+  const files = readdirSync(dir);
+  let images: string[] = [];
+
+  for (const file of files) {
+    const filePath = path.join(dir, file);
+    const stat = statSync(filePath);
+
+    if (stat.isDirectory()) {
+      // Rekurencyjnie przeszukuj podkatalogi
+      images = images.concat(getAllImages(filePath, baseDir));
+    } else if (/\.(jpg|jpeg|png|webp)$/i.test(file)) {
+      // Twórz względną ścieżkę od katalogu bazowego
+      const relativePath = path.relative(baseDir, filePath);
+      images.push(`/images/${relativePath.replace(/\\/g, '/')}`);
+    }
+  }
+
+  return images;
+}
 
 export async function GET() {
   try {
@@ -19,13 +41,8 @@ export async function GET() {
     const imagesDirectory = path.join(process.cwd(), 'public', 'images');
     console.log('Reading directory:', imagesDirectory);
     
-    // Pobierz listę plików
-    const files = readdirSync(imagesDirectory, { withFileTypes: true });
-    
-    // Filtruj tylko pliki obrazów i twórz ścieżki względne
-    const images = files
-      .filter(file => file.isFile() && /\.(jpg|jpeg|png|webp)$/i.test(file.name))
-      .map(file => `/images/${file.name}`);
+    // Pobierz wszystkie obrazy rekurencyjnie
+    const images = getAllImages(imagesDirectory, path.join(process.cwd(), 'public'));
 
     console.log('Found images:', images);
 
