@@ -217,7 +217,7 @@ export default function Serwis() {
             <section className="py-16 bg-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold text-center mb-12">Obsługiwane marki</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8">
                         {content.brands.map((brand) => (
                             <BrandCard key={brand.name} brand={brand} />
                         ))}

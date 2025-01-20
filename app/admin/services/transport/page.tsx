@@ -6,6 +6,7 @@ import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 
+
 interface MainSection {
   title: string;
   description: string;

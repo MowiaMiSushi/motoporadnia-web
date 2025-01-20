@@ -6,7 +6,7 @@ import { showNotification } from '@/app/components/ui/Notification';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faPlus, faGripVertical, faImage } from '@fortawesome/free-solid-svg-icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import ImageSelector from '@/app/components/ImageSelector';
+import ImageSelector from '../../../components/ImageSelector';
 
 interface Training {
   id: string;
