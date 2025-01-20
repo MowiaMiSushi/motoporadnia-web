@@ -216,10 +216,23 @@ export default function Serwis() {
             {/* Marki jakie obsługujemy */}
             <section className="py-16 bg-white">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-3xl font-bold text-center mb-12">Obsługiwane marki</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-8">
+                    <h2 className="text-3xl font-bold text-center mb-12">Marki jakie obsługujemy</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
                         {content.brands.map((brand) => (
-                            <BrandCard key={brand.name} brand={brand} />
+                            <div 
+                                key={brand.name}
+                                className="group bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative z-10"
+                            >
+                                <h3 className="text-lg font-semibold p-3 text-center border-b truncate">{brand.name}</h3>
+                                <div className="relative h-32 w-full group-hover:scale-[2] transition-transform duration-300 origin-center">
+                                    <Image
+                                        src={brand.image}
+                                        alt={`Logo ${brand.name}`}
+                                        fill
+                                        className="object-contain p-4"
+                                    />
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>
