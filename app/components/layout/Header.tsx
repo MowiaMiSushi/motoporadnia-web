@@ -41,22 +41,22 @@ export default function Header() {
   return (
     <>
       {/* Top Bar */}
-      <div className="bg-white fixed top-0 left-0 right-0 z-50 border-b border-gray-100" style={{ height: '40px' }}>
+      <div className="bg-white fixed top-0 left-0 right-0 z-50 border-b border-gray-100" style={{ height: '60px' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-center items-center h-auto sm:h-10 py-1 sm:py-0">
+          <div className="flex flex-col sm:flex-row justify-center items-center h-full py-1">
             <div className="flex flex-col sm:flex-row sm:space-x-8 space-y-1 sm:space-y-0 items-center">
               <a 
                 href="mailto:kontakt@motoporadnia.pl" 
-                className="text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
+                className="text-sm sm:text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
               >
-                <FontAwesomeIcon icon={faEnvelope} className="text-[#C62400] text-lg" />
+                <FontAwesomeIcon icon={faEnvelope} className="text-[#C62400] text-base sm:text-lg" />
                 kontakt@motoporadnia.pl
               </a>
               <a 
                 href="tel:789059578" 
-                className="text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
+                className="text-sm sm:text-base text-gray-600 hover:text-[#C62400] flex items-center gap-2"
               >
-                <FontAwesomeIcon icon={faPhone} className="text-[#C62400] text-lg" />
+                <FontAwesomeIcon icon={faPhone} className="text-[#C62400] text-base sm:text-lg" />
                 789 059 578
               </a>
             </div>
@@ -65,12 +65,12 @@ export default function Header() {
       </div>
 
       {/* Main Header */}
-      <header className="bg-white shadow-sm fixed top-10 left-0 right-0 z-40 font-Roboto Condensed">
+      <header className="bg-white shadow-sm fixed top-[60px] left-0 right-0 z-40 font-Roboto Condensed">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-start lg:items-center h-24 sm:h-36 lg:h-36 border-b-0">
+          <div className="flex justify-between items-start lg:items-center h-20 sm:h-36 lg:h-36 border-b-0">
             {/* Logo */}
-            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-1 sm:pt-2 lg:pt-2">
-              <div className="w-[140px] sm:w-[200px] lg:w-[220px]">
+            <Link href="/" className="flex-shrink-0 transform hover:scale-105 transition-transform duration-300 pt-2 sm:pt-2 lg:pt-2">
+              <div className="w-[130px] sm:w-[200px] lg:w-[220px]">
                 <Image
                   src="/images/logo.webp"
                   alt="Motoporadnia"
