@@ -12,7 +12,7 @@ export default function AdminLayout({
     <AdminAuthCheck>
       <div className="min-h-screen bg-gray-100">
         <AdminNav />
-        <main className="px-4 mt-4">
+        <main>
           {children}
         </main>
       </div>

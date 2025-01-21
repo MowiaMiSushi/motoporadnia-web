@@ -10,7 +10,7 @@ export default function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white shadow-md">
+    <nav className="bg-white shadow-md mt-[84px]">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-wrap items-center justify-between h-14">
           <Link
