@@ -19,24 +19,35 @@ export const authOptions: AuthOptions = {
       },
       async authorize(credentials: Credentials | undefined) {
         try {
+          console.log('Rozpoczęcie procesu autoryzacji');
+          
           if (!credentials?.username || !credentials?.password) {
+            console.log('Brak nazwy użytkownika lub hasła');
             throw new Error('Wprowadź login i hasło');
           }
 
+          console.log('Próba połączenia z bazą danych');
           const { db } = await connectToDatabase();
+          
+          console.log('Szukam użytkownika:', credentials.username);
           const user = await db.collection('users').findOne({
             username: credentials.username,
           });
 
           if (!user) {
+            console.log('Nie znaleziono użytkownika');
             throw new Error('Nieprawidłowy login lub hasło');
           }
 
+          console.log('Użytkownik znaleziony, sprawdzam hasło');
           const isValid = await compare(credentials.password, user.password);
+          
           if (!isValid) {
+            console.log('Nieprawidłowe hasło');
             throw new Error('Nieprawidłowy login lub hasło');
           }
 
+          console.log('Logowanie udane');
           return {
             id: user._id.toString(),
             name: user.username,
